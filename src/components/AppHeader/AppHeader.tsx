@@ -1,13 +1,15 @@
 import React from "react";
-import { Nav, Navbar, NavDropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import './AppHeader.css';
 
 export const AppHeader: React.FunctionComponent<any> = (props) => {
 
     return (
-        <Navbar fixed="top" expand="md" variant="dark" bg="dark" className="p-0 shadow">
-            <Navbar.Brand className={(process.env.REACT_APP_TEST_SYS ? "test " : "") + "col-xs-1 col-sm-3 col-md-2 mr-0"}>Weekly Activity Report</Navbar.Brand>
+        <Navbar expand="md" variant="dark" bg="dark" className="p-0 shadow m-0">
+            <Navbar.Brand className={(process.env.REACT_APP_TEST_SYS ? "test " : "") + "col-md-3 mr-0"}>
+                Requirements Request Manager
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
@@ -16,11 +18,11 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                     </LinkContainer>
                     <NavDropdown title="Reports" id="basic-nav-dropdown">
                         <LinkContainer to="/Requests">
-                            <NavDropdown.Item>Activities</NavDropdown.Item>
+                            <NavDropdown.Item>Requests</NavDropdown.Item>
                         </LinkContainer>
                         <NavDropdown.Divider />
                         <LinkContainer to="/Not Implemented Yet">
-                            <NavDropdown.Item>WAR</NavDropdown.Item>
+                            <NavDropdown.Item>Not Implemented Yet</NavDropdown.Item>
                         </LinkContainer>
                     </NavDropdown>
                     <OverlayTrigger
@@ -29,12 +31,12 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                         overlay={
                             <Tooltip id="ContactUsNavTooltip">
                                 Submit feedback, bug reports, or just say hello!
-							    </Tooltip>
+							</Tooltip>
                         }
                     >
-                        <button className="nav-link link-button">
+                        <Button className="nav-link link-button">
                             Contact Us
-						</button>
+						</Button>
                     </OverlayTrigger>
                     <LinkContainer to="/RoleManagement">
                         <Nav.Link>Admin</Nav.Link>

@@ -1,5 +1,5 @@
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
-import { IRequirementsRequest } from "./DomainObjects";
+import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities } from "./DomainObjects";
 
 interface ISubmitRequirementsRequest {
     Id?: string,
@@ -15,16 +15,16 @@ interface ISubmitRequirementsRequest {
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
-    RequirementType: "New Capability" | "Modification to exiting capability" | "Functional" | "Non - Functional",
+    RequirementType: RequirementTypes,
     FundingOrgOrPEO: string,
-    ApplicationNeeded: "CCaR" | "CPE" | "DAPR" | "MAR" | "PMRT" | "PMRT-EA" | "RIT" | "SharePoint" | "SRM" | "Other",
+    ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
     IsProjectedOrgsEnterprise: boolean,
-    ProjectedOrgsImpactedCenter: "AFIMSC" | "AFLCMC" | "AFNWC" | "AFSC" | "AFTC" | "SMC",
+    ProjectedOrgsImpactedCenter: Centers,
     ProjectedOrgsImpactedOrg: string,
     ProjectedImpactedUsers: number,
     OperationalNeedDate: string,
-    OrgPriority: "High" | "Medium" | "Low",
+    OrgPriority: OrgPriorities,
     PriorityExplanation: string,
     BusinessObjective: string,
     FunctionalRequirements: string,

@@ -1,5 +1,5 @@
 import moment from "moment";
-import { IRequirementsRequest } from "./DomainObjects";
+import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities } from "./DomainObjects";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
@@ -27,16 +27,16 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             PEOOrgSymbol: "OZI",
             PEO_DSNPhone: "1234567890",
             PEO_CommPhone: "1234567890",
-            RequirementType: "New Capability",
+            RequirementType: RequirementTypes.NEW_CAP,
             FundingOrgOrPEO: "OZI",
-            ApplicationNeeded: "CCaR",
+            ApplicationNeeded: ApplicationTypes.CCaR,
             OtherApplicationNeeded: "",
             IsProjectedOrgsEnterprise: false,
-            ProjectedOrgsImpactedCenter: "AFIMSC",
+            ProjectedOrgsImpactedCenter: Centers.AFIMSC,
             ProjectedOrgsImpactedOrg: "OZIC",
             ProjectedImpactedUsers: 12,
             OperationalNeedDate: moment(),
-            OrgPriority: "Medium",
+            OrgPriority: OrgPriorities.MEDIUM,
             PriorityExplanation: "It's pretty medium, low is too low and high is too high.",
             BusinessObjective: "We want a thing to do the thing.",
             FunctionalRequirements: "It definitely has to do the thing.",
@@ -66,16 +66,16 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             PEOOrgSymbol: "OZI",
             PEO_DSNPhone: "1234567890",
             PEO_CommPhone: "1234567890",
-            RequirementType: "New Capability",
+            RequirementType: RequirementTypes.NEW_CAP,
             FundingOrgOrPEO: "OZI",
-            ApplicationNeeded: "SharePoint",
+            ApplicationNeeded: ApplicationTypes.SHAREPOINT,
             OtherApplicationNeeded: "",
             IsProjectedOrgsEnterprise: false,
-            ProjectedOrgsImpactedCenter: "AFLCMC",
+            ProjectedOrgsImpactedCenter: Centers.AFLCMC,
             ProjectedOrgsImpactedOrg: "OZIC",
             ProjectedImpactedUsers: 50,
             OperationalNeedDate: moment(),
-            OrgPriority: "High",
+            OrgPriority: OrgPriorities.HIGH,
             PriorityExplanation: "It's super important, we can't live without it.",
             BusinessObjective: "We want a thing to do the thing.",
             FunctionalRequirements: "It definitely has to do the thing.",
