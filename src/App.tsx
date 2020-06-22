@@ -1,25 +1,22 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Container } from 'react-bootstrap';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
+import { AppHeader } from './AppHeader/AppHeader';
+import { RequestForm } from './components/RequestForm/RequestForm';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container className="App">
+      <AppHeader />
+      <HashRouter>
+        <Switch>
+          <Route path="/Requests/new">
+            <RequestForm />
+          </Route>
+        </Switch>
+      </HashRouter>
+    </Container>
   );
 }
 
