@@ -1,8 +1,9 @@
 .app-container {
+  position: absolute;
   margin-left: 15%;
   margin-right: 15%;
   width: 70%;
-  height: 100%;
+  min-height: 100%;
   text-align: center;
   background-color: white;
 }
