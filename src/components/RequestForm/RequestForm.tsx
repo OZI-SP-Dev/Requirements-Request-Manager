@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Col, Container, Form, Row } from "react-bootstrap";
-import { getEmptyRequirementsRequest, IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers } from "../../api/DomainObjects";
+import { Col, Container, Form } from "react-bootstrap";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
-import './RequestForm.css'
+import './RequestForm.css';
 
 export const RequestForm: React.FunctionComponent<any> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequest>(getEmptyRequirementsRequest());
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
 
     const updateRequest = (fieldUpdating: string, newValue: any): void => {

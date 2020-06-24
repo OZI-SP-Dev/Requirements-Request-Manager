@@ -1,5 +1,5 @@
-import { Moment } from 'moment';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
+import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from './RequirementsRequestsApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",
@@ -76,44 +76,72 @@ export interface IRequirementsRequest {
     AdditionalInfo: string
 }
 
-export const getEmptyRequirementsRequest = (): IRequirementsRequest => {
-    return {
+export interface IRequirementsRequestCRUD extends IRequirementsRequest {
+    getUpdated: () => Promise<IRequirementsRequestCRUD | null | undefined>,
+    save: () => Promise<IRequirementsRequest> | null | undefined,
+    delete: () => void
+}
+
+export class RequirementsRequest implements IRequirementsRequestCRUD {
+
+    api: IRequirementsRequestApi
+
+    Id = ""
+    Title = ""
+    RequestDate = moment()
+    ReceivedDate = moment()
+    Requester = {
         Id: "",
         Title: "",
-        RequestDate: moment(),
-        ReceivedDate: moment(),
-        Requester: {
-            Id: "",
-            Title: "",
-            Email: ""
-        },
-        RequesterOrgSymbol: "",
-        RequesterDSNPhone: "",
-        RequesterCommPhone: "",
-        ApprovingPEO: {
-            Id: "",
-            Title: "",
-            Email: ""
-        },
-        PEOApprovedDate: moment(),
-        PEOOrgSymbol: "",
-        PEO_DSNPhone: "",
-        PEO_CommPhone: "",
-        RequirementType: RequirementTypes.NEW_CAP,
-        FundingOrgOrPEO: "",
-        ApplicationNeeded: ApplicationTypes.CCaR,
-        OtherApplicationNeeded: "",
-        IsProjectedOrgsEnterprise: false,
-        ProjectedOrgsImpactedCenter: Centers.AFIMSC,
-        ProjectedOrgsImpactedOrg: "",
-        ProjectedImpactedUsers: 0,
-        OperationalNeedDate: moment(),
-        OrgPriority: OrgPriorities.LOW,
-        PriorityExplanation: "",
-        BusinessObjective: "",
-        FunctionalRequirements: "",
-        Benefits: "",
-        Risk: "",
-        AdditionalInfo: ""
+        Email: ""
+    }
+    RequesterOrgSymbol = ""
+    RequesterDSNPhone = ""
+    RequesterCommPhone = ""
+    ApprovingPEO = {
+        Id: "",
+        Title: "",
+        Email: ""
+    }
+    PEOApprovedDate = moment()
+    PEOOrgSymbol = ""
+    PEO_DSNPhone = ""
+    PEO_CommPhone = ""
+    RequirementType = RequirementTypes.NEW_CAP
+    FundingOrgOrPEO = ""
+    ApplicationNeeded = ApplicationTypes.CCaR
+    OtherApplicationNeeded = ""
+    IsProjectedOrgsEnterprise = false
+    ProjectedOrgsImpactedCenter = Centers.AFIMSC
+    ProjectedOrgsImpactedOrg = ""
+    ProjectedImpactedUsers = 0
+    OperationalNeedDate = moment()
+    OrgPriority = OrgPriorities.LOW
+    PriorityExplanation = ""
+    BusinessObjective = ""
+    FunctionalRequirements = ""
+    Benefits = ""
+    Risk = ""
+    AdditionalInfo = ""
+
+    constructor(request?: IRequirementsRequest, api?: IRequirementsRequestApi) {
+        if (request) {
+            Object.assign(this, request);
+        }
+        this.api = api ? api : RequirementsRequestsApiConfig.requirementsRequestsApi;
+    }
+
+    getUpdated = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {
+        return this.Id && parseInt(this.Id) > -1 ? await this.api.fetchRequirementsRequestById(this.Id) : this;
+    }
+
+    save = (): Promise<IRequirementsRequest> | null | undefined => {
+        return this.api.submitRequirementsRequest(this);
+    }
+    
+    delete = (): void => {
+        if (this.Id && parseInt(this.Id) > -1) {
+            this.api.deleteRequirementsRequest(this);
+        }
     }
 }

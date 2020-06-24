@@ -1,39 +1,39 @@
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
-import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities } from "./DomainObjects";
+import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities, IRequirementsRequestCRUD } from "./DomainObjects";
 
 interface ISubmitRequirementsRequest {
-    Id?: string,
-    Title: string,
-    RequestDate: string,
-    ReceivedDate: string,
-    RequesterId: string,
-    RequesterOrgSymbol: string,
-    RequesterDSNPhone: string,
-    RequesterCommPhone: string,
-    ApprovingPEOId: string,
-    PEOApprovedDate: string,
-    PEOOrgSymbol: string,
-    PEO_DSNPhone: string,
-    PEO_CommPhone: string,
-    RequirementType: RequirementTypes,
-    FundingOrgOrPEO: string,
-    ApplicationNeeded: ApplicationTypes,
-    OtherApplicationNeeded: string,
-    IsProjectedOrgsEnterprise: boolean,
-    ProjectedOrgsImpactedCenter: Centers,
-    ProjectedOrgsImpactedOrg: string,
-    ProjectedImpactedUsers: number,
-    OperationalNeedDate: string,
-    OrgPriority: OrgPriorities,
-    PriorityExplanation: string,
-    BusinessObjective: string,
-    FunctionalRequirements: string,
-    Benefits: string,
-    Risk: string,
+    Id?: string
+    Title: string
+    RequestDate: string
+    ReceivedDate: string
+    RequesterId: string
+    RequesterOrgSymbol: string
+    RequesterDSNPhone: string
+    RequesterCommPhone: string
+    ApprovingPEOId: string
+    PEOApprovedDate: string
+    PEOOrgSymbol: string
+    PEO_DSNPhone: string
+    PEO_CommPhone: string
+    RequirementType: RequirementTypes
+    FundingOrgOrPEO: string
+    ApplicationNeeded: ApplicationTypes
+    OtherApplicationNeeded: string
+    IsProjectedOrgsEnterprise: boolean
+    ProjectedOrgsImpactedCenter: Centers
+    ProjectedOrgsImpactedOrg: string
+    ProjectedImpactedUsers: number
+    OperationalNeedDate: string
+    OrgPriority: OrgPriorities
+    PriorityExplanation: string
+    BusinessObjective: string
+    FunctionalRequirements: string
+    Benefits: string
+    Risk: string
     AdditionalInfo: string
 }
 
-const mapDomainRequestToDTORequest = (request: IRequirementsRequest): ISubmitRequirementsRequest => {
+const getSubmitRequirementsRequest = (request: IRequirementsRequest): ISubmitRequirementsRequest => {
     return {
         Id: request.Id,
         Title: request.Title,
@@ -68,18 +68,28 @@ const mapDomainRequestToDTORequest = (request: IRequirementsRequest): ISubmitReq
 }
 
 export interface IRequirementsRequestApi {
-    fetchRequirementsRequests(): Promise<IRequirementsRequest[]>
-    submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequest>;
+    fetchRequirementsRequestById(Id: string): Promise<IRequirementsRequestCRUD | null | undefined>,
+    fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]>,
+    submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD>,
+    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): void
 }
 
 export default class RequirementsRequestsApi implements IRequirementsRequestApi {
-    fetchRequirementsRequests(): Promise<IRequirementsRequest[]> {
-        throw new Error("Method not implemented.");
-    }
-    submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequest> {
+    fetchRequirementsRequestById(Id: string): Promise<IRequirementsRequestCRUD> {
         throw new Error("Method not implemented.");
     }
 
+    fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
+        throw new Error("Method not implemented.");
+    }
+
+    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): void {
+        throw new Error("Method not implemented.");
+    }
 }
 
 export class RequirementsRequestsApiConfig {
