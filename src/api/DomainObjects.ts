@@ -128,7 +128,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         if (request) {
             Object.assign(this, request);
         }
-        this.api = api ? api : RequirementsRequestsApiConfig.requirementsRequestsApi;
+        this.api = api ? api : RequirementsRequestsApiConfig.getApi();
     }
 
     getUpdated = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {

@@ -1,5 +1,5 @@
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementTypes } from "./DomainObjects";
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
-import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities, IRequirementsRequestCRUD } from "./DomainObjects";
 
 interface ISubmitRequirementsRequest {
     Id?: string
@@ -93,5 +93,12 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 }
 
 export class RequirementsRequestsApiConfig {
-    static requirementsRequestsApi: IRequirementsRequestApi = process.env.NODE_ENV === 'development' ? new RequirementsRequestsApiDev() : new RequirementsRequestsApi();
+    private static requirementsRequestsApi: IRequirementsRequestApi
+
+    static getApi(): IRequirementsRequestApi {
+        if (!this.requirementsRequestsApi) {
+            this.requirementsRequestsApi = process.env.NODE_ENV === 'development' ? new RequirementsRequestsApiDev() : new RequirementsRequestsApi();
+        }
+        return this.requirementsRequestsApi;
+    }
 }
