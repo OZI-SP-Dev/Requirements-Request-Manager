@@ -3,5 +3,5 @@
 }
 
 .request-vertical-center {
-    vertical-align: middle;
+    align-self: center;
 }
