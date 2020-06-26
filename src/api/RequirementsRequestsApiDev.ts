@@ -9,7 +9,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
     constructor() {
         this.requests = [
             new RequirementsRequest({
-                Id: "1",
+                Id: 1,
                 Title: "Test1",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
@@ -46,9 +46,10 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Benefits: "It will do the thing so that we don't have to.",
                 Risk: "We will forget how to do the thing.",
                 AdditionalInfo: "We <3 you guys.",
+                "odata.etag": "1"
             }, this),
             new RequirementsRequest({
-                Id: "2",
+                Id: 2,
                 Title: "Test2",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
@@ -85,6 +86,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Benefits: "It will do the thing so that we don't have to.",
                 Risk: "We will forget how to do the thing.",
                 AdditionalInfo: "We <3 you guys.",
+                "odata.etag": "2"
             }, this)
         ]
     }
@@ -95,7 +97,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         return new Promise(r => setTimeout(r, 1500));
     }
 
-    async fetchRequirementsRequestById(Id: string): Promise<IRequirementsRequestCRUD | null | undefined> {
+    async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | null | undefined> {
         this.sleep();
         return this.requests.find(request => request.Id === Id);
     }
@@ -112,15 +114,16 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         if (oldIndex > -1) {
             this.requests[oldIndex] = newRequest;
         } else {
-            newRequest.Id = (++this.maxId).toString();
+            newRequest.Id = ++this.maxId;
             this.requests.push(newRequest);
         }
         return newRequest;
     }
 
-    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): void {
+    async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
         this.sleep();
         this.requests.filter(request => request.Id !== requirementsRequest.Id);
+        return;
     }
 
 }

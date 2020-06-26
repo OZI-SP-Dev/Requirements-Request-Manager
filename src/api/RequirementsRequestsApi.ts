@@ -1,8 +1,10 @@
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementTypes } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementTypes, RequirementsRequest } from "./DomainObjects";
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
+import { spWebContext } from "../providers/SPWebContext";
+import moment from "moment";
 
 interface ISubmitRequirementsRequest {
-    Id?: string
+    Id?: number
     Title: string
     RequestDate: string
     ReceivedDate: string
@@ -31,6 +33,47 @@ interface ISubmitRequirementsRequest {
     Benefits: string
     Risk: string
     AdditionalInfo: string
+}
+
+interface SPRequirementsRequest {
+    Id: number,
+    Title: string,
+    RequestDate: string,
+    ReceivedDate: string,
+    Requester: {
+        Id: string,
+        Title: string,
+        Email: string
+    },
+    RequesterOrgSymbol: string,
+    RequesterDSNPhone: string,
+    RequesterCommPhone: string,
+    ApprovingPEO: {
+        Id: string,
+        Title: string,
+        Email: string
+    },
+    PEOApprovedDate: string,
+    PEOOrgSymbol: string,
+    PEO_DSNPhone: string,
+    PEO_CommPhone: string,
+    RequirementType: RequirementTypes,
+    FundingOrgOrPEO: string,
+    ApplicationNeeded: ApplicationTypes,
+    OtherApplicationNeeded: string,
+    IsProjectedOrgsEnterprise: boolean,
+    ProjectedOrgsImpactedCenter: Centers,
+    ProjectedOrgsImpactedOrg: string,
+    ProjectedImpactedUsers: number,
+    OperationalNeedDate: string,
+    OrgPriority: OrgPriorities,
+    PriorityExplanation: string,
+    BusinessObjective: string,
+    FunctionalRequirements: string,
+    Benefits: string,
+    Risk: string,
+    AdditionalInfo: string,
+    "odata.etag": string
 }
 
 const getSubmitRequirementsRequest = (request: IRequirementsRequest): ISubmitRequirementsRequest => {
@@ -67,28 +110,82 @@ const getSubmitRequirementsRequest = (request: IRequirementsRequest): ISubmitReq
     }
 }
 
+const getIRequirementsRequest = (request: SPRequirementsRequest): IRequirementsRequest => {
+    return {
+        Id: request.Id,
+        Title: request.Title,
+        RequestDate: moment(request.RequestDate),
+        ReceivedDate: moment(request.ReceivedDate),
+        Requester: request.Requester,
+        RequesterOrgSymbol: request.RequesterOrgSymbol,
+        RequesterDSNPhone: request.RequesterDSNPhone,
+        RequesterCommPhone: request.RequesterCommPhone,
+        ApprovingPEO: request.ApprovingPEO,
+        PEOApprovedDate: moment(request.PEOApprovedDate),
+        PEOOrgSymbol: request.PEOOrgSymbol,
+        PEO_DSNPhone: request.PEO_DSNPhone,
+        PEO_CommPhone: request.PEO_CommPhone,
+        RequirementType: request.RequirementType,
+        FundingOrgOrPEO: request.FundingOrgOrPEO,
+        ApplicationNeeded: request.ApplicationNeeded,
+        OtherApplicationNeeded: request.OtherApplicationNeeded,
+        IsProjectedOrgsEnterprise: request.IsProjectedOrgsEnterprise,
+        ProjectedOrgsImpactedCenter: request.ProjectedOrgsImpactedCenter,
+        ProjectedOrgsImpactedOrg: request.ProjectedOrgsImpactedOrg,
+        ProjectedImpactedUsers: request.ProjectedImpactedUsers,
+        OperationalNeedDate: moment(request.OperationalNeedDate),
+        OrgPriority: request.OrgPriority,
+        PriorityExplanation: request.PriorityExplanation,
+        BusinessObjective: request.BusinessObjective,
+        FunctionalRequirements: request.FunctionalRequirements,
+        Benefits: request.Benefits,
+        Risk: request.Risk,
+        AdditionalInfo: request.AdditionalInfo,
+        "odata.etag": request["odata.etag"]
+    }
+}
+
 export interface IRequirementsRequestApi {
-    fetchRequirementsRequestById(Id: string): Promise<IRequirementsRequestCRUD | null | undefined>,
+    fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | null | undefined>,
     fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]>,
     submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD>,
-    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): void
+    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void>
 }
 
 export default class RequirementsRequestsApi implements IRequirementsRequestApi {
-    fetchRequirementsRequestById(Id: string): Promise<IRequirementsRequestCRUD> {
-        throw new Error("Method not implemented.");
+
+    requirementsRequestList = spWebContext.lists.getByTitle("RequirementRequests");
+
+    fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
+        return this.requirementsRequestList.items.getById(Id).get();
     }
 
-    fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
-        throw new Error("Method not implemented.");
+    async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
+        let pagedRequests = await this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/Email", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/Email", "PEOApprovedDate", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").getPaged();
+        let requests: SPRequirementsRequest[] = pagedRequests.results;
+        while (pagedRequests.hasNext) {
+            requests = requests.concat((await pagedRequests.getNext()).results);
+        }
+        let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
+        for (let request of requests) {
+            requirementRequestCRUDs.push(new RequirementsRequest(getIRequirementsRequest(request), this));
+        }
+        return requirementRequestCRUDs;
     }
 
-    submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
-        throw new Error("Method not implemented.");
+    async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
+        let submitRequest = getSubmitRequirementsRequest(requirementsRequest);
+        let returnedRequest = requirementsRequest;
+        if (requirementsRequest.Id > -1) {
+            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id).update(submitRequest)).data["odata.etag"];
+        } else {
+            returnedRequest = getIRequirementsRequest((await this.requirementsRequestList.items.add(submitRequest)).data);
+        }
+        return new RequirementsRequest(returnedRequest, this);
     }
 
-    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): void {
-        throw new Error("Method not implemented.");
+    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
+        return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
     }
 }
 

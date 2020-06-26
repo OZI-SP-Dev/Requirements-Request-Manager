@@ -37,7 +37,7 @@ export enum OrgPriorities {
 }
 
 export interface IRequirementsRequest {
-    Id: string,
+    Id: number,
     Title: string,
     RequestDate: Moment,
     ReceivedDate: Moment,
@@ -73,7 +73,8 @@ export interface IRequirementsRequest {
     FunctionalRequirements: string,
     Benefits: string,
     Risk: string,
-    AdditionalInfo: string
+    AdditionalInfo: string,
+    "odata.etag": string
 }
 
 export interface IRequirementsRequestCRUD extends IRequirementsRequest {
@@ -86,7 +87,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     api: IRequirementsRequestApi
 
-    Id = ""
+    Id = -1
     Title = ""
     RequestDate = moment()
     ReceivedDate = moment()
@@ -123,6 +124,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Benefits = ""
     Risk = ""
     AdditionalInfo = ""
+    "odata.etag" = ""
 
     constructor(request?: IRequirementsRequest, api?: IRequirementsRequestApi) {
         if (request) {
@@ -132,7 +134,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     }
 
     getUpdated = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {
-        return this.Id && parseInt(this.Id) > -1 ? await this.api.fetchRequirementsRequestById(this.Id) : this;
+        return this.Id && this.Id > -1 ? await this.api.fetchRequirementsRequestById(this.Id) : this;
     }
 
     save = (): Promise<IRequirementsRequest> | null | undefined => {
@@ -140,7 +142,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     }
     
     delete = (): void => {
-        if (this.Id && parseInt(this.Id) > -1) {
+        if (this.Id && this.Id > -1) {
             this.api.deleteRequirementsRequest(this);
         }
     }
