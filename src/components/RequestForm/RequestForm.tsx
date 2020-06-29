@@ -12,7 +12,7 @@ export const RequestForm: React.FunctionComponent<any> = (props) => {
     const [saving, setSaving] = useState<boolean>(false);
 
     const updateRequest = (fieldUpdating: string, newValue: any): void => {
-        setRequest({ ...request, [fieldUpdating]: newValue });
+        setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
     }
 
     const flipShowFundingField = (): void => {
@@ -21,15 +21,11 @@ export const RequestForm: React.FunctionComponent<any> = (props) => {
 
     const submitRequest = async () => {
         setSaving(true);
-        console.log("Saving");
-        let newRequest = await new RequirementsRequest(request).save();
+        let newRequest = await request.save();
         if (newRequest) {
             setRequest(newRequest);
-            console.log("New Request Set");
-            console.log(newRequest);
         }
         setSaving(false);
-        console.log("Saved");
     }
 
     return (

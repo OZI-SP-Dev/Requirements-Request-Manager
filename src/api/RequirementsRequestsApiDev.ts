@@ -117,7 +117,6 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             newRequest.Id = ++this.maxId;
             this.requests.push(newRequest);
         }
-        console.log("Saved to API DEV");
         return newRequest;
     }
 

@@ -79,8 +79,8 @@ export interface IRequirementsRequest {
 
 export interface IRequirementsRequestCRUD extends IRequirementsRequest {
     getUpdated: () => Promise<IRequirementsRequestCRUD | null | undefined>,
-    save: () => Promise<IRequirementsRequestCRUD> | null | undefined,
-    delete: () => void
+    save: () => Promise<IRequirementsRequestCRUD | null | undefined>,
+    delete: () => Promise<void>
 }
 
 const blankRequest: IRequirementsRequest = {
@@ -206,13 +206,13 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         return this.Id && this.Id > -1 ? await this.api.fetchRequirementsRequestById(this.Id) : this;
     }
 
-    save = (): Promise<IRequirementsRequestCRUD> | null | undefined => {
+    save = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {
         return this.api.submitRequirementsRequest(this);
     }
 
-    delete = (): void => {
+    delete = async (): Promise<void> => {
         if (this.Id && this.Id > -1) {
-            this.api.deleteRequirementsRequest(this);
+            return this.api.deleteRequirementsRequest(this);
         }
     }
 }
