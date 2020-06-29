@@ -119,16 +119,16 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
                         <Form.Label className="mr-3 mb-0">Requirement Type:</Form.Label>
                         {Object.values(RequirementTypes).map(type =>
-                            <Form.Check inline label={type} type="radio" id={`${type}-radio`}
+                            <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
                                 checked={request.RequirementType === type}
-                                onClick={() => updateRequest("RequirementType", type)}
+                                onChange={() => updateRequest("RequirementType", type)}
                             />)
                         }
                     </Col>
                     <Col className="mt-4 mb-4" xl="4" lg="4" md="6" sm="6" xs="12">
                         <Form.Check inline label="Is Requirement Funded?" type="checkbox" id="funded-checkbox"
                             checked={showFundingField}
-                            onClick={flipShowFundingField}
+                            onChange={flipShowFundingField}
                         />
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
@@ -153,7 +153,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             value={request.ApplicationNeeded}
                             onChange={e => updateRequest('ApplicationNeeded', e.target.value)}
                         >
-                            {Object.values(ApplicationTypes).map(type => <option>{type}</option>)}
+                            {Object.values(ApplicationTypes).map(type => <option key={type}>{type}</option>)}
                         </Form.Control>
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
@@ -177,7 +177,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col className="request-vertical-center" xl="2" lg="3" md="6" sm="6" xs="12">
                         <Form.Check inline label="Is Enterprise?" type="checkbox" id="enterprise-checkbox"
                             checked={request.IsProjectedOrgsEnterprise}
-                            onClick={() => updateRequest('IsProjectedOrgsEnterprise', !request.IsProjectedOrgsEnterprise)}
+                            onChange={() => updateRequest('IsProjectedOrgsEnterprise', !request.IsProjectedOrgsEnterprise)}
                         />
                     </Col>
                     <Col xl="3" lg="3" md="6" sm="6" xs="12">
@@ -187,7 +187,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             value={request.ProjectedOrgsImpactedCenter}
                             onChange={e => updateRequest('ProjectedOrgsImpactedCenter', e.target.value)}
                         >
-                            {Object.values(Centers).map(center => <option>{center}</option>)}
+                            {Object.values(Centers).map(center => <option key={center}>{center}</option>)}
                         </Form.Control>
                     </Col>
                     <Col xl="4" lg="3" md="6" sm="6" xs="12">
@@ -224,21 +224,21 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="radio"
                             id={"high-priority-radio"}
                             checked={request.OrgPriority === OrgPriorities.HIGH}
-                            onClick={() => updateRequest("OrgPriority", OrgPriorities.HIGH)}
+                            onChange={() => updateRequest("OrgPriority", OrgPriorities.HIGH)}
                         />
                         <Form.Check inline
                             label={<>{OrgPriorities.MEDIUM} <span className="subtext">(Functional Capabilities Enhancements)</span></>}
                             type="radio"
                             id={"medium-priority-radio"}
                             checked={request.OrgPriority === OrgPriorities.MEDIUM}
-                            onClick={() => updateRequest("OrgPriority", OrgPriorities.MEDIUM)}
+                            onChange={() => updateRequest("OrgPriority", OrgPriorities.MEDIUM)}
                         />
                         <Form.Check inline
                             label={<>{OrgPriorities.LOW} <span className="subtext">(Desire to have/worth Implementing)</span></>}
                             type="radio"
                             id={"low-priority-radio"}
                             checked={request.OrgPriority === OrgPriorities.LOW}
-                            onClick={() => updateRequest("OrgPriority", OrgPriorities.LOW)}
+                            onChange={() => updateRequest("OrgPriority", OrgPriorities.LOW)}
                         />
                     </Col>
                 </Form.Row>

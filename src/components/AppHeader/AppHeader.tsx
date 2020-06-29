@@ -25,7 +25,7 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                             <NavDropdown.Item>Not Implemented Yet</NavDropdown.Item>
                         </LinkContainer>
                     </NavDropdown>
-                    <OverlayTrigger
+                    {/*<OverlayTrigger
                         placement="bottom"
                         delay={{ show: 500, hide: 0 }}
                         overlay={
@@ -37,7 +37,7 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                         <Button className="nav-link link-button">
                             Contact Us
 						</Button>
-                    </OverlayTrigger>
+                    </OverlayTrigger>*/}
                     <LinkContainer to="/RoleManagement">
                         <Nav.Link>Admin</Nav.Link>
                     </LinkContainer>

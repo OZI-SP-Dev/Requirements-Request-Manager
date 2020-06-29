@@ -28,7 +28,7 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
             <Form.Label>{props.headerText}</Form.Label>
             <Form.Control
                 type="text"
-                value={props.date.format("DD MMM YYYY")}
+                defaultValue={props.date.format("DD MMM YYYY")}
                 onClick={() => onClick(true)}
             />
         </>);
@@ -42,6 +42,7 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
             open={open}
             onClickOutside={() => onClick(false)}
             shouldCloseOnSelect={false}
+            customInputRef="DatePickerCustomInput"
         />
     );
 }
