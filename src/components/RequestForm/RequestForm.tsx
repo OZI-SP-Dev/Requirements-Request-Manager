@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Col, Container, Form } from "react-bootstrap";
+import { Col, Container, Form, Button, Spinner } from "react-bootstrap";
 import { ApplicationTypes, Centers, IRequirementsRequestCRUD, RequirementsRequest, RequirementTypes, OrgPriorities } from "../../api/DomainObjects";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
@@ -9,6 +9,7 @@ export const RequestForm: React.FunctionComponent<any> = (props) => {
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
+    const [saving, setSaving] = useState<boolean>(false);
 
     const updateRequest = (fieldUpdating: string, newValue: any): void => {
         setRequest({ ...request, [fieldUpdating]: newValue });
@@ -18,10 +19,23 @@ export const RequestForm: React.FunctionComponent<any> = (props) => {
         setShowFundingField(!showFundingField);
     }
 
+    const submitRequest = async () => {
+        setSaving(true);
+        console.log("Saving");
+        let newRequest = await new RequirementsRequest(request).save();
+        if (newRequest) {
+            setRequest(newRequest);
+            console.log("New Request Set");
+            console.log(newRequest);
+        }
+        setSaving(false);
+        console.log("Saved");
+    }
+
     return (
         <Container className="pb-5 pt-3">
             <h1>New Request</h1>
-            <Form className="request-form m-3">
+            <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         <Form.Label lg="4" sm="6">Requester Org Symbol</Form.Label>
@@ -310,6 +324,10 @@ export const RequestForm: React.FunctionComponent<any> = (props) => {
                         />
                     </Col>
                 </Form.Row>
+                <Button className="float-right" variant="primary" onClick={submitRequest}>
+                    {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                    {' '}{"Submit Request"}
+                </Button>
             </Form>
         </Container>);
 }

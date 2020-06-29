@@ -79,68 +79,137 @@ export interface IRequirementsRequest {
 
 export interface IRequirementsRequestCRUD extends IRequirementsRequest {
     getUpdated: () => Promise<IRequirementsRequestCRUD | null | undefined>,
-    save: () => Promise<IRequirementsRequest> | null | undefined,
+    save: () => Promise<IRequirementsRequestCRUD> | null | undefined,
     delete: () => void
+}
+
+const blankRequest: IRequirementsRequest = {
+    Id: -1,
+    Title: "",
+    RequestDate: moment(),
+    ReceivedDate: moment(),
+    Requester: {
+        Id: "",
+        Title: "",
+        Email: ""
+    },
+    RequesterOrgSymbol: "",
+    RequesterDSNPhone: "",
+    RequesterCommPhone: "",
+    ApprovingPEO: {
+        Id: "",
+        Title: "",
+        Email: ""
+    },
+    PEOApprovedDate: moment(),
+    PEOOrgSymbol: "",
+    PEO_DSNPhone: "",
+    PEO_CommPhone: "",
+    RequirementType: RequirementTypes.NEW_CAP,
+    FundingOrgOrPEO: "",
+    ApplicationNeeded: ApplicationTypes.CCaR,
+    OtherApplicationNeeded: "",
+    IsProjectedOrgsEnterprise: false,
+    ProjectedOrgsImpactedCenter: Centers.AFIMSC,
+    ProjectedOrgsImpactedOrg: "",
+    ProjectedImpactedUsers: 0,
+    OperationalNeedDate: moment(),
+    OrgPriority: OrgPriorities.LOW,
+    PriorityExplanation: "",
+    BusinessObjective: "",
+    FunctionalRequirements: "",
+    Benefits: "",
+    Risk: "",
+    AdditionalInfo: "",
+    "odata.etag": ""
 }
 
 export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     api: IRequirementsRequestApi
 
-    Id = -1
-    Title = ""
-    RequestDate = moment()
-    ReceivedDate = moment()
-    Requester = {
-        Id: "",
-        Title: "",
-        Email: ""
+    Id: number
+    Title: string
+    RequestDate: Moment
+    ReceivedDate: Moment
+    Requester: {
+        Id: string,
+        Title: string,
+        Email: string
     }
-    RequesterOrgSymbol = ""
-    RequesterDSNPhone = ""
-    RequesterCommPhone = ""
-    ApprovingPEO = {
-        Id: "",
-        Title: "",
-        Email: ""
+    RequesterOrgSymbol: string
+    RequesterDSNPhone: string
+    RequesterCommPhone: string
+    ApprovingPEO: {
+        Id: string,
+        Title: string,
+        Email: string
     }
-    PEOApprovedDate = moment()
-    PEOOrgSymbol = ""
-    PEO_DSNPhone = ""
-    PEO_CommPhone = ""
-    RequirementType = RequirementTypes.NEW_CAP
-    FundingOrgOrPEO = ""
-    ApplicationNeeded = ApplicationTypes.CCaR
-    OtherApplicationNeeded = ""
-    IsProjectedOrgsEnterprise = false
-    ProjectedOrgsImpactedCenter = Centers.AFIMSC
-    ProjectedOrgsImpactedOrg = ""
-    ProjectedImpactedUsers = 0
-    OperationalNeedDate = moment()
-    OrgPriority = OrgPriorities.LOW
-    PriorityExplanation = ""
-    BusinessObjective = ""
-    FunctionalRequirements = ""
-    Benefits = ""
-    Risk = ""
-    AdditionalInfo = ""
-    "odata.etag" = ""
+    PEOApprovedDate: Moment
+    PEOOrgSymbol: string
+    PEO_DSNPhone: string
+    PEO_CommPhone: string
+    RequirementType: RequirementTypes
+    FundingOrgOrPEO: string
+    ApplicationNeeded: ApplicationTypes
+    OtherApplicationNeeded: string
+    IsProjectedOrgsEnterprise: boolean
+    ProjectedOrgsImpactedCenter: Centers
+    ProjectedOrgsImpactedOrg: string
+    ProjectedImpactedUsers: number
+    OperationalNeedDate: Moment
+    OrgPriority: OrgPriorities
+    PriorityExplanation: string
+    BusinessObjective: string
+    FunctionalRequirements: string
+    Benefits: string
+    Risk: string
+    AdditionalInfo: string
+    "odata.etag": string
 
-    constructor(request?: IRequirementsRequest, api?: IRequirementsRequestApi) {
-        if (request) {
-            Object.assign(this, request);
-        }
+    constructor(request: IRequirementsRequest = blankRequest, api?: IRequirementsRequestApi) {
         this.api = api ? api : RequirementsRequestsApiConfig.getApi();
+
+        this.Id = request.Id;
+        this.Title = request.Title;
+        this.RequestDate = request.RequestDate;
+        this.ReceivedDate = request.ReceivedDate;
+        this.Requester = request.Requester;
+        this.RequesterOrgSymbol = request.RequesterOrgSymbol;
+        this.RequesterDSNPhone = request.RequesterDSNPhone;
+        this.RequesterCommPhone = request.RequesterCommPhone;
+        this.ApprovingPEO = request.ApprovingPEO;
+        this.PEOApprovedDate = request.PEOApprovedDate;
+        this.PEOOrgSymbol = request.PEOOrgSymbol;
+        this.PEO_DSNPhone = request.PEO_DSNPhone;
+        this.PEO_CommPhone = request.PEO_CommPhone;
+        this.RequirementType = request.RequirementType;
+        this.FundingOrgOrPEO = request.FundingOrgOrPEO;
+        this.ApplicationNeeded = request.ApplicationNeeded;
+        this.OtherApplicationNeeded = request.OtherApplicationNeeded;
+        this.IsProjectedOrgsEnterprise = request.IsProjectedOrgsEnterprise;
+        this.ProjectedOrgsImpactedCenter = request.ProjectedOrgsImpactedCenter;
+        this.ProjectedOrgsImpactedOrg = request.ProjectedOrgsImpactedOrg;
+        this.ProjectedImpactedUsers = request.ProjectedImpactedUsers;
+        this.OperationalNeedDate = request.OperationalNeedDate;
+        this.OrgPriority = request.OrgPriority;
+        this.PriorityExplanation = request.PriorityExplanation;
+        this.BusinessObjective = request.BusinessObjective;
+        this.FunctionalRequirements = request.FunctionalRequirements;
+        this.Benefits = request.Benefits;
+        this.Risk = request.Risk;
+        this.AdditionalInfo = request.AdditionalInfo;
+        this["odata.etag"] = request["odata.etag"];
     }
 
     getUpdated = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {
         return this.Id && this.Id > -1 ? await this.api.fetchRequirementsRequestById(this.Id) : this;
     }
 
-    save = (): Promise<IRequirementsRequest> | null | undefined => {
+    save = (): Promise<IRequirementsRequestCRUD> | null | undefined => {
         return this.api.submitRequirementsRequest(this);
     }
-    
+
     delete = (): void => {
         if (this.Id && this.Id > -1) {
             this.api.deleteRequirementsRequest(this);

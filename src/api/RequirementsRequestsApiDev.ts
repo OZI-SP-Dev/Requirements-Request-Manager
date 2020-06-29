@@ -98,17 +98,17 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
     }
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | null | undefined> {
-        this.sleep();
+        await this.sleep();
         return this.requests.find(request => request.Id === Id);
     }
 
     async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
-        this.sleep();
+        await this.sleep();
         return this.requests;
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
-        this.sleep();
+        await this.sleep();
         let newRequest = new RequirementsRequest(requirementsRequest);
         let oldIndex = this.requests.findIndex(request => newRequest.Id === request.Id);
         if (oldIndex > -1) {
@@ -117,11 +117,12 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             newRequest.Id = ++this.maxId;
             this.requests.push(newRequest);
         }
+        console.log("Saved to API DEV");
         return newRequest;
     }
 
     async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
-        this.sleep();
+        await this.sleep();
         this.requests.filter(request => request.Id !== requirementsRequest.Id);
         return;
     }
