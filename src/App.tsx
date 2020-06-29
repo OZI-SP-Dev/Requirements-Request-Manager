@@ -3,7 +3,7 @@ import { Container } from 'react-bootstrap';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
 import { AppHeader } from './components/AppHeader/AppHeader';
-import { Requests } from './components/Requests/Requests';
+import { RequestRoutes } from './components/RequestRoutes/RequestRoutes';
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <AppHeader />
         <Switch>
           <Route path="/Requests">
-            <Requests />
+            <RequestRoutes />
           </Route>
         </Switch>
       </Container>

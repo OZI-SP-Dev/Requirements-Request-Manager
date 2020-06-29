@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Col, Container, Form, Button, Spinner } from "react-bootstrap";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, RequirementsRequest, RequirementTypes, OrgPriorities } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, RequirementsRequest, RequirementTypes, OrgPriorities, IRequirementsRequest } from "../../api/DomainObjects";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 
-export const RequestForm: React.FunctionComponent<any> = (props) => {
+export interface IRequestFormProps {
+    defaultRequest?: IRequirementsRequest
+}
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
+export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
+
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.defaultRequest));
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
@@ -200,7 +204,7 @@ export const RequestForm: React.FunctionComponent<any> = (props) => {
                     <Col xl="5" lg="6" md="6" sm="6" xs="12">
                         <Form.Label>Projected Number of Impacted Users:</Form.Label>
                         <Form.Control
-                            type="text"
+                            type="number"
                             placeholder="Number of Users Impacted by the Requested Application"
                             value={request.ProjectedImpactedUsers}
                             onChange={e => updateRequest('ProjectedImpactedUsers', e.target.value)}

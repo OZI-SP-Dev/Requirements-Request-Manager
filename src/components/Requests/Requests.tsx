@@ -1,17 +1,42 @@
 import React from "react";
-import { HashRouter, Switch, Route } from "react-router-dom";
-import { RequestForm } from "../RequestForm/RequestForm";
+import { Container, Table } from "react-bootstrap";
+import { IRequirementsRequestCRUD } from "../../api/DomainObjects";
 
+export interface IRequestsProps {
+    requests: IRequirementsRequestCRUD[]
+}
 
-export const Requests: React.FunctionComponent<any> = (props) => {
+export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
     return (
-        <HashRouter>
-            <Switch>
-                <Route path="/Requests/new">
-                    <RequestForm />
-                </Route>
-            </Switch>
-        </HashRouter>
+        <Container className="pb-5 pt-3">
+            <h1>Requests</h1>
+            <Table striped bordered hover responsive>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Request Date</th>
+                        <th>Requirement Type</th>
+                        <th>Application Needed</th>
+                        <th>Org Priority</th>
+                        <th>Operational Need Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.requests.map(request =>
+                        <tr>
+                            <td>{request.Id}</td>
+                            <td>{request.Title}</td>
+                            <td>{request.RequestDate.format("DD MMM YYYY")}</td>
+                            <td>{request.RequirementType}</td>
+                            <td>{request.ApplicationNeeded}</td>
+                            <td>{request.OrgPriority}</td>
+                            <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
+                        </tr>
+                    )}
+                </tbody>
+            </Table>
+        </Container>
     );
 }
