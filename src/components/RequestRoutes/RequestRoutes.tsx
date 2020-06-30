@@ -17,7 +17,7 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
     }
 
     useEffect(() => {
-        fetchRequests();
+        fetchRequests(); // eslint-disable-next-line
     }, []);
 
     return (

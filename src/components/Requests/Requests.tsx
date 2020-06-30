@@ -15,6 +15,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Requester</th>
                         <th>Title</th>
                         <th>Request Date</th>
                         <th>Requirement Type</th>
@@ -25,8 +26,9 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 </thead>
                 <tbody>
                     {props.requests.map(request =>
-                        <tr>
+                        <tr key={request.Id}>
                             <td>{request.Id}</td>
+                            <td>{request.Requester.Title}</td>
                             <td>{request.Title}</td>
                             <td>{request.RequestDate.format("DD MMM YYYY")}</td>
                             <td>{request.RequirementType}</td>

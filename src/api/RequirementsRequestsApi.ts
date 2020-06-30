@@ -2,6 +2,7 @@ import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCR
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
+import { UserApiConfig } from "./UserApi";
 
 interface ISubmitRequirementsRequest {
     Id?: number
@@ -86,6 +87,7 @@ export interface IRequirementsRequestApi {
 export default class RequirementsRequestsApi implements IRequirementsRequestApi {
 
     requirementsRequestList = spWebContext.lists.getByTitle("RequirementsRequests");
+    userApi = UserApiConfig.getApi();
 
     getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
         return {
@@ -93,7 +95,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Title: request.Title,
             RequestDate: request.RequestDate.toISOString(),
             ReceivedDate: request.ReceivedDate.toISOString(),
-            RequesterId: request.Requester.Id,
+            RequesterId: request.Requester.Id ? request.Requester.Id : (await this.userApi.getCurrentUser()).Id,
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,

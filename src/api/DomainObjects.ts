@@ -36,24 +36,22 @@ export enum OrgPriorities {
     LOW = "Low"
 }
 
+export interface Person {
+    Id: string | number | undefined,
+    Title: string,
+    Email: string
+}
+
 export interface IRequirementsRequest {
     Id: number,
     Title: string,
     RequestDate: Moment,
     ReceivedDate: Moment,
-    Requester: {
-        Id: string,
-        Title: string,
-        Email: string
-    },
+    Requester: Person,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
-    ApprovingPEO: {
-        Id: string,
-        Title: string,
-        Email: string
-    },
+    ApprovingPEO: Person,
     PEOApprovedDate: Moment,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
@@ -132,19 +130,11 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Title: string
     RequestDate: Moment
     ReceivedDate: Moment
-    Requester: {
-        Id: string,
-        Title: string,
-        Email: string
-    }
+    Requester: Person
     RequesterOrgSymbol: string
     RequesterDSNPhone: string
     RequesterCommPhone: string
-    ApprovingPEO: {
-        Id: string,
-        Title: string,
-        Email: string
-    }
+    ApprovingPEO: Person
     PEOApprovedDate: Moment
     PEOOrgSymbol: string
     PEO_DSNPhone: string

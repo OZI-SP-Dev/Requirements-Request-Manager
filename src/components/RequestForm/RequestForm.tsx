@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { Col, Container, Form, Button, Spinner } from "react-bootstrap";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, RequirementsRequest, RequirementTypes, OrgPriorities, IRequirementsRequest } from "../../api/DomainObjects";
+import { Moment } from "moment";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, Person, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { UserContext } from "../../providers/UserProvider";
+import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
-import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 
 export interface IRequestFormProps {
     defaultRequest?: IRequirementsRequest
@@ -15,8 +17,27 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
-    const updateRequest = (fieldUpdating: string, newValue: any): void => {
+    const { user } = useContext(UserContext);
+
+    useEffect(() => {
+        updateRequest('Requester', user ?
+            { Id: user.Id, Title: user.Title, Email: user.Email }
+            : { Id: -1, Title: "Loading User", Email: "" });
+        // eslint-disable-next-line
+    }, [user])
+
+    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | Person): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
+    }
+
+    const updateNumericField = (fieldUpdating: string, newValue: string): void => {
+        newValue = newValue.replace('-', '');
+        newValue = newValue.replace('+', '');
+        newValue = newValue.replace('.', '');
+        let newNumber = Number(newValue);
+        if (!isNaN(newNumber)) {
+            updateRequest(fieldUpdating, newNumber);
+        }
     }
 
     const flipShowFundingField = (): void => {
@@ -72,7 +93,11 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as={PeoplePicker}
                             updatePeople={(p: SPPersona[]) => {
                                 let persona = p[0];
-                                updateRequest('ApprovingPEO', { Id: persona.SPUserId, Title: persona.text, Email: persona.Email });
+                                updateRequest('ApprovingPEO', {
+                                    Id: persona.SPUserId,
+                                    Title: persona.text ? persona.text : "",
+                                    Email: persona.Email ? persona.Email : ""
+                                });
                             }}
                             readOnly={false}
                             required={true}
@@ -204,10 +229,10 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col xl="5" lg="6" md="6" sm="6" xs="12">
                         <Form.Label>Projected Number of Impacted Users:</Form.Label>
                         <Form.Control
-                            type="number"
+                            type="text"
                             placeholder="Number of Users Impacted by the Requested Application"
-                            value={request.ProjectedImpactedUsers}
-                            onChange={e => updateRequest('ProjectedImpactedUsers', e.target.value)}
+                            value={request.ProjectedImpactedUsers > 0 ? request.ProjectedImpactedUsers : ''}
+                            onChange={e => updateNumericField("ProjectedImpactedUsers", e.target.value)}
                         />
                     </Col>
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">
