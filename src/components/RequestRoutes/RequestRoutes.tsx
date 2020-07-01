@@ -12,6 +12,17 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
 
     const api: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
 
+    const updateRequests = (request: IRequirementsRequestCRUD) => {
+        let newRequests = requests;
+        let oldRequestIndex = newRequests.findIndex(req => req.Id === request.Id);
+        if (oldRequestIndex > -1) {
+            newRequests[oldRequestIndex] = request;
+        } else {
+            newRequests.push(request);
+        }
+        setRequests(newRequests);
+    }
+
     const fetchRequests = async () => {
         setRequests(await api.fetchRequirementsRequests())
     }
@@ -24,7 +35,7 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
         <HashRouter>
             <Switch>
                 <Route path="/Requests/new">
-                    <RequestForm />
+                    <RequestForm updateRequests={updateRequests} />
                 </Route>
                 <Route path="/Requests">
                     <Requests requests={requests} />

@@ -34,6 +34,9 @@ interface ISubmitRequirementsRequest {
     Benefits: string
     Risk: string
     AdditionalInfo: string
+    __metadata?: {
+        etag: string
+    }
 }
 
 interface SPRequirementsRequest {
@@ -74,7 +77,9 @@ interface SPRequirementsRequest {
     Benefits: string,
     Risk: string,
     AdditionalInfo: string,
-    "odata.etag": string
+    __metadata: {
+        etag: string
+    }
 }
 
 export interface IRequirementsRequestApi {
@@ -162,12 +167,13 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Benefits: request.Benefits,
             Risk: request.Risk,
             AdditionalInfo: request.AdditionalInfo,
-            "odata.etag": request["odata.etag"]
+            "odata.etag": request.__metadata.etag
         }
     }
 
-    fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
-        return this.requirementsRequestList.items.getById(Id).get();
+    async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
+        // SP will return a SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
+        return new RequirementsRequest(this.getIRequirementsRequest(await this.requirementsRequestList.items.getById(Id).get()));
     }
 
     async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
@@ -184,18 +190,19 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
-        console.log("requirementsRequest");
-        console.log(requirementsRequest);
         let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
-        console.log("submitRequest");
-        console.log(submitRequest);
         let returnedRequest = requirementsRequest;
         if (requirementsRequest.Id > -1) {
-            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id).update(submitRequest)).data["odata.etag"];
+            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
+                .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
         } else {
-            returnedRequest = this.getIRequirementsRequest((await this.requirementsRequestList.items.add(submitRequest)).data);
+            let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
+            returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
+            returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
+            returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
+            returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
         }
-        console.log("returnedRequest");
+        console.log("Returning Request");
         console.log(returnedRequest);
         return new RequirementsRequest(returnedRequest, this);
     }

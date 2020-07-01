@@ -6,9 +6,11 @@ import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
+import { useHistory } from "react-router-dom";
 
 export interface IRequestFormProps {
-    defaultRequest?: IRequirementsRequest
+    defaultRequest?: IRequirementsRequest,
+    updateRequests: (request: IRequirementsRequestCRUD) => void
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
@@ -18,6 +20,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [saving, setSaving] = useState<boolean>(false);
 
     const { user } = useContext(UserContext);
+    const history = useHistory();
 
     useEffect(() => {
         updateRequest('Requester', user ?
@@ -30,13 +33,14 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
     }
 
-    const updateNumericField = (fieldUpdating: string, newValue: string): void => {
-        newValue = newValue.replace('-', '');
-        newValue = newValue.replace('+', '');
-        newValue = newValue.replace('.', '');
-        let newNumber = Number(newValue);
-        if (!isNaN(newNumber)) {
-            updateRequest(fieldUpdating, newNumber);
+    const getNumbersOnly = (input: string): string => {
+        return input.replace(new RegExp("[^0-9]"), "");
+    }
+
+    const updatePhoneField = (fieldUpdating: string, newValue: string): void => {
+        let phoneNumber = getNumbersOnly(newValue);
+        if (phoneNumber.length <= 10) {
+            updateRequest(fieldUpdating, phoneNumber);
         }
     }
 
@@ -44,13 +48,16 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         setShowFundingField(!showFundingField);
     }
 
-    const submitRequest = async () => {
+    const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         setSaving(true);
         let newRequest = await request.save();
         if (newRequest) {
             setRequest(newRequest);
+            props.updateRequests(newRequest);
         }
         setSaving(false);
+        history.push("/Requests");
     }
 
     return (
@@ -73,7 +80,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Your DSN Phone Number"
                             value={request.RequesterDSNPhone}
-                            onChange={e => updateRequest('RequesterDSNPhone', e.target.value)}
+                            onChange={e => updatePhoneField('RequesterDSNPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
@@ -82,7 +89,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Your Commercial Phone Number"
                             value={request.RequesterCommPhone}
-                            onChange={e => updateRequest('RequesterCommPhone', e.target.value)}
+                            onChange={e => updatePhoneField('RequesterCommPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
                 </Form.Row>
@@ -118,7 +125,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Approving PEO's DSN Phone Number"
                             value={request.PEO_DSNPhone}
-                            onChange={e => updateRequest('PEO_DSNPhone', e.target.value)}
+                            onChange={e => updatePhoneField('PEO_DSNPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
@@ -127,7 +134,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Approving PEO's Commercial Phone Number"
                             value={request.PEO_CommPhone}
-                            onChange={e => updateRequest('PEO_CommPhone', e.target.value)}
+                            onChange={e => updatePhoneField('PEO_CommPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
                 </Form.Row>
@@ -231,8 +238,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Number of Users Impacted by the Requested Application"
-                            value={request.ProjectedImpactedUsers > 0 ? request.ProjectedImpactedUsers : ''}
-                            onChange={e => updateNumericField("ProjectedImpactedUsers", e.target.value)}
+                            value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : ''}
+                            onChange={e => updateRequest("ProjectedImpactedUsers", parseInt(getNumbersOnly(e.target.value)))}
                         />
                     </Col>
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">

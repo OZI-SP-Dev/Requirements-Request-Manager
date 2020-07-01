@@ -1,6 +1,7 @@
 import React from "react";
-import { Container, Table } from "react-bootstrap";
+import { Container, Table, Button } from "react-bootstrap";
 import { IRequirementsRequestCRUD } from "../../api/DomainObjects";
+import { Link } from "react-router-dom";
 
 export interface IRequestsProps {
     requests: IRequirementsRequestCRUD[]
@@ -39,6 +40,9 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     )}
                 </tbody>
             </Table>
+            <Link to="/Requests/new">
+                <Button variant="primary" className="float-left">New Request</Button>
+            </Link>
         </Container>
     );
 }
