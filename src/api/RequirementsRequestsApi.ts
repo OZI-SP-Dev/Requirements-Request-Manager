@@ -2,18 +2,18 @@ import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCR
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
-import { UserApiConfig } from "./UserApi";
+import { UserApiConfig, Person, IPerson } from "./UserApi";
 
 interface ISubmitRequirementsRequest {
     Id?: number
     Title: string
     RequestDate: string
     ReceivedDate: string
-    RequesterId: string | number
+    RequesterId: number
     RequesterOrgSymbol: string
     RequesterDSNPhone: string
     RequesterCommPhone: string
-    ApprovingPEOId: string | number
+    ApprovingPEOId: number
     PEOApprovedDate: string
     PEOOrgSymbol: string
     PEO_DSNPhone: string
@@ -44,19 +44,11 @@ interface SPRequirementsRequest {
     Title: string,
     RequestDate: string,
     ReceivedDate: string,
-    Requester: {
-        Id: string,
-        Title: string,
-        EMail: string
-    },
+    Requester: IPerson,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
-    ApprovingPEO: {
-        Id: string,
-        Title: string,
-        EMail: string
-    },
+    ApprovingPEO: IPerson,
     PEOApprovedDate: string,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
@@ -100,11 +92,12 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Title: request.Title,
             RequestDate: request.RequestDate.toISOString(),
             ReceivedDate: request.ReceivedDate.toISOString(),
-            RequesterId: request.Requester.Id ? request.Requester.Id : (await this.userApi.getCurrentUser()).Id,
+            RequesterId: request.Requester.Id > -1 ? request.Requester.Id : (await this.userApi.getCurrentUser()).Id,
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
-            ApprovingPEOId: request.ApprovingPEO.Id ? request.ApprovingPEO.Id : (await spWebContext.ensureUser(request.ApprovingPEO.Email)).data.Id,
+            ApprovingPEOId: request.ApprovingPEO.Id > -1 ? request.ApprovingPEO.Id
+                : (await spWebContext.ensureUser(request.ApprovingPEO.EMail)).data.Id,
             PEOApprovedDate: request.PEOApprovedDate.toISOString(),
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
@@ -134,19 +127,11 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Title: request.Title,
             RequestDate: moment(request.RequestDate),
             ReceivedDate: moment(request.ReceivedDate),
-            Requester: {
-                Id: request.Requester.Id,
-                Title: request.Requester.Title,
-                Email: request.Requester.EMail
-            },
+            Requester: new Person(request.Requester),
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
-            ApprovingPEO: {
-                Id: request.ApprovingPEO.Id,
-                Title: request.ApprovingPEO.Title,
-                Email: request.ApprovingPEO.EMail
-            },
+            ApprovingPEO: new Person(request.ApprovingPEO),
             PEOApprovedDate: moment(request.PEOApprovedDate),
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,

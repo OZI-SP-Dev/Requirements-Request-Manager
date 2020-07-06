@@ -1,6 +1,7 @@
 import moment from "moment";
 import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities, IRequirementsRequestCRUD, RequirementsRequest } from "./DomainObjects";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
+import { Person } from "./UserApi";
 
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
 
@@ -13,19 +14,19 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Title: "Test1",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
-                Requester: {
-                    Id: "1",
+                Requester: new Person({
+                    Id: 1,
                     Title: "Jeremy Clark",
-                    Email: "jeremyclark@superemail.com"
-                },
+                    EMail: "jeremyclark@superemail.com"
+                }),
                 RequesterOrgSymbol: "OZIC",
                 RequesterDSNPhone: "1234567890",
                 RequesterCommPhone: "1234567890",
-                ApprovingPEO: {
-                    Id: "2",
+                ApprovingPEO: new Person({
+                    Id: 2,
                     Title: "Robert Porterfield",
-                    Email: "robertporterfield@superemail.com"
-                },
+                    EMail: "robertporterfield@superemail.com"
+                }),
                 PEOApprovedDate: moment(),
                 PEOOrgSymbol: "OZI",
                 PEO_DSNPhone: "1234567890",
@@ -53,19 +54,19 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Title: "Test2",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
-                Requester: {
-                    Id: "2",
+                Requester: new Person({
+                    Id: 2,
                     Title: "Robert Porterfield",
-                    Email: "robertporterfield@superemail.com"
-                },
+                    EMail: "robertporterfield@superemail.com"
+                }),
                 RequesterOrgSymbol: "OZIC",
                 RequesterDSNPhone: "1234567890",
                 RequesterCommPhone: "1234567890",
-                ApprovingPEO: {
-                    Id: "1",
+                ApprovingPEO: new Person({
+                    Id: 1,
                     Title: "Jeremy Clark",
-                    Email: "jeremyclark@superemail.com"
-                },
+                    EMail: "jeremyclark@superemail.com"
+                }),
                 PEOApprovedDate: moment(),
                 PEOOrgSymbol: "OZI",
                 PEO_DSNPhone: "1234567890",

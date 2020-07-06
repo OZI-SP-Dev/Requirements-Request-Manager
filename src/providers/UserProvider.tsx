@@ -1,9 +1,9 @@
-import { IUser, UserApiConfig } from "../api/UserApi";
+import { Person, UserApiConfig } from "../api/UserApi";
 import React, { createContext, FunctionComponent, useState, useEffect } from "react";
 
 
 export interface IUserContext {
-    user: IUser | undefined,
+    user: Person | undefined,
     loading: boolean
 }
 
@@ -11,7 +11,7 @@ export const UserContext = createContext<Partial<IUserContext>>({ user: undefine
 
 export const UserProvider: FunctionComponent = ({ children }) => {
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<IUser>();
+    const [user, setUser] = useState<Person>();
 
     const userApi = UserApiConfig.getApi();
 
