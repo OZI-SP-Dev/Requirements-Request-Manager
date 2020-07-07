@@ -1,0 +1,15 @@
+.request-form {
+    text-align: left;
+}
+
+.request-form > div {
+    margin-bottom: 1rem!important;
+}
+
+.request-vertical-center {
+    align-self: center;
+}
+
+.subtext {
+    font-size: small;
+}
