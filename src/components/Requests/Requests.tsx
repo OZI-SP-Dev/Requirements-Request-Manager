@@ -35,9 +35,18 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                             <td>{request.OrgPriority}</td>
                             <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
                         </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0">
-                            <span>Inside the collapse asdff asdf asdfas fasdf asd fasd fasdf asd f</span>
-                        </Accordion.Collapse>
+                        <tr>
+                            {/* padding set to 0 to "fully" collapse the TD */}
+                            <td colSpan={7} style={{ padding: 0 }}>
+                                <Accordion.Collapse eventKey="0">
+                                   {/* add padding back in to collapsed element */}
+                                    <div style={{ padding: ".75rem" }}>
+                                        {/* Add your collapsed content in here */}
+                                        Inside the collapse asdff asdf asdfas fasdf asd fasd fasdf asd f
+                                    </div>
+                                </Accordion.Collapse>
+                            </td>
+                        </tr>
                     </Accordion>
                 )}
             </Table>
