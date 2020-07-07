@@ -1,12 +1,13 @@
 import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, Person, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { useHistory } from "react-router-dom";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
-import { useHistory } from "react-router-dom";
+import { Person } from "../../api/UserApi";
 
 export interface IRequestFormProps {
     defaultRequest?: IRequirementsRequest,
@@ -23,9 +24,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const history = useHistory();
 
     useEffect(() => {
-        updateRequest('Requester', user ?
-            { Id: user.Id, Title: user.Title, Email: user.Email }
-            : { Id: -1, Title: "Loading User", Email: "" });
+        updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
         // eslint-disable-next-line
     }, [user])
 
@@ -100,11 +99,11 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as={PeoplePicker}
                             updatePeople={(p: SPPersona[]) => {
                                 let persona = p[0];
-                                updateRequest('ApprovingPEO', {
-                                    Id: persona.SPUserId,
+                                updateRequest('ApprovingPEO', new Person({
+                                    Id: persona.SPUserId ? Number(persona.SPUserId) : -1,
                                     Title: persona.text ? persona.text : "",
-                                    Email: persona.Email ? persona.Email : ""
-                                });
+                                    EMail: persona.Email ? persona.Email : ""
+                                }));
                             }}
                             readOnly={false}
                             required={true}

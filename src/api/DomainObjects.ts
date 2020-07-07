@@ -1,5 +1,6 @@
 import moment, { Moment } from 'moment';
 import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from './RequirementsRequestsApi';
+import { Person } from './UserApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",
@@ -34,12 +35,6 @@ export enum OrgPriorities {
     HIGH = "High",
     MEDIUM = "Medium",
     LOW = "Low"
-}
-
-export interface Person {
-    Id: string | number | undefined,
-    Title: string,
-    Email: string
 }
 
 export interface IRequirementsRequest {
@@ -86,19 +81,11 @@ const blankRequest: IRequirementsRequest = {
     Title: "",
     RequestDate: moment(),
     ReceivedDate: moment(),
-    Requester: {
-        Id: "",
-        Title: "",
-        Email: ""
-    },
+    Requester: new Person(),
     RequesterOrgSymbol: "",
     RequesterDSNPhone: "",
     RequesterCommPhone: "",
-    ApprovingPEO: {
-        Id: "",
-        Title: "",
-        Email: ""
-    },
+    ApprovingPEO: new Person(),
     PEOApprovedDate: moment(),
     PEOOrgSymbol: "",
     PEO_DSNPhone: "",

@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.1] - 2020-07-06
+### Added
+- /Requests page to display requests submitted
+- /Requests/new page to create a new request
+- RequirementsRequests SharePoint list
+
 ## [0.1.0] - 2020-06-01
 ### Added
 - This CHANGELOG file.

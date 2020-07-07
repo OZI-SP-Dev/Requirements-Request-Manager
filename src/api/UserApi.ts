@@ -1,35 +1,47 @@
-import { spWebContext } from "../providers/SPWebContext";
 import { TestImages } from "@uifabric/example-data";
+import { spWebContext } from "../providers/SPWebContext";
 
-export interface IUser {
-    Id: string | number,
-    Title: string,
-    Email: string,
-    Persona: {
-        text: string,
-        imageUrl: string,
-        Email: string
+export interface IPerson {
+    Id: number
+    Title: string
+    EMail: string
+}
+
+export class Person implements IPerson {
+    Id: number
+    Title: string
+    EMail: string
+    LoginName?: string
+
+    constructor(person: IPerson = { Id: -1, Title: "", EMail: "" }, LoginName?: string) {
+        this.Id = person.Id;
+        this.Title = person.Title;
+        this.EMail = person.EMail;
+        this.LoginName = LoginName;
+    }
+
+    getPersona = () => {
+        return {
+            text: this.Title,
+            imageUrl: this.LoginName ? "/_layouts/15/userphoto.aspx?accountname=" + this.LoginName + "&size=S" : TestImages.personaMale,
+            Email: this.EMail
+        }
     }
 }
 
 export interface IUserApi {
-    getCurrentUser: () => Promise<IUser>
+    getCurrentUser: () => Promise<Person>
 }
 
 export class UserApi implements IUserApi {
 
-    getCurrentUser = async (): Promise<IUser> => {
+    getCurrentUser = async (): Promise<Person> => {
         let user = await spWebContext.currentUser();
-        return {
+        return new Person({
             Id: user.Id,
             Title: user.Title,
-            Email: user.Email,
-            Persona: {
-                text: user.Title,
-                imageUrl: "/_layouts/15/userphoto.aspx?accountname=" + user.LoginName + "&size=S",
-                Email: user.Email
-            }
-        }
+            EMail: user.Email
+        }, user.LoginName)
     };
 }
 
@@ -39,18 +51,13 @@ export class UserApiDev implements IUserApi {
         return new Promise(r => setTimeout(r, 1500));
     }
 
-    getCurrentUser = async (): Promise<IUser> => {
+    getCurrentUser = async (): Promise<Person> => {
         await this.sleep();
-        return {
-            Id: "1",
+        return new Person({
+            Id: 1,
             Title: "Default User",
-            Email: "me@example.com",
-            Persona: {
-                text: "Default User",
-                imageUrl: TestImages.personaMale,
-                Email: "me@example.com"
-            }
-        }
+            EMail: "me@example.com"
+        })
     };
 }
 
