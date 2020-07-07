@@ -8,15 +8,17 @@ import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDate
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
 import { Person } from "../../api/UserApi";
+import { useRequests } from "../Requests/Requests";
 
 export interface IRequestFormProps {
-    defaultRequest?: IRequirementsRequest,
-    updateRequests: (request: IRequirementsRequestCRUD) => void
+    editRequestId?: number
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.defaultRequest));
+    const [requests, updateRequests] = useRequests();
+
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(requests.find(req => req.Id === props.editRequestId)));
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
@@ -53,7 +55,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         let newRequest = await request.save();
         if (newRequest) {
             setRequest(newRequest);
-            props.updateRequests(newRequest);
+            updateRequests(newRequest);
         }
         setSaving(false);
         history.push("/Requests");
