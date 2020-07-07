@@ -1,4 +1,4 @@
-import { ISiteUserInfo } from "@pnp/sp/site-users/types";
+import { TestImages } from "@uifabric/example-data";
 import { spWebContext } from "../providers/SPWebContext";
 
 export interface IPerson {
@@ -11,30 +11,19 @@ export class Person implements IPerson {
     Id: number
     Title: string
     EMail: string
-    persona?: {
-        text: string,
-        imageUrl: string,
-        Email: string
-    }
+    LoginName?: string
 
-    constructor(person: IPerson = { Id: -1, Title: "", EMail: "" }, user?: ISiteUserInfo) {
+    constructor(person: IPerson = { Id: -1, Title: "", EMail: "" }, LoginName?: string) {
         this.Id = person.Id;
         this.Title = person.Title;
         this.EMail = person.EMail;
-        if (user) {
-            this.persona = {
-                text: user.Title,
-                imageUrl: "/_layouts/15/userphoto.aspx?accountname=" + user.LoginName + "&size=S",
-                Email: user.Email
-            }
-        }
+        this.LoginName = LoginName;
     }
 
-
     getPersona = () => {
-        return this.persona ? this.persona : {
+        return {
             text: this.Title,
-            imageUrl: "",
+            imageUrl: this.LoginName ? "/_layouts/15/userphoto.aspx?accountname=" + this.LoginName + "&size=S" : TestImages.personaMale,
             Email: this.EMail
         }
     }
@@ -52,7 +41,7 @@ export class UserApi implements IUserApi {
             Id: user.Id,
             Title: user.Title,
             EMail: user.Email
-        }, user)
+        }, user.LoginName)
     };
 }
 
