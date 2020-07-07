@@ -2,23 +2,21 @@ import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequirementsRequest } from "../../api/DomainObjects";
+import { Person } from "../../api/UserApi";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
-import { Person } from "../../api/UserApi";
-import { useRequests } from "../Requests/Requests";
 
 export interface IRequestFormProps {
-    editRequestId?: number
+    editRequest?: IRequirementsRequest,
+    updateRequests: (request: IRequirementsRequestCRUD) => void
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [requests, updateRequests] = useRequests();
-
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(requests.find(req => req.Id === props.editRequestId)));
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.editRequest));
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
@@ -55,7 +53,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         let newRequest = await request.save();
         if (newRequest) {
             setRequest(newRequest);
-            updateRequests(newRequest);
+            props.updateRequests(newRequest);
         }
         setSaving(false);
         history.push("/Requests");
