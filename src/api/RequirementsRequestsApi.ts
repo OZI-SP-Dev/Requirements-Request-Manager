@@ -14,7 +14,7 @@ interface ISubmitRequirementsRequest {
     RequesterDSNPhone: string
     RequesterCommPhone: string
     ApprovingPEOId: number
-    PEOApprovedDate: string
+    PEOApprovedDate?: string
     PEOOrgSymbol: string
     PEO_DSNPhone: string
     PEO_CommPhone: string
@@ -98,7 +98,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterCommPhone: request.RequesterCommPhone,
             ApprovingPEOId: request.ApprovingPEO.Id > -1 ? request.ApprovingPEO.Id
                 : (await spWebContext.ensureUser(request.ApprovingPEO.EMail)).data.Id,
-            PEOApprovedDate: request.PEOApprovedDate.toISOString(),
+            PEOApprovedDate: request.PEOApprovedDate ? request.PEOApprovedDate.toISOString() : undefined,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,

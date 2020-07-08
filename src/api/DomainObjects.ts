@@ -47,7 +47,7 @@ export interface IRequirementsRequest {
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
     ApprovingPEO: Person,
-    PEOApprovedDate: Moment,
+    PEOApprovedDate: Moment | null,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
@@ -86,7 +86,7 @@ const blankRequest: IRequirementsRequest = {
     RequesterDSNPhone: "",
     RequesterCommPhone: "",
     ApprovingPEO: new Person(),
-    PEOApprovedDate: moment(),
+    PEOApprovedDate: null,
     PEOOrgSymbol: "",
     PEO_DSNPhone: "",
     PEO_CommPhone: "",
@@ -111,38 +111,38 @@ const blankRequest: IRequirementsRequest = {
 
 export class RequirementsRequest implements IRequirementsRequestCRUD {
 
-    api: IRequirementsRequestApi
+    api: IRequirementsRequestApi;
 
-    Id: number
-    Title: string
-    RequestDate: Moment
-    ReceivedDate: Moment
-    Requester: Person
-    RequesterOrgSymbol: string
-    RequesterDSNPhone: string
-    RequesterCommPhone: string
-    ApprovingPEO: Person
-    PEOApprovedDate: Moment
-    PEOOrgSymbol: string
-    PEO_DSNPhone: string
-    PEO_CommPhone: string
-    RequirementType: RequirementTypes
-    FundingOrgOrPEO: string
-    ApplicationNeeded: ApplicationTypes
-    OtherApplicationNeeded: string
-    IsProjectedOrgsEnterprise: boolean
-    ProjectedOrgsImpactedCenter: Centers
-    ProjectedOrgsImpactedOrg: string
-    ProjectedImpactedUsers: number
-    OperationalNeedDate: Moment
-    OrgPriority: OrgPriorities
-    PriorityExplanation: string
-    BusinessObjective: string
-    FunctionalRequirements: string
-    Benefits: string
-    Risk: string
-    AdditionalInfo: string
-    "odata.etag": string
+    Id: number;
+    Title: string;
+    RequestDate: Moment;
+    ReceivedDate: Moment;
+    Requester: Person;
+    RequesterOrgSymbol: string;
+    RequesterDSNPhone: string;
+    RequesterCommPhone: string;
+    ApprovingPEO: Person;
+    PEOApprovedDate: Moment | null;
+    PEOOrgSymbol: string;
+    PEO_DSNPhone: string;
+    PEO_CommPhone: string;
+    RequirementType: RequirementTypes;
+    FundingOrgOrPEO: string;
+    ApplicationNeeded: ApplicationTypes;
+    OtherApplicationNeeded: string;
+    IsProjectedOrgsEnterprise: boolean;
+    ProjectedOrgsImpactedCenter: Centers;
+    ProjectedOrgsImpactedOrg: string;
+    ProjectedImpactedUsers: number;
+    OperationalNeedDate: Moment;
+    OrgPriority: OrgPriorities;
+    PriorityExplanation: string;
+    BusinessObjective: string;
+    FunctionalRequirements: string;
+    Benefits: string;
+    Risk: string;
+    AdditionalInfo: string;
+    "odata.etag": string;
 
     constructor(request: IRequirementsRequest = blankRequest, api?: IRequirementsRequestApi) {
         this.api = api ? api : RequirementsRequestsApiConfig.getApi();
