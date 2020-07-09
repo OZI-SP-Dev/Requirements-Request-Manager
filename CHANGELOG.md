@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.2] - 2020-07-09
+### Added
+- Details view of requests on the /Requests page, expanded by clicking on a Request in the table
+- Edit page/route to edit existing Requests
+- Ability to delete a Request
+
 ## [0.1.1] - 2020-07-06
 ### Added
 - /Requests page to display requests submitted
