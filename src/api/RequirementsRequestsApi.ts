@@ -49,7 +49,7 @@ interface SPRequirementsRequest {
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
     ApprovingPEO: IPerson,
-    PEOApprovedDate: string,
+    PEOApprovedDate: string | null,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
@@ -132,7 +132,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
             ApprovingPEO: new Person(request.ApprovingPEO),
-            PEOApprovedDate: moment(request.PEOApprovedDate),
+            PEOApprovedDate: request.PEOApprovedDate ? moment(request.PEOApprovedDate) : null,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -187,8 +187,6 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
             returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
         }
-        console.log("Returning Request");
-        console.log(returnedRequest);
         return new RequirementsRequest(returnedRequest, this);
     }
 

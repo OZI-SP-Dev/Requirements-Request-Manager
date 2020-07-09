@@ -24,13 +24,16 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const history = useHistory();
 
     useEffect(() => {
-        updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
-        // eslint-disable-next-line
-    }, [user])
-
-    useEffect(() => {
         setRequest(new RequirementsRequest(props.editRequest));
     }, [props.editRequest])
+
+    useEffect(() => {
+        // only update the requester if this is a new request
+        if (request.Id < 0) {
+            updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
+        }
+        // eslint-disable-next-line
+    }, [user])
 
     const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | Person): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
