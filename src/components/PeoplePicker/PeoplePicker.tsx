@@ -17,8 +17,6 @@ const suggestionProps: IBasePickerSuggestionsProps = {
 };
 
 export interface SPPersona extends IPersonaProps {
-	AccountName?: string,
-	Department?: string,
 	Email?: string,
 	SPUserId?: string
 }
@@ -42,8 +40,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 			personas = [...props.defaultValue];
 		}
 		setSelectedItems(personas);
-		// eslint-disable-next-line
-	}, [])
+	}, [props.defaultValue])
 
 	const onFilterChanged = async (
 		filterText: string,

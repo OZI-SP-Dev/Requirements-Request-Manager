@@ -11,12 +11,12 @@ import './RequestForm.css';
 
 export interface IRequestFormProps {
     editRequest?: IRequirementsRequest,
-    updateRequests: (request: IRequirementsRequestCRUD) => void
+    submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.editRequest));
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
@@ -27,6 +27,10 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
         // eslint-disable-next-line
     }, [user])
+
+    useEffect(() => {
+        setRequest(new RequirementsRequest(props.editRequest));
+    }, [props.editRequest])
 
     const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | Person): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
@@ -50,11 +54,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSaving(true);
-        let newRequest = await request.save();
-        if (newRequest) {
-            setRequest(newRequest);
-            props.updateRequests(newRequest);
-        }
+        await props.submitRequest(request);
         setSaving(false);
         history.push("/Requests");
     }
@@ -97,13 +97,18 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>2 Ltr/PEO to Approve:</Form.Label>
                         <Form.Control
                             as={PeoplePicker}
+                            defaultValue={request.ApprovingPEO.Title ? [{
+                                text: request.ApprovingPEO.Title,
+                                imageInitials: request.ApprovingPEO.Title.substr(request.ApprovingPEO.Title.indexOf(' ') + 1, 1) + request.ApprovingPEO.Title.substr(0, 1),
+                                SPUserId: request.ApprovingPEO.Id.toString()
+                            }] : undefined}
                             updatePeople={(p: SPPersona[]) => {
                                 let persona = p[0];
-                                updateRequest('ApprovingPEO', new Person({
+                                updateRequest('ApprovingPEO', persona ? new Person({
                                     Id: persona.SPUserId ? Number(persona.SPUserId) : -1,
                                     Title: persona.text ? persona.text : "",
                                     EMail: persona.Email ? persona.Email : ""
-                                }));
+                                }) : new Person());
                             }}
                             readOnly={false}
                             required={true}

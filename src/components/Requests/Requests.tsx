@@ -1,13 +1,22 @@
-import React from "react";
-import { Button, Container, Table, Accordion, Row, Col } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Container, Table, Accordion, Row, Col, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
 
 export interface IRequestsProps {
-    requests: IRequirementsRequestCRUD[]
+    requests: IRequirementsRequestCRUD[],
+    deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
 
 export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
+
+    const [deleting, setDeleting] = useState<boolean>(false);
+
+    const deleteRequest = async (request: IRequirementsRequestCRUD) => {
+        setDeleting(true);
+        await props.deleteRequest(request);
+        setDeleting(false);
+    }
 
     return (
         <Container fluid="md" className="pb-5 pt-3">
@@ -164,6 +173,17 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Additional Information: </strong>
                                                     {request.AdditionalInfo ? request.AdditionalInfo : "None"}
+                                                </Col>
+                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
+                                                    <Button className="float-right" variant="danger"
+                                                        onClick={async () => deleteRequest(request)}
+                                                    >
+                                                        {deleting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                                                        {' '}{"Delete Request"}
+                                                    </Button>
+                                                    <Link to={`/Requests/${request.Id}`}>
+                                                        <Button className="float-right mr-2" variant="warning">Edit Request</Button>
+                                                    </Link>
                                                 </Col>
                                             </Row>
                                         </div>

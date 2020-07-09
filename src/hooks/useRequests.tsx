@@ -3,19 +3,28 @@ import { IRequirementsRequestCRUD } from "../api/DomainObjects";
 import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 
 
-export function useRequests(): [IRequirementsRequestCRUD[], (request: IRequirementsRequestCRUD) => void] {
+export function useRequests(): [IRequirementsRequestCRUD[],
+    (request: IRequirementsRequestCRUD) => Promise<void>,
+    (request: IRequirementsRequestCRUD) => Promise<void>] {
+
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
     const api: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
 
-    const updateRequests = (request: IRequirementsRequestCRUD) => {
+    const submitRequest = async (request: IRequirementsRequestCRUD) => {
+        let updatedRequest = await api.submitRequirementsRequest(request);
         let newRequests = requests;
-        let oldRequestIndex = newRequests.findIndex(req => req.Id === request.Id);
+        let oldRequestIndex = newRequests.findIndex(req => req.Id === updatedRequest.Id);
         if (oldRequestIndex > -1) {
-            newRequests[oldRequestIndex] = request;
+            newRequests[oldRequestIndex] = updatedRequest;
         } else {
-            newRequests.push(request);
+            newRequests.push(updatedRequest);
         }
         setRequests(newRequests);
+    }
+
+    const deleteRequest = async (request: IRequirementsRequestCRUD) => {
+        await api.deleteRequirementsRequest(request);
+        setRequests(requests.filter(req => req.Id !== request.Id));
     }
 
     const fetchRequests = async () => {
@@ -26,5 +35,5 @@ export function useRequests(): [IRequirementsRequestCRUD[], (request: IRequireme
         fetchRequests(); // eslint-disable-next-line
     }, []);
 
-    return ([requests, updateRequests]);
+    return ([requests, submitRequest, deleteRequest]);
 }
