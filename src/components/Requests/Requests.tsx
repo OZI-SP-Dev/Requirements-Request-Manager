@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Container, Table, Accordion, Row, Col, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
+import { RequestView } from "../RequestView/RequestView";
 
 export interface IRequestsProps {
     requests: IRequirementsRequestCRUD[],
@@ -55,125 +56,8 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 <td colSpan={7} className="p-0">
                                     <Accordion.Collapse eventKey={request.Id.toString()}>
                                         <div className="p-1">
-                                            <Row className="ml-2 mr-2 mt-2" style={{ textAlign: "left" }}>
-                                                <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Request Title: </strong>
-                                                    {request.Title}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                                                    <strong>Request Date: </strong>
-                                                    {request.RequestDate.format("DD MMM YYYY")}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={8} md={6} sm={6} xs={12}>
-                                                    <strong>Recieved Date: </strong>
-                                                    {request.ReceivedDate.format("DD MMM YYYY")}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
-                                                    <strong>Requester: </strong>
-                                                    {request.Requester.Title}
-                                                </Col>
-                                                <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
-                                                    <strong>Requester Email: </strong>
-                                                    {request.Requester.EMail}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
-                                                    <strong>Requester Org: </strong>
-                                                    {request.RequesterOrgSymbol}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>Requester Comm #: </strong>
-                                                    {request.RequesterCommPhone}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>Requester DSN #: </strong>
-                                                    {request.RequesterDSNPhone}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
-                                                    <strong>Approving PEO: </strong>
-                                                    {request.ApprovingPEO.Title}
-                                                </Col>
-                                                <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
-                                                    <strong>PEO Email: </strong>
-                                                    {request.ApprovingPEO.EMail}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
-                                                    <strong>PEO Org: </strong>
-                                                    {request.PEOOrgSymbol}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>PEO Comm #: </strong>
-                                                    {request.PEO_CommPhone}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>PEO DSN #: </strong>
-                                                    {request.PEO_DSNPhone}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>Requirement Type: </strong>
-                                                    {request.RequirementType}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>Funding Org: </strong>
-                                                    {request.FundingOrgOrPEO ? request.FundingOrgOrPEO : "Not Funded"}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                                                    <strong>Application Needed: </strong>
-                                                    {request.ApplicationNeeded === ApplicationTypes.OTHER ?
-                                                        request.OtherApplicationNeeded : request.ApplicationNeeded}
-                                                </Col>
-                                            </Row>
-                                            <Row className="ml-2 mr-2 mb-2" style={{ textAlign: "left" }}>
-                                                <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                                                    <strong>Projected Organizations Impacted: </strong>
-                                                </Col>
-                                                <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
-                                                    <strong>Is Enterprise?: </strong>
-                                                    {request.IsProjectedOrgsEnterprise ? "Yes" : "No"}
-                                                </Col>
-                                                <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
-                                                    <strong>Center: </strong>
-                                                    {request.ProjectedOrgsImpactedCenter}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                                                    <strong>Organization: </strong>
-                                                    {request.ProjectedOrgsImpactedOrg}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                                                    <strong>Projected Number of Impacted Users: </strong>
-                                                    {request.ProjectedImpactedUsers}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                                                    <strong>Operational Need Date: </strong>
-                                                    {request.OperationalNeedDate.format("DD MMM YYYY")}
-                                                </Col>
-                                                <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                                                    <strong>Organization's' Priority: </strong>
-                                                    {request.OrgPriority}
-                                                </Col>
-                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Priority Explanation: </strong>
-                                                    {request.PriorityExplanation}
-                                                </Col>
-                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Business Objective: </strong>
-                                                    {request.BusinessObjective}
-                                                </Col>
-                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Functional Requirements: </strong>
-                                                    {request.FunctionalRequirements}
-                                                </Col>
-                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Benefits: </strong>
-                                                    {request.Benefits}
-                                                </Col>
-                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Risks: </strong>
-                                                    {request.Risk}
-                                                </Col>
-                                                <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <strong>Additional Information: </strong>
-                                                    {request.AdditionalInfo ? request.AdditionalInfo : "None"}
-                                                </Col>
+                                            <RequestView request={request} />
+                                            <Row>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <Button className="float-right" variant="danger"
                                                         onClick={async () => deleteRequest(request)}
