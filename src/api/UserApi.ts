@@ -1,7 +1,7 @@
-import { TestImages } from "@uifabric/example-data";
+import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { spWebContext } from "../providers/SPWebContext";
 
-export interface IPerson {
+export interface IPerson extends IPersonaProps {
     Id: number
     Title: string
     EMail: string
@@ -10,21 +10,25 @@ export interface IPerson {
 export class Person implements IPerson {
     Id: number
     Title: string
+    text: string
+    secondaryText: string
     EMail: string
-    LoginName?: string
+    imageUrl?: string
+    imageInitials?: string
 
     constructor(person: IPerson = { Id: -1, Title: "", EMail: "" }, LoginName?: string) {
         this.Id = person.Id;
-        this.Title = person.Title;
+        this.Title = person.Title ? person.Title : person.text ? person.text : "";
+        this.text = person.text ? person.text : this.Title;
+        this.secondaryText = person.secondaryText ? person.secondaryText : "";
         this.EMail = person.EMail;
-        this.LoginName = LoginName;
-    }
-
-    getPersona = () => {
-        return {
-            text: this.Title,
-            imageUrl: this.LoginName ? "/_layouts/15/userphoto.aspx?accountname=" + this.LoginName + "&size=S" : TestImages.personaMale,
-            Email: this.EMail
+        if (person.imageUrl) {
+            this.imageUrl = person.imageUrl;
+        } else if (LoginName) {
+            this.imageUrl = "/_layouts/15/userphoto.aspx?accountname=" + LoginName + "&size=S"
+        }
+        if (!this.imageUrl) {
+            this.imageInitials = this.Title.substr(this.Title.indexOf(' ') + 1, 1) + this.Title.substr(0, 1);
         }
     }
 }

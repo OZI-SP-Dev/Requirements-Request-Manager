@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Container, Table, Accordion, Row, Col, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
+import "./Requests.css"
 
 export interface IRequestsProps {
     requests: IRequirementsRequestCRUD[],
@@ -152,27 +153,29 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Priority Explanation: </strong>
-                                                    {request.PriorityExplanation}
+                                                    <p className="preserve-whitespace">{request.PriorityExplanation}</p>
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Business Objective: </strong>
-                                                    {request.BusinessObjective}
+                                                    <p className="preserve-whitespace">{request.BusinessObjective}</p>
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Functional Requirements: </strong>
-                                                    {request.FunctionalRequirements}
+                                                    <p className="preserve-whitespace">{request.FunctionalRequirements}</p>
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Benefits: </strong>
-                                                    {request.Benefits}
+                                                    <p className="preserve-whitespace">{request.Benefits}</p>
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Risks: </strong>
-                                                    {request.Risk}
+                                                    <p className="preserve-whitespace">{request.Risk}</p>
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <strong>Additional Information: </strong>
-                                                    {request.AdditionalInfo ? request.AdditionalInfo : "None"}
+                                                    <p className="preserve-whitespace">
+                                                        {request.AdditionalInfo ? request.AdditionalInfo : "None"}
+                                                    </p>
                                                 </Col>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     <Button className="float-right" variant="danger"

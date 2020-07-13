@@ -1,12 +1,12 @@
 import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequirementsRequest } from "../../api/DomainObjects";
-import { Person } from "../../api/UserApi";
+import { Person, IPerson } from "../../api/UserApi";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
-import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
+import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
 
 export interface IRequestFormProps {
@@ -23,6 +23,15 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const { user } = useContext(UserContext);
     const history = useHistory();
 
+    // Scroll to the top of the page when navigating to the RequestForm page
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }, [])
+
+    // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
         setRequest(new RequirementsRequest(props.editRequest));
     }, [props.editRequest])
@@ -64,7 +73,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
 
     return (
         <Container className="pb-5 pt-3">
-            <h1>New Request</h1>
+            <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
@@ -100,18 +109,10 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>2 Ltr/PEO to Approve:</Form.Label>
                         <Form.Control
                             as={PeoplePicker}
-                            defaultValue={request.ApprovingPEO.Title ? [{
-                                text: request.ApprovingPEO.Title,
-                                imageInitials: request.ApprovingPEO.Title.substr(request.ApprovingPEO.Title.indexOf(' ') + 1, 1) + request.ApprovingPEO.Title.substr(0, 1),
-                                SPUserId: request.ApprovingPEO.Id.toString()
-                            }] : undefined}
-                            updatePeople={(p: SPPersona[]) => {
+                            defaultValue={request.ApprovingPEO.Title ? [request.ApprovingPEO] : undefined}
+                            updatePeople={(p: IPerson[]) => {
                                 let persona = p[0];
-                                updateRequest('ApprovingPEO', persona ? new Person({
-                                    Id: persona.SPUserId ? Number(persona.SPUserId) : -1,
-                                    Title: persona.text ? persona.text : "",
-                                    EMail: persona.Email ? persona.Email : ""
-                                }) : new Person());
+                                updateRequest('ApprovingPEO', persona ? new Person(persona) : new Person());
                             }}
                             readOnly={false}
                             required={true}
@@ -363,10 +364,15 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                 </Form.Row>
-                <Button className="float-right" variant="primary" onClick={submitRequest}>
+                <Button className="mb-3 ml-2 float-right" variant="primary" onClick={submitRequest}>
                     {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                     {' '}{"Submit Request"}
                 </Button>
+                <Link to="/Requests">
+                    <Button className="mb-3 float-right" variant="secondary">
+                        Cancel
+                    </Button>
+                </Link>
             </Form>
         </Container>);
 }
