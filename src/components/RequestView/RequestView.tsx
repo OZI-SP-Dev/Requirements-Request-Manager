@@ -107,27 +107,29 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Priority Explanation: </strong>
-                    {props.request.PriorityExplanation}
+                    <p className="preserve-whitespace">{props.request.PriorityExplanation}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Business Objective: </strong>
-                    {props.request.BusinessObjective}
+                    <p className="preserve-whitespace">{props.request.BusinessObjective}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Functional Requirements: </strong>
-                    {props.request.FunctionalRequirements}
+                    <p className="preserve-whitespace">{props.request.FunctionalRequirements}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Benefits: </strong>
-                    {props.request.Benefits}
+                    <p className="preserve-whitespace">{props.request.Benefits}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Risks: </strong>
-                    {props.request.Risk}
+                    <p className="preserve-whitespace">{props.request.Risk}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Additional Information: </strong>
-                    {props.request.AdditionalInfo ? props.request.AdditionalInfo : "None"}
+                    <p className="preserve-whitespace">
+                        {props.request.AdditionalInfo ? props.request.AdditionalInfo : "None"}
+                    </p>
                 </Col>
             </Row>
         </>
