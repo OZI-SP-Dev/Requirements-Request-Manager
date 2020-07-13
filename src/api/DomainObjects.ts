@@ -71,8 +71,24 @@ export interface IRequirementsRequest {
 }
 
 export interface IRequirementsRequestCRUD extends IRequirementsRequest {
+    /** 
+     * Get an updated version of the current RequirementsRequest, it will overwrite the current fields of this request.
+     * 
+     * @returns the most up to date version of this RequirementsRequest can return null or undefined if it has not been saved yet.
+     */
     getUpdated: () => Promise<IRequirementsRequestCRUD | null | undefined>,
+
+    /**
+     * Save/persist the current RequirementsRequest. This method
+     * should be used for both the initial submit and any updaets.
+     * 
+     * @returns the saved/persisted RequirementsRequest, it will now have an Id if it was a new request.
+     */
     save: () => Promise<IRequirementsRequestCRUD | null | undefined>,
+
+    /**
+     * Remove this RequirementsRequest from its persistence
+     */
     delete: () => Promise<void>
 }
 
@@ -109,6 +125,11 @@ const blankRequest: IRequirementsRequest = {
     "odata.etag": ""
 }
 
+/**
+ * Full implementation for IRequirementsRequestCRUD. If none is supplied it will just use the default API for persistence,
+ * given by RequirementsRequestsApiConfig. This should be the default behavior but it allows the user to supply an API for 
+ * test purposes and because when running locally there can be a cyclical initialization when setting up test data.
+ */
 export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     api: IRequirementsRequestApi;

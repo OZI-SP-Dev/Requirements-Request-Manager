@@ -7,6 +7,10 @@ export interface IPerson extends IPersonaProps {
     EMail: string
 }
 
+/**
+ * This class represents a User of this application. 
+ * It also supports interfacing with the PeoplePicker library.
+ */
 export class Person implements IPerson {
     Id: number
     Title: string
@@ -34,7 +38,19 @@ export class Person implements IPerson {
 }
 
 export interface IUserApi {
+    /**
+     * @returns The current, logged in user
+     */
     getCurrentUser: () => Promise<Person>
+
+    /**
+     * Get the Id of the user with the email given
+     * 
+     * @param email The email of the user
+     * 
+     * @returns The Id of the user with the supplied email
+     */
+    getUserId: (email: string) => Promise<number>
 }
 
 export class UserApi implements IUserApi {
@@ -47,6 +63,10 @@ export class UserApi implements IUserApi {
             EMail: user.Email
         }, user.LoginName)
     };
+
+    getUserId = async (email: string) => {
+        return (await spWebContext.ensureUser(email)).data.Id;
+    }
 }
 
 export class UserApiDev implements IUserApi {
@@ -63,6 +83,11 @@ export class UserApiDev implements IUserApi {
             EMail: "me@example.com"
         })
     };
+
+    getUserId = async () => {
+        await this.sleep();
+        return 1;
+    }
 }
 
 export class UserApiConfig {
