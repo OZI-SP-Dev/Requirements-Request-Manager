@@ -4,7 +4,12 @@ import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
 import { UserApiConfig, Person, IPerson } from "./UserApi";
 
+/**
+ * This interface is used to submit/update requests to SP and it also models what SP returns from those endpoints.
+ * It is meant to only be an internal interface and should not be used outside of communicating with the SP API.
+ */
 interface ISubmitRequirementsRequest {
+    // can be undefined if it is an intial submission
     Id?: number
     Title: string
     RequestDate: string
@@ -14,7 +19,7 @@ interface ISubmitRequirementsRequest {
     RequesterDSNPhone: string
     RequesterCommPhone: string
     ApprovingPEOId: number
-    PEOApprovedDate: string
+    PEOApprovedDate?: string
     PEOOrgSymbol: string
     PEO_DSNPhone: string
     PEO_CommPhone: string
@@ -34,11 +39,16 @@ interface ISubmitRequirementsRequest {
     Benefits: string
     Risk: string
     AdditionalInfo: string
+    // undefined when submitting but will be filled in in the response from SP
     __metadata?: {
         etag: string
     }
 }
 
+/**
+ * This interface is meant to model exactly what SP will return in the GET endpoint responses.
+ * It is meant to only be an internal interface and should not be used outside of communicating with the SP API.
+ */
 interface SPRequirementsRequest {
     Id: number,
     Title: string,
@@ -49,7 +59,7 @@ interface SPRequirementsRequest {
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
     ApprovingPEO: IPerson,
-    PEOApprovedDate: string,
+    PEOApprovedDate: string | null,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
@@ -75,9 +85,30 @@ interface SPRequirementsRequest {
 }
 
 export interface IRequirementsRequestApi {
+    /**
+     * Fetch the most up to date RequirementsRequest with the given Id
+     * 
+     * @param Id The Id of the RequirementsRequest to be fetched
+     */
     fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | null | undefined>,
+
+    /**
+     * Fetch all of the RequirementsRequests
+     */
     fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]>,
+
+    /**
+     * Submit/update/persist the given RequirementsRequest
+     * 
+     * @param requirementsRequest The RequirementsRequest to be saved/updated
+     */
     submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD>,
+
+    /**
+     * Remove the given RequirementsRequest
+     * 
+     * @param requirementsRequest The RequirementsRequest to be deleted/removed
+     */
     deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void>
 }
 
@@ -86,19 +117,21 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     requirementsRequestList = spWebContext.lists.getByTitle("RequirementsRequests");
     userApi = UserApiConfig.getApi();
 
+    // Map the given IRequirementsRequest to a ISubmitRequirementsRequest so that it can be submitted to SP
     getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
         return {
             Id: request.Id,
             Title: request.Title,
             RequestDate: request.RequestDate.toISOString(),
             ReceivedDate: request.ReceivedDate.toISOString(),
+            // If the RequesterId is not known, then get the current user from the UserApi and use that
             RequesterId: request.Requester.Id > -1 ? request.Requester.Id : (await this.userApi.getCurrentUser()).Id,
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
-            ApprovingPEOId: request.ApprovingPEO.Id > -1 ? request.ApprovingPEO.Id
-                : (await spWebContext.ensureUser(request.ApprovingPEO.EMail)).data.Id,
-            PEOApprovedDate: request.PEOApprovedDate.toISOString(),
+            // If the ApprovingPEOId is not known then "ensureUser" to add the user to the SP site and get their Id
+            ApprovingPEOId: request.ApprovingPEO.Id > -1 ? request.ApprovingPEO.Id : await this.userApi.getUserId(request.ApprovingPEO.EMail),
+            PEOApprovedDate: request.PEOApprovedDate ? request.PEOApprovedDate.toISOString() : undefined,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -121,6 +154,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         }
     }
 
+    // Map the given SPRequirementsRequest returned by SP to an IRequirementsRequest to be used interally
     getIRequirementsRequest = (request: SPRequirementsRequest): IRequirementsRequest => {
         return {
             Id: request.Id,
@@ -132,7 +166,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
             ApprovingPEO: new Person(request.ApprovingPEO),
-            PEOApprovedDate: moment(request.PEOApprovedDate),
+            PEOApprovedDate: request.PEOApprovedDate ? moment(request.PEOApprovedDate) : null,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -162,6 +196,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
+        // TODO: Change this so that it filters on IsDeleted: false
+        // TODO: Change this so that it deals with paging
         let pagedRequests = await this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOApprovedDate", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").getPaged();
         let requests: SPRequirementsRequest[] = pagedRequests.results;
         while (pagedRequests.hasNext) {
@@ -177,22 +213,22 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
         let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
         let returnedRequest = requirementsRequest;
+        // If this RequirementsRequest already exists
         if (requirementsRequest.Id > -1) {
             returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
                 .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
-        } else {
+        } else { // This is a new RequirementsRequest
             let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
             returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
             returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
             returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
             returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
         }
-        console.log("Returning Request");
-        console.log(returnedRequest);
         return new RequirementsRequest(returnedRequest, this);
     }
 
     deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
+        // TODO: update this so that it simply changes the Request to have IsDeleted: true
         return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
     }
 }

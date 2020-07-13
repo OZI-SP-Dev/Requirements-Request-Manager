@@ -10,10 +10,10 @@ function App() {
   return (
     <HashRouter>
       <UserProvider>
-        <Container className="app-container border shadow-lg p-0">
+        <Container fluid="md" className="app-container border shadow-lg p-0">
           <AppHeader />
           <Switch>
-            <Route path="/Requests">
+            <Route path="/Requests/:requestId?">
               <RequestRoutes />
             </Route>
           </Switch>

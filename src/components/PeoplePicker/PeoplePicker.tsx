@@ -5,6 +5,7 @@ import { people } from '@uifabric/example-data';
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { IBasePickerSuggestionsProps, NormalPeoplePicker } from 'office-ui-fabric-react/lib/Pickers';
 import * as React from 'react';
+import { IPerson, Person } from "../../api/UserApi";
 
 const suggestionProps: IBasePickerSuggestionsProps = {
 	suggestionsHeaderText: 'Suggested People',
@@ -16,18 +17,11 @@ const suggestionProps: IBasePickerSuggestionsProps = {
 	suggestionsContainerAriaLabel: 'Suggested contacts',
 };
 
-export interface SPPersona extends IPersonaProps {
-	AccountName?: string,
-	Department?: string,
-	Email?: string,
-	SPUserId?: string
-}
-
 interface IPeoplePickerProps {
-	defaultValue?: SPPersona[],
+	defaultValue?: IPerson[],
 	readonly?: boolean,
 	required?: boolean,
-	updatePeople: (p: SPPersona[]) => void
+	updatePeople: (p: IPerson[]) => void
 }
 
 export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props) => {
@@ -37,13 +31,12 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 	const peoplePickerInput = React.useRef<any>(null);
 
 	React.useEffect(() => {
-		let personas: SPPersona[] = [];
+		let personas: IPerson[] = [];
 		if (props.defaultValue) {
 			personas = [...props.defaultValue];
 		}
 		setSelectedItems(personas);
-		// eslint-disable-next-line
-	}, [])
+	}, [props.defaultValue])
 
 	const onFilterChanged = async (
 		filterText: string,
@@ -67,12 +60,13 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 				});
 				let newPersonas: IPersonaProps[] = [];
 				results.forEach((person: IPeoplePickerEntity) => {
-					const persona: SPPersona = {
+					const persona: IPerson = new Person({
+						Id: -1,
+						Title: person.DisplayText,
 						text: person.DisplayText,
 						secondaryText: person.EntityData.Title,
-						imageInitials: person.DisplayText.substr(person.DisplayText.indexOf(' ') + 1, 1) + person.DisplayText.substr(0, 1),
-						Email: person.EntityData.Email
-					}
+						EMail: person.EntityData.Email ? person.EntityData.Email : ""
+					});
 					newPersonas.push(persona);
 				});
 				filteredPersonas = newPersonas;

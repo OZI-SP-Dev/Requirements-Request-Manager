@@ -1,6 +1,6 @@
 {
   "name": "requirements-request-manager",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.121.5",
@@ -29,6 +29,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build:rrm-dev": "env-cmd -f ./.env.rrm-dev.json react-scripts build&&npm run rename",
+    "build:rrm-uat": "env-cmd -f ./.env.rrm-uat.json react-scripts build&&npm run rename",
     "rename": "node -e \"require('fs').rename('build/index.html', 'build/index.aspx', function(err) { if (err) console.log(err); console.log('File successfully renamed!') })\"",
     "test": "react-scripts test"
   },

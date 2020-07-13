@@ -1,44 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { HashRouter, Switch, Route } from "react-router-dom";
+import React from "react";
+import { HashRouter, Route, Switch, useParams } from "react-router-dom";
+import { useRequests } from "../../hooks/useRequests";
 import { RequestForm } from "../RequestForm/RequestForm";
 import { Requests } from "../Requests/Requests";
-import { IRequirementsRequestCRUD } from "../../api/DomainObjects";
-import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from "../../api/RequirementsRequestsApi";
 
 
 export const RequestRoutes: React.FunctionComponent<any> = (props) => {
 
-    const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
-
-    const api: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
-
-    const updateRequests = (request: IRequirementsRequestCRUD) => {
-        let newRequests = requests;
-        let oldRequestIndex = newRequests.findIndex(req => req.Id === request.Id);
-        if (oldRequestIndex > -1) {
-            newRequests[oldRequestIndex] = request;
-        } else {
-            newRequests.push(request);
-        }
-        setRequests(newRequests);
-    }
-
-    const fetchRequests = async () => {
-        setRequests(await api.fetchRequirementsRequests())
-    }
-
-    useEffect(() => {
-        fetchRequests(); // eslint-disable-next-line
-    }, []);
+    const [requests, submitRequest, deleteRequest] = useRequests();
+    const { requestId } = useParams();
 
     return (
         <HashRouter>
             <Switch>
-                <Route path="/Requests/new">
-                    <RequestForm updateRequests={updateRequests} />
+                <Route exact path="/Requests">
+                    <Requests requests={requests} deleteRequest={deleteRequest} />
                 </Route>
-                <Route path="/Requests">
-                    <Requests requests={requests} />
+                <Route exact path="/Requests/new">
+                    <RequestForm submitRequest={submitRequest} />
+                </Route>
+                <Route path="(/Requests/[0-9]+)">
+                    <RequestForm submitRequest={submitRequest} editRequest={requests.find(req => req.Id === Number(requestId))} />
                 </Route>
             </Switch>
         </HashRouter>

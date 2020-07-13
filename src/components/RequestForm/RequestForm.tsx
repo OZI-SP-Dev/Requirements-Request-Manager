@@ -1,30 +1,46 @@
 import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { useHistory, Link } from "react-router-dom";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequirementsRequest } from "../../api/DomainObjects";
+import { Person, IPerson } from "../../api/UserApi";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
-import { PeoplePicker, SPPersona } from "../PeoplePicker/PeoplePicker";
+import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
-import { Person } from "../../api/UserApi";
 
 export interface IRequestFormProps {
-    defaultRequest?: IRequirementsRequest,
-    updateRequests: (request: IRequirementsRequestCRUD) => void
+    editRequest?: IRequirementsRequest,
+    submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.defaultRequest));
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
     const { user } = useContext(UserContext);
     const history = useHistory();
 
+    // Scroll to the top of the page when navigating to the RequestForm page
     useEffect(() => {
-        updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }, [])
+
+    // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
+    useEffect(() => {
+        setRequest(new RequirementsRequest(props.editRequest));
+    }, [props.editRequest])
+
+    useEffect(() => {
+        // only update the requester if this is a new request
+        if (request.Id < 0) {
+            updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
+        }
         // eslint-disable-next-line
     }, [user])
 
@@ -50,18 +66,14 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSaving(true);
-        let newRequest = await request.save();
-        if (newRequest) {
-            setRequest(newRequest);
-            props.updateRequests(newRequest);
-        }
+        await props.submitRequest(request);
         setSaving(false);
         history.push("/Requests");
     }
 
     return (
         <Container className="pb-5 pt-3">
-            <h1>New Request</h1>
+            <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
@@ -97,13 +109,10 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>2 Ltr/PEO to Approve:</Form.Label>
                         <Form.Control
                             as={PeoplePicker}
-                            updatePeople={(p: SPPersona[]) => {
+                            defaultValue={request.ApprovingPEO.Title ? [request.ApprovingPEO] : undefined}
+                            updatePeople={(p: IPerson[]) => {
                                 let persona = p[0];
-                                updateRequest('ApprovingPEO', new Person({
-                                    Id: persona.SPUserId ? Number(persona.SPUserId) : -1,
-                                    Title: persona.text ? persona.text : "",
-                                    EMail: persona.Email ? persona.Email : ""
-                                }));
+                                updateRequest('ApprovingPEO', persona ? new Person(persona) : new Person());
                             }}
                             readOnly={false}
                             required={true}
@@ -355,10 +364,15 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                 </Form.Row>
-                <Button className="float-right" variant="primary" onClick={submitRequest}>
+                <Button className="mb-3 ml-2 float-right" variant="primary" onClick={submitRequest}>
                     {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                     {' '}{"Submit Request"}
                 </Button>
+                <Link to="/Requests">
+                    <Button className="mb-3 float-right" variant="secondary">
+                        Cancel
+                    </Button>
+                </Link>
             </Form>
         </Container>);
 }
