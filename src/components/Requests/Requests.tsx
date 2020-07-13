@@ -59,14 +59,17 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                             <RequestView request={request} />
                                             <Row>
                                                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <Button className="float-right" variant="danger"
+                                                    <Button className="float-left" variant="danger"
                                                         onClick={async () => deleteRequest(request)}
                                                     >
                                                         {deleting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                                                         {' '}{"Delete Request"}
                                                     </Button>
-                                                    <Link to={`/Requests/${request.Id}`}>
-                                                        <Button className="float-right mr-2" variant="warning">Edit Request</Button>
+                                                    <Link to={`/Requests/Edit/${request.Id}`}>
+                                                        <Button className="float-left ml-2" variant="warning">Edit Request</Button>
+                                                    </Link>
+                                                    <Link to={`/Requests/Review/${request.Id}`}>
+                                                        <Button className="float-right" variant="primary">Review Request</Button>
                                                     </Link>
                                                 </Col>
                                             </Row>

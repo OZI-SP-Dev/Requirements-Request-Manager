@@ -1,80 +1,86 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
-import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
+import { ApplicationTypes, IRequirementsRequestCRUD, IRequirementsRequest, RequirementsRequest } from "../../api/DomainObjects";
 
 export interface IRequestViewProps {
-    request: IRequirementsRequestCRUD
+    request?: IRequirementsRequestCRUD
 }
 
 export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
+
+    const [request, setRequest] = useState<IRequirementsRequest>(props.request ? props.request : new RequirementsRequest());
+
+    useEffect(() => {
+        setRequest(props.request ? props.request : new RequirementsRequest());
+    }, [props.request])
 
     return (
         <>
             <Row className="ml-2 mr-2 mt-2" style={{ textAlign: "left" }}>
                 <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
                     <strong>Request Title: </strong>
-                    {props.request.Title}
+                    {request.Title}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                     <strong>Request Date: </strong>
-                    {props.request.RequestDate.format("DD MMM YYYY")}
+                    {request.RequestDate.format("DD MMM YYYY")}
                 </Col>
                 <Col className="mt-2" xl={4} lg={8} md={6} sm={6} xs={12}>
                     <strong>Recieved Date: </strong>
-                    {props.request.ReceivedDate.format("DD MMM YYYY")}
+                    {request.ReceivedDate.format("DD MMM YYYY")}
                 </Col>
                 <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
                     <strong>Requester: </strong>
-                    {props.request.Requester.Title}
+                    {request.Requester.Title}
                 </Col>
                 <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
                     <strong>Requester Email: </strong>
-                    {props.request.Requester.EMail}
+                    {request.Requester.EMail}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
                     <strong>Requester Org: </strong>
-                    {props.request.RequesterOrgSymbol}
+                    {request.RequesterOrgSymbol}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>Requester Comm #: </strong>
-                    {props.request.RequesterCommPhone}
+                    {request.RequesterCommPhone}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>Requester DSN #: </strong>
-                    {props.request.RequesterDSNPhone}
+                    {request.RequesterDSNPhone}
                 </Col>
                 <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
                     <strong>Approving PEO: </strong>
-                    {props.request.ApprovingPEO.Title}
+                    {request.ApprovingPEO.Title}
                 </Col>
                 <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
                     <strong>PEO Email: </strong>
-                    {props.request.ApprovingPEO.EMail}
+                    {request.ApprovingPEO.EMail}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
                     <strong>PEO Org: </strong>
-                    {props.request.PEOOrgSymbol}
+                    {request.PEOOrgSymbol}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>PEO Comm #: </strong>
-                    {props.request.PEO_CommPhone}
+                    {request.PEO_CommPhone}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>PEO DSN #: </strong>
-                    {props.request.PEO_DSNPhone}
+                    {request.PEO_DSNPhone}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>Requirement Type: </strong>
-                    {props.request.RequirementType}
+                    {request.RequirementType}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>Funding Org: </strong>
-                    {props.request.FundingOrgOrPEO ? props.request.FundingOrgOrPEO : "Not Funded"}
+                    {request.FundingOrgOrPEO ? request.FundingOrgOrPEO : "Not Funded"}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>Application Needed: </strong>
-                    {props.request.ApplicationNeeded === ApplicationTypes.OTHER ?
-                        props.request.OtherApplicationNeeded : props.request.ApplicationNeeded}
+                    {request.ApplicationNeeded === ApplicationTypes.OTHER ?
+                        request.OtherApplicationNeeded : request.ApplicationNeeded}
                 </Col>
             </Row>
             <Row className="ml-2 mr-2 mb-2" style={{ textAlign: "left" }}>
@@ -83,52 +89,52 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                 </Col>
                 <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
                     <strong>Is Enterprise?: </strong>
-                    {props.request.IsProjectedOrgsEnterprise ? "Yes" : "No"}
+                    {request.IsProjectedOrgsEnterprise ? "Yes" : "No"}
                 </Col>
                 <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
                     <strong>Center: </strong>
-                    {props.request.ProjectedOrgsImpactedCenter}
+                    {request.ProjectedOrgsImpactedCenter}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                     <strong>Organization: </strong>
-                    {props.request.ProjectedOrgsImpactedOrg}
+                    {request.ProjectedOrgsImpactedOrg}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                     <strong>Projected Number of Impacted Users: </strong>
-                    {props.request.ProjectedImpactedUsers}
+                    {request.ProjectedImpactedUsers}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                     <strong>Operational Need Date: </strong>
-                    {props.request.OperationalNeedDate.format("DD MMM YYYY")}
+                    {request.OperationalNeedDate.format("DD MMM YYYY")}
                 </Col>
                 <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                     <strong>Organization's' Priority: </strong>
-                    {props.request.OrgPriority}
+                    {request.OrgPriority}
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Priority Explanation: </strong>
-                    <p className="preserve-whitespace">{props.request.PriorityExplanation}</p>
+                    <p className="preserve-whitespace">{request.PriorityExplanation}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Business Objective: </strong>
-                    <p className="preserve-whitespace">{props.request.BusinessObjective}</p>
+                    <p className="preserve-whitespace">{request.BusinessObjective}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Functional Requirements: </strong>
-                    <p className="preserve-whitespace">{props.request.FunctionalRequirements}</p>
+                    <p className="preserve-whitespace">{request.FunctionalRequirements}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Benefits: </strong>
-                    <p className="preserve-whitespace">{props.request.Benefits}</p>
+                    <p className="preserve-whitespace">{request.Benefits}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Risks: </strong>
-                    <p className="preserve-whitespace">{props.request.Risk}</p>
+                    <p className="preserve-whitespace">{request.Risk}</p>
                 </Col>
                 <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Additional Information: </strong>
                     <p className="preserve-whitespace">
-                        {props.request.AdditionalInfo ? props.request.AdditionalInfo : "None"}
+                        {request.AdditionalInfo ? request.AdditionalInfo : "None"}
                     </p>
                 </Col>
             </Row>
