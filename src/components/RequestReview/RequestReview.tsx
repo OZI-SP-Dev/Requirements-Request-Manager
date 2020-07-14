@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Container } from "react-bootstrap";
 import { IRequirementsRequestCRUD } from "../../api/DomainObjects";
+import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { RequestView } from "../RequestView/RequestView";
 
 
@@ -10,13 +11,7 @@ export interface IRequestReviewProps {
 
 export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (props) => {
 
-    // Scroll to the top of the page when navigating to the RequestForm page
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    }, [])
+    useScrollToTop();
 
     return (
         <Container fluid="md" className="pb-5 pt-3">

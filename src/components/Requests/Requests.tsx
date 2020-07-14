@@ -50,7 +50,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
                                 <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
-                                <td>{request.PEOApprovedDate ? request.PEOApprovedDate.format("DD MMM YYYY") : "None"}</td>
+                                <td>{request.PEOApprovedDateTime ? request.PEOApprovedDateTime.format("DD MMM YYYY") : "None"}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
                                 <td colSpan={7} className="p-0">

@@ -8,6 +8,7 @@ import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
+import { useScrollToTop } from "../../hooks/useScrollToTop";
 
 export interface IRequestFormProps {
     editRequest?: IRequirementsRequest,
@@ -23,13 +24,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const { user } = useContext(UserContext);
     const history = useHistory();
 
-    // Scroll to the top of the page when navigating to the RequestForm page
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    }, [])
+    useScrollToTop();
 
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {

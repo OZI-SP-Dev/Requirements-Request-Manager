@@ -8,7 +8,7 @@ import { Requests } from "../Requests/Requests";
 
 export const RequestRoutes: React.FunctionComponent<any> = (props) => {
 
-    const [requests, submitRequest, deleteRequest] = useRequests();
+    const [requests, submitRequest, submitApproval, deleteRequest] = useRequests();
     const { requestId } = useParams();
 
     return (

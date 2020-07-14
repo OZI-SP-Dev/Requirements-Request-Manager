@@ -3,6 +3,7 @@ import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
 import { UserApiConfig, Person, IPerson } from "./UserApi";
+import { RequestApprovalsApiConfig, IRequestApproval } from "./RequestApprovalsApi";
 
 /**
  * This interface is used to submit/update requests to SP and it also models what SP returns from those endpoints.
@@ -19,7 +20,6 @@ interface ISubmitRequirementsRequest {
     RequesterDSNPhone: string
     RequesterCommPhone: string
     ApprovingPEOId: number
-    PEOApprovedDate?: string
     PEOOrgSymbol: string
     PEO_DSNPhone: string
     PEO_CommPhone: string
@@ -59,7 +59,6 @@ interface SPRequirementsRequest {
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
     ApprovingPEO: IPerson,
-    PEOApprovedDate: string | null,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
@@ -90,7 +89,7 @@ export interface IRequirementsRequestApi {
      * 
      * @param Id The Id of the RequirementsRequest to be fetched
      */
-    fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | null | undefined>,
+    fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined>,
 
     /**
      * Fetch all of the RequirementsRequests
@@ -116,6 +115,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     requirementsRequestList = spWebContext.lists.getByTitle("RequirementsRequests");
     userApi = UserApiConfig.getApi();
+    requestApprovalsApi = RequestApprovalsApiConfig.getApi();
 
     // Map the given IRequirementsRequest to a ISubmitRequirementsRequest so that it can be submitted to SP
     getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
@@ -131,7 +131,6 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterCommPhone: request.RequesterCommPhone,
             // If the ApprovingPEOId is not known then "ensureUser" to add the user to the SP site and get their Id
             ApprovingPEOId: request.ApprovingPEO.Id > -1 ? request.ApprovingPEO.Id : await this.userApi.getUserId(request.ApprovingPEO.EMail),
-            PEOApprovedDate: request.PEOApprovedDate ? request.PEOApprovedDate.toISOString() : undefined,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -155,7 +154,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     // Map the given SPRequirementsRequest returned by SP to an IRequirementsRequest to be used interally
-    getIRequirementsRequest = (request: SPRequirementsRequest): IRequirementsRequest => {
+    getIRequirementsRequest = (request: SPRequirementsRequest, approval?: IRequestApproval): IRequirementsRequest => {
         return {
             Id: request.Id,
             Title: request.Title,
@@ -166,7 +165,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
             ApprovingPEO: new Person(request.ApprovingPEO),
-            PEOApprovedDate: request.PEOApprovedDate ? moment(request.PEOApprovedDate) : null,
+            PEOApprovedDateTime: approval ? approval.Created : null,
+            PEOApprovedComment: approval ? approval.Comment : null,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -191,21 +191,27 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
-        // SP will return a SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
-        return new RequirementsRequest(this.getIRequirementsRequest(await this.requirementsRequestList.items.getById(Id).get()));
+        let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).get();
+        let approval = await this.requestApprovalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
+        // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
+        return new RequirementsRequest(this.getIRequirementsRequest(request, approval));
     }
 
     async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
         // TODO: Change this so that it filters on IsDeleted: false
-        // TODO: Change this so that it deals with paging
-        let pagedRequests = await this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOApprovedDate", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").getPaged();
+        let pagedRequests = await this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").getPaged();
         let requests: SPRequirementsRequest[] = pagedRequests.results;
         while (pagedRequests.hasNext) {
             requests = requests.concat((await pagedRequests.getNext()).results);
         }
+        let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => request.Id));
         let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
         for (let request of requests) {
-            requirementRequestCRUDs.push(new RequirementsRequest(this.getIRequirementsRequest(request), this));
+            requirementRequestCRUDs.push(new RequirementsRequest(
+                this.getIRequirementsRequest(request,
+                    approvals.find(approval =>
+                        approval.RequestId === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
+                , this));
         }
         return requirementRequestCRUDs;
     }
