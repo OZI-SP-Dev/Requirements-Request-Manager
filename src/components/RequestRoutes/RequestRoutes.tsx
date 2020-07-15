@@ -23,8 +23,11 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
                 <Route path="(/Requests/Edit/[0-9]+)">
                     <RequestForm submitRequest={submitRequest} editRequest={requests.find(req => req.Id === Number(requestId))} />
                 </Route>
-                <Route path="(/Requests/Review/[0-9]+)">
+                <Route path="(/Requests/View/[0-9]+)">
                     <RequestReview request={requests.find(req => req.Id === Number(requestId))} />
+                </Route>
+                <Route path="(/Requests/Review/[0-9]+)">
+                    <RequestReview request={requests.find(req => req.Id === Number(requestId))} submitApproval={submitApproval} />
                 </Route>
             </Switch>
         </HashRouter>

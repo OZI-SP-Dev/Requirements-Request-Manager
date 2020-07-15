@@ -1,14 +1,14 @@
 import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
-import { useHistory, Link } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequirementsRequest } from "../../api/DomainObjects";
-import { Person, IPerson } from "../../api/UserApi";
+import { Link, useHistory } from "react-router-dom";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { IPerson, Person } from "../../api/UserApi";
+import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
-import { useScrollToTop } from "../../hooks/useScrollToTop";
 
 export interface IRequestFormProps {
     editRequest?: IRequirementsRequest,
@@ -39,7 +39,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         // eslint-disable-next-line
     }, [user])
 
-    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | Person): void => {
+    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | IPerson): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
     }
 

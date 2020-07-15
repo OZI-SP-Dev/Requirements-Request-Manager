@@ -27,7 +27,7 @@ export function useRequests(): [IRequirementsRequestCRUD[],
     }
 
     const submitApproval = async (request: IRequirementsRequestCRUD, comment: string) => {
-        let approval = await requestApprovalsApi.submitApproval(request.Id, comment);
+        let approval = await requestApprovalsApi.submitApproval(request, comment);
         let newRequest = new RequirementsRequest(request);
         newRequest.PEOApprovedDateTime = approval.Created;
         newRequest.PEOApprovedComment = approval.Comment;

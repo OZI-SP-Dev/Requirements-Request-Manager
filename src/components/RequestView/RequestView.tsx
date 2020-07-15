@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import { ApplicationTypes, IRequirementsRequestCRUD, IRequirementsRequest, RequirementsRequest } from "../../api/DomainObjects";
+import "./RequestView.css"
 
 export interface IRequestViewProps {
     request?: IRequirementsRequestCRUD
@@ -16,7 +17,7 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     return (
         <>
-            <Row className="ml-2 mr-2 mt-2" style={{ textAlign: "left" }}>
+            <Row className="ml-2 mr-2 mt-2 view-form">
                 <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
                     <strong>Request Title: </strong>
                     {request.Title}
@@ -48,6 +49,14 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                 <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                     <strong>Requester DSN #: </strong>
                     {request.RequesterDSNPhone}
+                </Col>
+                <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
+                    <strong>Approval Date: </strong>
+                    {request.PEOApprovedDateTime ? request.PEOApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
+                </Col>
+                <Col className="mt-2" xl={8} lg={8} md={8} sm={6} xs={12}>
+                    <strong>Comment on Approval: </strong>
+                    {request.PEOApprovedComment ? request.PEOApprovedComment : "None"}
                 </Col>
                 <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
                     <strong>Approving PEO: </strong>
@@ -83,7 +92,7 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                         request.OtherApplicationNeeded : request.ApplicationNeeded}
                 </Col>
             </Row>
-            <Row className="ml-2 mr-2 mb-2" style={{ textAlign: "left" }}>
+            <Row className="ml-2 mr-2 mb-2 view-form">
                 <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                     <strong>Projected Organizations Impacted: </strong>
                 </Col>

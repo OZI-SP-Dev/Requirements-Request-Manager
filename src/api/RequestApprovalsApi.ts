@@ -1,6 +1,7 @@
 import moment, { Moment } from "moment";
 import { spWebContext } from "../providers/SPWebContext";
 import { IUserApi, UserApiConfig } from "./UserApi";
+import { IRequirementsRequest } from "./DomainObjects";
 
 
 export interface IRequestApproval {
@@ -13,7 +14,8 @@ export interface IRequestApproval {
 
 interface SPRequestApproval {
     Id: number,
-    RequestId: number,
+    // This field is used by SP for the GET endpoints and is expanded as it is a lookup field
+    Request: { Id: number },
     Title: string,
     // this is a date-time in ISO format
     Created: string,
@@ -21,8 +23,11 @@ interface SPRequestApproval {
 }
 
 interface ISubmitRequestApproval {
+    Id?: number,
     Title: string,
-    RequestId: number
+    RequestId: number,
+    Created?: string,
+    AuthorId?: number
 }
 
 export interface IRequestApprovalsApi {
@@ -44,7 +49,7 @@ export interface IRequestApprovalsApi {
      * 
      * @param requestIds The list of Ids of the requests whose approvals are being searched for
      */
-    getRequestApprovals(requestIds: number[]): Promise<IRequestApproval[]>
+    getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]>
 
     /**
      * Submit an approval for a Request
@@ -54,36 +59,38 @@ export interface IRequestApprovalsApi {
      * 
      * @returns An IRequestApproval of the new approval submitted
      */
-    submitApproval(requestId: number, comment: string): Promise<IRequestApproval>;
+    submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval>;
 }
 
 export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     requestApprovalsList = spWebContext.lists.getByTitle("RequestApprovals");
+    userApi: IUserApi = UserApiConfig.getApi();
 
     async getRequestApproval(requestId: number, approverId: number): Promise<IRequestApproval | undefined> {
-        let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "RequestId", "Title", "Created", "AuthorId").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).get())[0];
+        let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).expand("Request").get())[0];
         return requestApproval ? {
             Id: requestApproval.Id,
-            RequestId: requestApproval.RequestId,
+            RequestId: requestApproval.Request.Id,
             Comment: requestApproval.Title,
             Created: moment(requestApproval.Created),
             AuthorId: requestApproval.AuthorId
         } : undefined;
     }
 
-    async getRequestApprovals(requestIds: number[]): Promise<IRequestApproval[]> {
-        let pages = await this.requestApprovalsList.items.select("Id", "RequestId", "Title", "Created", "AuthorId").getPaged();
+    async getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]> {
+        let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId").expand("Request").getPaged();
         let approvals: SPRequestApproval[] = pages.results;
         while (pages.hasNext) {
             approvals = approvals.concat((await pages.getNext()).results);
         }
         return approvals
-            .filter(approval => requestIds.includes(approval.RequestId))
+            .filter(approval =>
+                requests.findIndex(request => request.requestId === approval.Request.Id && request.approverId === approval.AuthorId) > -1)
             .map(approval => {
                 return {
                     Id: approval.Id,
-                    RequestId: approval.RequestId,
+                    RequestId: approval.Request.Id,
                     Comment: approval.Title,
                     Created: moment(approval.Created),
                     AuthorId: approval.AuthorId
@@ -91,18 +98,22 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             })
     }
 
-    async submitApproval(requestId: number, comment: string): Promise<IRequestApproval> {
-        let submitApproval: ISubmitRequestApproval = {
-            Title: comment,
-            RequestId: requestId
-        }
-        let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.add(submitApproval)).data;
-        return {
-            Id: requestApproval.Id,
-            RequestId: requestApproval.RequestId,
-            Comment: requestApproval.Title,
-            Created: moment(requestApproval.Created),
-            AuthorId: requestApproval.AuthorId
+    async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
+        if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+            let submitApproval: ISubmitRequestApproval = {
+                Title: comment,
+                RequestId: request.Id
+            }
+            let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(submitApproval)).data;
+            return {
+                Id: requestApproval.Id ? requestApproval.Id : -1,
+                RequestId: requestApproval.RequestId,
+                Comment: requestApproval.Title,
+                Created: moment(requestApproval.Created),
+                AuthorId: requestApproval.AuthorId ? requestApproval.AuthorId : -1
+            }
+        } else {
+            throw new Error("You cannot approve a Request for which you are not the approver!");
         }
     }
 }
@@ -130,21 +141,26 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         return this.approvals.find(approval => approval.RequestId === requestId && approval.AuthorId === approverId);
     }
 
-    async getRequestApprovals(requestIds: number[]): Promise<IRequestApproval[]> {
+    async getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]> {
         await this.sleep();
-        return this.approvals.filter(approval => requestIds.includes(approval.RequestId));
+        return this.approvals.filter(approval =>
+            requests.findIndex(request => request.requestId === approval.RequestId && request.approverId === approval.AuthorId) > -1);
     }
 
-    async submitApproval(requestId: number, comment: string): Promise<IRequestApproval> {
-        let newApproval: IRequestApproval = {
-            Id: ++this.maxId,
-            RequestId: requestId,
-            Comment: comment,
-            Created: moment(),
-            AuthorId: (await this.userApi.getCurrentUser()).Id
+    async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
+        if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+            let newApproval: IRequestApproval = {
+                Id: ++this.maxId,
+                RequestId: request.Id,
+                Comment: comment,
+                Created: moment(),
+                AuthorId: (await this.userApi.getCurrentUser()).Id
+            }
+            this.approvals.push(newApproval);
+            return newApproval;
+        } else {
+            throw new Error("You cannot approve a Request for which you are not the approver!");
         }
-        this.approvals.push(newApproval);
-        return newApproval;
     }
 }
 

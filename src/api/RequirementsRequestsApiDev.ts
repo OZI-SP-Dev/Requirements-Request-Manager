@@ -115,7 +115,9 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
 
     async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
         await this.sleep();
-        let approvals = await this.approvalsApi.getRequestApprovals(this.requests.map(req => req.Id));
+        let approvals = await this.approvalsApi.getRequestApprovals(this.requests.map(req => {
+            return { requestId: req.Id, approverId: req.ApprovingPEO.Id }
+        }));
         return this.requests.map(req => {
             let approval = approvals.find(app => app.RequestId === req.Id && app.AuthorId === req.ApprovingPEO.Id);
             let request = new RequirementsRequest(req);

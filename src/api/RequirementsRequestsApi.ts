@@ -204,7 +204,9 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         while (pagedRequests.hasNext) {
             requests = requests.concat((await pagedRequests.getNext()).results);
         }
-        let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => request.Id));
+        let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => {
+            return { requestId: request.Id, approverId: request.ApprovingPEO.Id }
+        }));
         let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
         for (let request of requests) {
             requirementRequestCRUDs.push(new RequirementsRequest(

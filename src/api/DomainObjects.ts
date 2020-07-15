@@ -1,6 +1,6 @@
 import moment, { Moment } from 'moment';
 import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from './RequirementsRequestsApi';
-import { Person } from './UserApi';
+import { Person, IPerson } from './UserApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",
@@ -42,7 +42,7 @@ export interface IRequirementsRequest {
     Title: string,
     RequestDate: Moment,
     ReceivedDate: Moment,
-    Requester: Person,
+    Requester: IPerson,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
@@ -140,7 +140,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Title: string;
     RequestDate: Moment;
     ReceivedDate: Moment;
-    Requester: Person;
+    Requester: IPerson;
     RequesterOrgSymbol: string;
     RequesterDSNPhone: string;
     RequesterCommPhone: string;
