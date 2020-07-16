@@ -56,6 +56,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
         <Container fluid="md" className="pb-5 pt-3">
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
             <RequestView request={props.request} />
+            <hr />
             {userCanReview &&
                 <Form>
                     <Row className="m-2">
