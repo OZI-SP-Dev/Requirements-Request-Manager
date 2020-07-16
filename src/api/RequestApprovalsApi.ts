@@ -128,9 +128,15 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         Comment: "Super approval",
         Created: moment(),
         AuthorId: 2
+    }, {
+        Id: 2,
+        RequestId: 2,
+        Comment: "bad approval",
+        Created: moment(),
+        AuthorId: 3
     }];
 
-    maxId = 1;
+    maxId = 2;
 
     sleep() {
         return new Promise(r => setTimeout(r, 1500));

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Button, Container, Table, Accordion, Row, Col, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
 import { RequestView } from "../RequestView/RequestView";
+import { UserContext } from "../../providers/UserProvider";
 
 export interface IRequestsProps {
     requests: IRequirementsRequestCRUD[],
@@ -12,6 +13,8 @@ export interface IRequestsProps {
 export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
     const [deleting, setDeleting] = useState<boolean>(false);
+
+    const { user } = useContext(UserContext);
 
     const deleteRequest = async (request: IRequirementsRequestCRUD) => {
         setDeleting(true);
@@ -69,7 +72,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                     <Link to={`/Requests/Edit/${request.Id}`}>
                                                         <Button className="float-left ml-2" variant="warning">Edit Request</Button>
                                                     </Link>
-                                                    {request.PEOApprovedDateTime ?
+                                                    {request.PEOApprovedDateTime || user?.Id !== request.ApprovingPEO.Id ?
                                                         <Link to={`/Requests/View/${request.Id}`}>
                                                             <Button className="float-right" variant="primary">View Request</Button>
                                                         </Link>

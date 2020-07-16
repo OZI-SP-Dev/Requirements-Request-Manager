@@ -17,7 +17,7 @@ export interface IRequestFormProps {
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.editRequest));
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
@@ -28,7 +28,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
 
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
-        setRequest(new RequirementsRequest(props.editRequest));
+        let newRequest = new RequirementsRequest(props.editRequest); 
+        setRequest(newRequest);
     }, [props.editRequest])
 
     useEffect(() => {
