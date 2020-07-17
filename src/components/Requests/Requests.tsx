@@ -44,8 +44,8 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 </thead>
                 <Accordion as='tbody'>
                     {props.requests.map(request =>
-                        <>
-                            <Accordion.Toggle key={request.Id} eventKey={request.Id.toString()} as='tr' role="button">
+                        <React.Fragment key={request.Id}>
+                            <Accordion.Toggle eventKey={request.Id.toString()} as='tr' role="button">
                                 <td>{request.Title}</td>
                                 <td>{request.Requester.Title}</td>
                                 <td>{request.RequestDate.format("DD MMM YYYY")}</td>
@@ -86,7 +86,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     </Accordion.Collapse>
                                 </td>
                             </tr>
-                        </>
+                        </React.Fragment>
                     )}
                 </Accordion>
             </Table>
