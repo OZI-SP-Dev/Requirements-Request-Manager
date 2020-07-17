@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
 import { RequestView } from "../RequestView/RequestView";
 import { UserContext } from "../../providers/UserProvider";
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 export interface IRequestsProps {
+    loading: boolean,
     requests: IRequirementsRequestCRUD[],
     deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
@@ -90,6 +92,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     )}
                 </Accordion>
             </Table>
+            <RequestSpinner show={props.loading || !user} />
         </Container>
     );
 }

@@ -8,26 +8,26 @@ import { Requests } from "../Requests/Requests";
 
 export const RequestRoutes: React.FunctionComponent<any> = (props) => {
 
-    const [requests, submitRequest, submitApproval, deleteRequest] = useRequests();
+    const [loading, requests, submitRequest, submitApproval, deleteRequest] = useRequests();
     const { requestId } = useParams();
 
     return (
         <HashRouter>
             <Switch>
                 <Route exact path="/Requests/new">
-                    <RequestForm submitRequest={submitRequest} />
+                    <RequestForm loading={loading} submitRequest={submitRequest} />
                 </Route>
                 <Route path="(/Requests/Edit/[0-9]+)">
-                    <RequestForm submitRequest={submitRequest} editRequest={requests.find(req => req.Id === Number(requestId))} />
+                    <RequestForm loading={loading} submitRequest={submitRequest} editRequest={requests.find(req => req.Id === Number(requestId))} />
                 </Route>
                 <Route path="(/Requests/View/[0-9]+)">
-                    <RequestReview request={requests.find(req => req.Id === Number(requestId))} />
+                    <RequestReview loading={loading} request={requests.find(req => req.Id === Number(requestId))} />
                 </Route>
                 <Route path="(/Requests/Review/[0-9]+)">
-                    <RequestReview request={requests.find(req => req.Id === Number(requestId))} submitApproval={submitApproval} />
+                    <RequestReview loading={loading} request={requests.find(req => req.Id === Number(requestId))} submitApproval={submitApproval} />
                 </Route>
                 <Route path="/Requests">
-                    <Requests requests={requests} deleteRequest={deleteRequest} />
+                    <Requests loading={loading} requests={requests} deleteRequest={deleteRequest} />
                 </Route>
             </Switch>
         </HashRouter>
