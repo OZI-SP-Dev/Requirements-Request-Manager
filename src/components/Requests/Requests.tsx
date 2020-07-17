@@ -26,7 +26,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
         <Container fluid="md" className="pb-5 pt-3">
             <h1>Requests</h1>
             <Row className="mr-1 mb-3 float-right">
-                <Link to="/Requests/new">
+                <Link to="/Requests/New">
                     <Button variant="primary">New Request</Button>
                 </Link>
             </Row>
