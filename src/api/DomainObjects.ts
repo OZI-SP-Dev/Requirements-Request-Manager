@@ -46,7 +46,7 @@ export interface IRequirementsRequest {
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
-    ApprovingPEO: Person,
+    ApprovingPEO: IPerson,
     PEOApprovedDateTime: Moment | null,
     PEOApprovedComment: string | null,
     PEOOrgSymbol: string,
@@ -144,7 +144,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     RequesterOrgSymbol: string;
     RequesterDSNPhone: string;
     RequesterCommPhone: string;
-    ApprovingPEO: Person;
+    ApprovingPEO: IPerson;
     PEOApprovedDateTime: Moment | null;
     PEOApprovedComment: string | null;
     PEOOrgSymbol: string;

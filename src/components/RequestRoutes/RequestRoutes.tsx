@@ -14,9 +14,6 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
     return (
         <HashRouter>
             <Switch>
-                <Route exact path="/Requests">
-                    <Requests requests={requests} deleteRequest={deleteRequest} />
-                </Route>
                 <Route exact path="/Requests/new">
                     <RequestForm submitRequest={submitRequest} />
                 </Route>
@@ -28,6 +25,9 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
                 </Route>
                 <Route path="(/Requests/Review/[0-9]+)">
                     <RequestReview request={requests.find(req => req.Id === Number(requestId))} submitApproval={submitApproval} />
+                </Route>
+                <Route path="/Requests">
+                    <Requests requests={requests} deleteRequest={deleteRequest} />
                 </Route>
             </Switch>
         </HashRouter>
