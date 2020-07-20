@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.4] - 2020-07-20
+### Added
+- A spinner for when the requests or the user is currently loading
+
 ## [0.1.3] - 2020-07-17
 ### Added
 - Review page for approvers to review and approve a request
