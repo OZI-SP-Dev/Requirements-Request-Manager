@@ -5,15 +5,17 @@ import './App.css';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { RequestRoutes } from './components/RequestRoutes/RequestRoutes';
 import { UserProvider } from './providers/UserProvider';
+import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 
 function App() {
+  initializeIcons(/* optional base url */);
   return (
     <HashRouter>
       <UserProvider>
         <Container fluid="md" className="app-container border shadow-lg p-0">
           <AppHeader />
           <Switch>
-            <Route path="/Requests/:requestId?">
+            <Route path="/Requests">
               <RequestRoutes />
             </Route>
           </Switch>

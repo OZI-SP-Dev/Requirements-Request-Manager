@@ -41,7 +41,7 @@ export interface IUserApi {
     /**
      * @returns The current, logged in user
      */
-    getCurrentUser: () => Promise<Person>
+    getCurrentUser: () => Promise<IPerson>
 
     /**
      * Get the Id of the user with the email given
@@ -55,13 +55,18 @@ export interface IUserApi {
 
 export class UserApi implements IUserApi {
 
-    getCurrentUser = async (): Promise<Person> => {
-        let user = await spWebContext.currentUser();
-        return new Person({
-            Id: user.Id,
-            Title: user.Title,
-            EMail: user.Email
-        }, user.LoginName)
+    currentUser: IPerson | undefined
+
+    getCurrentUser = async (): Promise<IPerson> => {
+        if (!this.currentUser) {
+            let user = await spWebContext.currentUser();
+            this.currentUser = new Person({
+                Id: user.Id,
+                Title: user.Title,
+                EMail: user.Email
+            }, user.LoginName)
+        }
+        return this.currentUser;
     };
 
     getUserId = async (email: string) => {
@@ -75,7 +80,7 @@ export class UserApiDev implements IUserApi {
         return new Promise(r => setTimeout(r, 1500));
     }
 
-    getCurrentUser = async (): Promise<Person> => {
+    getCurrentUser = async (): Promise<IPerson> => {
         await this.sleep();
         return new Person({
             Id: 1,

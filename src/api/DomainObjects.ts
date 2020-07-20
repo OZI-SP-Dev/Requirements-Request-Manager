@@ -1,6 +1,6 @@
 import moment, { Moment } from 'moment';
 import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from './RequirementsRequestsApi';
-import { Person } from './UserApi';
+import { Person, IPerson } from './UserApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",
@@ -42,12 +42,13 @@ export interface IRequirementsRequest {
     Title: string,
     RequestDate: Moment,
     ReceivedDate: Moment,
-    Requester: Person,
+    Requester: IPerson,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
-    ApprovingPEO: Person,
-    PEOApprovedDate: Moment | null,
+    ApprovingPEO: IPerson,
+    PEOApprovedDateTime: Moment | null,
+    PEOApprovedComment: string | null,
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
@@ -74,9 +75,9 @@ export interface IRequirementsRequestCRUD extends IRequirementsRequest {
     /** 
      * Get an updated version of the current RequirementsRequest, it will overwrite the current fields of this request.
      * 
-     * @returns the most up to date version of this RequirementsRequest can return null or undefined if it has not been saved yet.
+     * @returns the most up to date version of this RequirementsRequest can return undefined if it has not been saved yet.
      */
-    getUpdated: () => Promise<IRequirementsRequestCRUD | null | undefined>,
+    getUpdated: () => Promise<IRequirementsRequestCRUD | undefined>,
 
     /**
      * Save/persist the current RequirementsRequest. This method
@@ -84,7 +85,7 @@ export interface IRequirementsRequestCRUD extends IRequirementsRequest {
      * 
      * @returns the saved/persisted RequirementsRequest, it will now have an Id if it was a new request.
      */
-    save: () => Promise<IRequirementsRequestCRUD | null | undefined>,
+    save: () => Promise<IRequirementsRequestCRUD | undefined>,
 
     /**
      * Remove this RequirementsRequest from its persistence
@@ -102,7 +103,8 @@ const blankRequest: IRequirementsRequest = {
     RequesterDSNPhone: "",
     RequesterCommPhone: "",
     ApprovingPEO: new Person(),
-    PEOApprovedDate: null,
+    PEOApprovedDateTime: null,
+    PEOApprovedComment: null,
     PEOOrgSymbol: "",
     PEO_DSNPhone: "",
     PEO_CommPhone: "",
@@ -138,12 +140,13 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Title: string;
     RequestDate: Moment;
     ReceivedDate: Moment;
-    Requester: Person;
+    Requester: IPerson;
     RequesterOrgSymbol: string;
     RequesterDSNPhone: string;
     RequesterCommPhone: string;
-    ApprovingPEO: Person;
-    PEOApprovedDate: Moment | null;
+    ApprovingPEO: IPerson;
+    PEOApprovedDateTime: Moment | null;
+    PEOApprovedComment: string | null;
     PEOOrgSymbol: string;
     PEO_DSNPhone: string;
     PEO_CommPhone: string;
@@ -177,7 +180,8 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this.RequesterDSNPhone = request.RequesterDSNPhone;
         this.RequesterCommPhone = request.RequesterCommPhone;
         this.ApprovingPEO = request.ApprovingPEO;
-        this.PEOApprovedDate = request.PEOApprovedDate;
+        this.PEOApprovedDateTime = request.PEOApprovedDateTime;
+        this.PEOApprovedComment = request.PEOApprovedComment;
         this.PEOOrgSymbol = request.PEOOrgSymbol;
         this.PEO_DSNPhone = request.PEO_DSNPhone;
         this.PEO_CommPhone = request.PEO_CommPhone;
@@ -200,11 +204,11 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this["odata.etag"] = request["odata.etag"];
     }
 
-    getUpdated = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {
+    getUpdated = async (): Promise<IRequirementsRequestCRUD | undefined> => {
         return this.Id && this.Id > -1 ? await this.api.fetchRequirementsRequestById(this.Id) : this;
     }
 
-    save = async (): Promise<IRequirementsRequestCRUD | null | undefined> => {
+    save = async (): Promise<IRequirementsRequestCRUD | undefined> => {
         return this.api.submitRequirementsRequest(this);
     }
 

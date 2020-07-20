@@ -2,10 +2,12 @@ import moment from "moment";
 import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities, IRequirementsRequestCRUD, RequirementsRequest } from "./DomainObjects";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { Person } from "./UserApi";
+import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
 
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
 
-    requests: IRequirementsRequestCRUD[] = []
+    requests: IRequirementsRequestCRUD[] = [];
+    approvalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
 
     constructor() {
         this.requests = [
@@ -27,7 +29,8 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                     Title: "Robert Porterfield",
                     EMail: "robertporterfield@superemail.com"
                 }),
-                PEOApprovedDate: null,
+                PEOApprovedDateTime: null,
+                PEOApprovedComment: null,
                 PEOOrgSymbol: "OZI",
                 PEO_DSNPhone: "1234567890",
                 PEO_CommPhone: "1234567890",
@@ -67,7 +70,8 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                     Title: "Jeremy Clark",
                     EMail: "jeremyclark@superemail.com"
                 }),
-                PEOApprovedDate: moment(),
+                PEOApprovedDateTime: null,
+                PEOApprovedComment: null,
                 PEOOrgSymbol: "OZI",
                 PEO_DSNPhone: "1234567890",
                 PEO_CommPhone: "1234567890",
@@ -98,14 +102,29 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         return new Promise(r => setTimeout(r, 1500));
     }
 
-    async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | null | undefined> {
+    async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         await this.sleep();
-        return this.requests.find(request => request.Id === Id);
+        let request = this.requests.find(request => request.Id === Id);
+        if (request) {
+            let approval = await this.approvalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
+            request.PEOApprovedDateTime = approval ? approval.Created : null;
+            request.PEOApprovedComment = approval ? approval.Comment : null;
+        }
+        return request;
     }
 
     async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
         await this.sleep();
-        return this.requests;
+        let approvals = await this.approvalsApi.getRequestApprovals(this.requests.map(req => {
+            return { requestId: req.Id, approverId: req.ApprovingPEO.Id }
+        }));
+        return this.requests.map(req => {
+            let approval = approvals.find(app => app.RequestId === req.Id && app.AuthorId === req.ApprovingPEO.Id);
+            let request = new RequirementsRequest(req);
+            request.PEOApprovedDateTime = approval ? approval.Created : null;
+            request.PEOApprovedComment = approval ? approval.Comment : null;
+            return request;
+        });
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {

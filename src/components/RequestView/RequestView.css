@@ -1,3 +1,7 @@
 .preserve-whitespace {
     white-space: pre-wrap;
 }
+
+.view-form {
+    text-align: left;
+}

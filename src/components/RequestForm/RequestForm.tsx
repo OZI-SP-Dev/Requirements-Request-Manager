@@ -1,9 +1,10 @@
 import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
-import { useHistory, Link } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequirementsRequest } from "../../api/DomainObjects";
-import { Person, IPerson } from "../../api/UserApi";
+import { Link, useHistory } from "react-router-dom";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { IPerson, Person } from "../../api/UserApi";
+import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
@@ -16,24 +17,19 @@ export interface IRequestFormProps {
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.editRequest));
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
     const { user } = useContext(UserContext);
     const history = useHistory();
 
-    // Scroll to the top of the page when navigating to the RequestForm page
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    }, [])
+    useScrollToTop();
 
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
-        setRequest(new RequirementsRequest(props.editRequest));
+        let newRequest = new RequirementsRequest(props.editRequest); 
+        setRequest(newRequest);
     }, [props.editRequest])
 
     useEffect(() => {
@@ -44,7 +40,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         // eslint-disable-next-line
     }, [user])
 
-    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | Person): void => {
+    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | IPerson): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
     }
 
