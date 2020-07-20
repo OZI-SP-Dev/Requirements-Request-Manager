@@ -1,9 +1,9 @@
-import React, { useState, useContext } from "react";
-import { Button, Container, Table, Accordion, Row, Col, Spinner } from "react-bootstrap";
+import React, { useContext, useState } from "react";
+import { Accordion, Button, Col, Container, Row, Spinner, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
-import { RequestView } from "../RequestView/RequestView";
+import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { UserContext } from "../../providers/UserProvider";
+import { RequestView } from "../RequestView/RequestView";
 
 export interface IRequestsProps {
     requests: IRequirementsRequestCRUD[],

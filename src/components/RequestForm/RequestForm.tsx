@@ -28,7 +28,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
 
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
-        let newRequest = new RequirementsRequest(props.editRequest); 
+        let newRequest = new RequirementsRequest(props.editRequest);
         setRequest(newRequest);
     }, [props.editRequest])
 

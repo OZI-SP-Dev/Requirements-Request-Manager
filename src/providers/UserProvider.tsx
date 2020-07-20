@@ -4,10 +4,10 @@ import { IPerson, UserApiConfig } from "../api/UserApi";
 
 export interface IUserContext {
     user: IPerson | undefined,
-    loading: boolean
+    loadingUser: boolean
 }
 
-export const UserContext = createContext<Partial<IUserContext>>({ user: undefined, loading: true });
+export const UserContext = createContext<Partial<IUserContext>>({ user: undefined, loadingUser: true });
 
 export const UserProvider: FunctionComponent = ({ children }) => {
     const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export const UserProvider: FunctionComponent = ({ children }) => {
 
     const userContext: IUserContext = {
         user,
-        loading
+        loadingUser: loading
     }
 
     return (
