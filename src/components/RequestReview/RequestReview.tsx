@@ -6,6 +6,7 @@ import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { RequestView } from "../RequestView/RequestView";
 import "./RequestReview.css";
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 
 export interface IRequestReviewProps {
@@ -81,11 +82,12 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                             {' '}{"Approve Request"}
                         </Button>
                     }
-                    <Button className="float-right mr-2" variant="warning"
-                        onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, `/Requests/Edit/${props.request?.Id}`)}
-                    >
-                        Edit Request
-                    </Button>
+                    {props.request && !props.request.isReadOnly() &&
+                        <Button className="float-right mr-2" variant="warning"
+                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, `/Requests/Edit/${props.request?.Id}`)}
+                        >
+                            Edit Request
+                        </Button>}
                     <Button className="float-right mr-2" variant="secondary"
                         onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, "/Requests")}
                     >
@@ -93,6 +95,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     </Button>
                 </Col>
             </Row>
+            <RequestSpinner show={submitting} displayText="Approving Request..." />
         </Container>
     );
 

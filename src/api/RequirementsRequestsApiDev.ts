@@ -129,15 +129,19 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
         await this.sleep();
-        let newRequest = new RequirementsRequest(requirementsRequest);
-        let oldIndex = this.requests.findIndex(request => newRequest.Id === request.Id);
-        if (oldIndex > -1) {
-            this.requests[oldIndex] = newRequest;
+        if (!(new RequirementsRequest(requirementsRequest)).isReadOnly()) {
+            let newRequest = new RequirementsRequest(requirementsRequest);
+            let oldIndex = this.requests.findIndex(request => newRequest.Id === request.Id);
+            if (oldIndex > -1) {
+                this.requests[oldIndex] = newRequest;
+            } else {
+                newRequest.Id = ++this.maxId;
+                this.requests.push(newRequest);
+            }
+            return newRequest;
         } else {
-            newRequest.Id = ++this.maxId;
-            this.requests.push(newRequest);
+            throw new Error("You do not have permission update this Request!");
         }
-        return newRequest;
     }
 
     async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {

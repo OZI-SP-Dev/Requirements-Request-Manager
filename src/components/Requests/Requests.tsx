@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { UserContext } from "../../providers/UserProvider";
 import { RequestView } from "../RequestView/RequestView";
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 export interface IRequestsProps {
     requests: IRequirementsRequestCRUD[],
@@ -69,9 +70,10 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                             <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                                                         {' '}{"Delete Request"}
                                                     </Button>
-                                                    <Link to={`/Requests/Edit/${request.Id}`}>
-                                                        <Button className="float-left ml-2" variant="warning">Edit Request</Button>
-                                                    </Link>
+                                                    {!request.isReadOnly() &&
+                                                        <Link to={`/Requests/Edit/${request.Id}`}>
+                                                            <Button className="float-left ml-2" variant="warning">Edit Request</Button>
+                                                        </Link>}
                                                     {request.PEOApprovedDateTime || user?.Id !== request.ApprovingPEO.Id ?
                                                         <Link to={`/Requests/View/${request.Id}`}>
                                                             <Button className="float-right" variant="primary">View Request</Button>
@@ -90,6 +92,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     )}
                 </Accordion>
             </Table>
+            <RequestSpinner show={deleting} displayText="Deleting Request..." />
         </Container>
     );
 }

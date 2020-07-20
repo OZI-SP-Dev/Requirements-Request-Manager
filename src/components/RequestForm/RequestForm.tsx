@@ -9,6 +9,7 @@ import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 export interface IRequestFormProps {
     editRequest?: IRequirementsRequest,
@@ -20,6 +21,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.editRequest));
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
+    const [readOnly, setReadOnly] = useState<boolean>(false);
 
     const { user } = useContext(UserContext);
     const history = useHistory();
@@ -29,6 +31,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
         let newRequest = new RequirementsRequest(props.editRequest);
+        setReadOnly(newRequest.isReadOnly());
         setRequest(newRequest);
     }, [props.editRequest])
 
@@ -77,6 +80,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Your Org Symbol"
+                            readOnly={readOnly}
                             value={request.RequesterOrgSymbol}
                             onChange={e => updateRequest('RequesterOrgSymbol', e.target.value)}
                         />
@@ -86,6 +90,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Your DSN Phone Number"
+                            readOnly={readOnly}
                             value={request.RequesterDSNPhone}
                             onChange={e => updatePhoneField('RequesterDSNPhone', getNumbersOnly(e.target.value))}
                         />
@@ -95,6 +100,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Your Commercial Phone Number"
+                            readOnly={readOnly}
                             value={request.RequesterCommPhone}
                             onChange={e => updatePhoneField('RequesterCommPhone', getNumbersOnly(e.target.value))}
                         />
@@ -110,7 +116,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                 let persona = p[0];
                                 updateRequest('ApprovingPEO', persona ? new Person(persona) : new Person());
                             }}
-                            readOnly={false}
+                            readOnly={readOnly}
                             required={true}
                         />
                     </Col>
@@ -119,6 +125,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Approving PEO's Org Symbol"
+                            readOnly={readOnly}
                             value={request.PEOOrgSymbol}
                             onChange={e => updateRequest('PEOOrgSymbol', e.target.value)}
                         />
@@ -128,6 +135,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Approving PEO's DSN Phone Number"
+                            readOnly={readOnly}
                             value={request.PEO_DSNPhone}
                             onChange={e => updatePhoneField('PEO_DSNPhone', getNumbersOnly(e.target.value))}
                         />
@@ -137,6 +145,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Approving PEO's Commercial Phone Number"
+                            readOnly={readOnly}
                             value={request.PEO_CommPhone}
                             onChange={e => updatePhoneField('PEO_CommPhone', getNumbersOnly(e.target.value))}
                         />
@@ -148,6 +157,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Title of the Requirement being requested"
+                            readOnly={readOnly}
                             value={request.Title}
                             onChange={e => updateRequest('Title', e.target.value)}
                         />
@@ -156,6 +166,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label className="mr-3 mb-0">Requirement Type:</Form.Label>
                         {Object.values(RequirementTypes).map(type =>
                             <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
+                                disabled={readOnly}
                                 checked={request.RequirementType === type}
                                 onChange={() => updateRequest("RequirementType", type)}
                             />)
@@ -163,6 +174,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     </Col>
                     <Col className="mt-4 mb-4" xl="4" lg="4" md="6" sm="6" xs="12">
                         <Form.Check inline label="Is Requirement Funded?" type="checkbox" id="funded-checkbox"
+                            disabled={readOnly}
                             checked={showFundingField}
                             onChange={flipShowFundingField}
                         />
@@ -174,6 +186,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                 <Form.Control
                                     type="text"
                                     placeholder="Org/PEO Funding the Requirement"
+                                    readOnly={readOnly}
                                     value={request.FundingOrgOrPEO}
                                     onChange={e => updateRequest('FundingOrgOrPEO', e.target.value)}
                                 />
@@ -186,6 +199,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>Application Needed:</Form.Label>
                         <Form.Control
                             as="select"
+                            readOnly={readOnly}
                             value={request.ApplicationNeeded}
                             onChange={e => updateRequest('ApplicationNeeded', e.target.value)}
                         >
@@ -199,6 +213,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                 <Form.Control
                                     type="text"
                                     placeholder="Other Application Needed"
+                                    readOnly={readOnly}
                                     value={request.OtherApplicationNeeded}
                                     onChange={e => updateRequest('OtherApplicationNeeded', e.target.value)}
                                 />
@@ -212,6 +227,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     </Col>
                     <Col className="request-vertical-center" xl="2" lg="3" md="6" sm="6" xs="12">
                         <Form.Check inline label="Is Enterprise?" type="checkbox" id="enterprise-checkbox"
+                            disabled={readOnly}
                             checked={request.IsProjectedOrgsEnterprise}
                             onChange={() => updateRequest('IsProjectedOrgsEnterprise', !request.IsProjectedOrgsEnterprise)}
                         />
@@ -220,6 +236,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>Impacted Center:</Form.Label>
                         <Form.Control
                             as="select"
+                            readOnly={readOnly}
                             value={request.ProjectedOrgsImpactedCenter}
                             onChange={e => updateRequest('ProjectedOrgsImpactedCenter', e.target.value)}
                         >
@@ -231,6 +248,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Projected Org Impacted"
+                            readOnly={readOnly}
                             value={request.ProjectedOrgsImpactedOrg}
                             onChange={e => updateRequest('ProjectedOrgsImpactedOrg', e.target.value)}
                         />
@@ -242,6 +260,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Control
                             type="text"
                             placeholder="Number of Users Impacted by the Requested Application"
+                            readOnly={readOnly}
                             value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : ''}
                             onChange={e => updateRequest("ProjectedImpactedUsers", parseInt(getNumbersOnly(e.target.value)))}
                         />
@@ -249,6 +268,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">
                         <CustomInputeDatePicker
                             headerText="Operational Need Date:"
+                            readOnly={readOnly}
                             date={request.OperationalNeedDate}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
                         />
@@ -259,6 +279,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             label={<>{OrgPriorities.HIGH} <span className="subtext">(Essential to Deliver)</span></>}
                             type="radio"
                             id={"high-priority-radio"}
+                            disabled={readOnly}
                             checked={request.OrgPriority === OrgPriorities.HIGH}
                             onChange={() => updateRequest("OrgPriority", OrgPriorities.HIGH)}
                         />
@@ -266,6 +287,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             label={<>{OrgPriorities.MEDIUM} <span className="subtext">(Functional Capabilities Enhancements)</span></>}
                             type="radio"
                             id={"medium-priority-radio"}
+                            disabled={readOnly}
                             checked={request.OrgPriority === OrgPriorities.MEDIUM}
                             onChange={() => updateRequest("OrgPriority", OrgPriorities.MEDIUM)}
                         />
@@ -273,6 +295,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             label={<>{OrgPriorities.LOW} <span className="subtext">(Desire to have/worth Implementing)</span></>}
                             type="radio"
                             id={"low-priority-radio"}
+                            disabled={readOnly}
                             checked={request.OrgPriority === OrgPriorities.LOW}
                             onChange={() => updateRequest("OrgPriority", OrgPriorities.LOW)}
                         />
@@ -285,6 +308,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as="textarea"
                             rows={5}
                             placeholder="Detailed explanation for the priority given..."
+                            readOnly={readOnly}
                             value={request.PriorityExplanation}
                             onChange={e => updateRequest('PriorityExplanation', e.target.value)}
                         />
@@ -299,6 +323,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as="textarea"
                             rows={7}
                             placeholder="Detailed explanation of the objective that the business would like this application to achieve..."
+                            readOnly={readOnly}
                             value={request.BusinessObjective}
                             onChange={e => updateRequest('BusinessObjective', e.target.value)}
                         />
@@ -313,6 +338,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as="textarea"
                             rows={7}
                             placeholder="The system shall provide the ability to..."
+                            readOnly={readOnly}
                             value={request.FunctionalRequirements}
                             onChange={e => updateRequest('FunctionalRequirements', e.target.value)}
                         />
@@ -327,6 +353,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as="textarea"
                             rows={5}
                             placeholder="Benefits this capability will bring to the organization(s) and/or users..."
+                            readOnly={readOnly}
                             value={request.Benefits}
                             onChange={e => updateRequest('Benefits', e.target.value)}
                         />
@@ -341,6 +368,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as="textarea"
                             rows={4}
                             placeholder="Detailed explanation of what the risks are for the organization if the requirement is not met..."
+                            readOnly={readOnly}
                             value={request.Risk}
                             onChange={e => updateRequest('Risk', e.target.value)}
                         />
@@ -355,20 +383,26 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             as="textarea"
                             rows={6}
                             placeholder="Any additional information that may be useful when considering this request for approval..."
+                            readOnly={readOnly}
                             value={request.AdditionalInfo}
                             onChange={e => updateRequest('AdditionalInfo', e.target.value)}
                         />
                     </Col>
                 </Form.Row>
-                <Button className="mb-3 ml-2 float-right" variant="primary" onClick={submitRequest}>
+                {!readOnly && <Button
+                    className="mb-3 ml-2 float-right"
+                    variant="primary"
+                    onClick={submitRequest}
+                >
                     {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                     {' '}{"Submit Request"}
-                </Button>
+                </Button>}
                 <Link to="/Requests">
                     <Button className="mb-3 float-right" variant="secondary">
                         Cancel
                     </Button>
                 </Link>
             </Form>
+            <RequestSpinner show={saving} displayText="Saving Request..." />
         </Container>);
 }

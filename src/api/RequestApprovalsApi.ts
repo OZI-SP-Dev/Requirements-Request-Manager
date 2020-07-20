@@ -1,7 +1,7 @@
 import moment, { Moment } from "moment";
 import { spWebContext } from "../providers/SPWebContext";
 import { IUserApi, UserApiConfig } from "./UserApi";
-import { IRequirementsRequest } from "./DomainObjects";
+import { IRequirementsRequest, RequirementsRequest } from "./DomainObjects";
 
 
 export interface IRequestApproval {
@@ -99,21 +99,26 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     }
 
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
-        if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
-            let submitApproval: ISubmitRequestApproval = {
-                Title: comment,
-                RequestId: request.Id
-            }
-            let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(submitApproval)).data;
-            return {
-                Id: requestApproval.Id ? requestApproval.Id : -1,
-                RequestId: requestApproval.RequestId,
-                Comment: requestApproval.Title,
-                Created: moment(requestApproval.Created),
-                AuthorId: requestApproval.AuthorId ? requestApproval.AuthorId : -1
+        let requestCrud = new RequirementsRequest(request);
+        if (!requestCrud.isReadOnly()) {
+            if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+                let submitApproval: ISubmitRequestApproval = {
+                    Title: comment,
+                    RequestId: request.Id
+                }
+                let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(submitApproval)).data;
+                return {
+                    Id: requestApproval.Id ? requestApproval.Id : -1,
+                    RequestId: requestApproval.RequestId,
+                    Comment: requestApproval.Title,
+                    Created: moment(requestApproval.Created),
+                    AuthorId: requestApproval.AuthorId ? requestApproval.AuthorId : -1
+                }
+            } else {
+                throw new Error("You cannot approve a Request for which you are not the approver!");
             }
         } else {
-            throw new Error("You cannot approve a Request for which you are not the approver!");
+            throw new Error("You cannot approve a Request that has already been approved!");
         }
     }
 }
@@ -154,18 +159,23 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
     }
 
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
-        if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
-            let newApproval: IRequestApproval = {
-                Id: ++this.maxId,
-                RequestId: request.Id,
-                Comment: comment,
-                Created: moment(),
-                AuthorId: (await this.userApi.getCurrentUser()).Id
+        let requestCrud = new RequirementsRequest(request);
+        if (!requestCrud.isReadOnly()) {
+            if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+                let newApproval: IRequestApproval = {
+                    Id: ++this.maxId,
+                    RequestId: request.Id,
+                    Comment: comment,
+                    Created: moment(),
+                    AuthorId: (await this.userApi.getCurrentUser()).Id
+                }
+                this.approvals.push(newApproval);
+                return newApproval;
+            } else {
+                throw new Error("You cannot approve a Request for which you are not the approver!");
             }
-            this.approvals.push(newApproval);
-            return newApproval;
         } else {
-            throw new Error("You cannot approve a Request for which you are not the approver!");
+            throw new Error("You cannot approve a Request that has already been approved!");
         }
     }
 }

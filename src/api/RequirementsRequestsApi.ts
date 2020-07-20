@@ -219,25 +219,43 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
-        let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
-        let returnedRequest = requirementsRequest;
-        // If this RequirementsRequest already exists
-        if (requirementsRequest.Id > -1) {
-            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
-                .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
-        } else { // This is a new RequirementsRequest
-            let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
-            returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
-            returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
-            returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
-            returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
-        }
-        return new RequirementsRequest(returnedRequest, this);
+        return requirementsRequest.Id > -1 ?
+            this.updateRequest(new RequirementsRequest(requirementsRequest)) :
+            this.submitNewRequest(requirementsRequest);
     }
 
     deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
         // TODO: update this so that it simply changes the Request to have IsDeleted: true
         return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
+    }
+
+    private async updateRequest(requirementsRequest: IRequirementsRequestCRUD): Promise<IRequirementsRequestCRUD> {
+        if (!requirementsRequest.isReadOnly()) {
+            let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
+            let returnedRequest = requirementsRequest;
+            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
+                .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
+            return new RequirementsRequest(returnedRequest, this);
+        } else {
+            throw new Error("You do not have permission update this Request!");
+        }
+    }
+
+    private async submitNewRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
+        try {
+            let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
+            let returnedRequest = requirementsRequest;
+            let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
+            returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
+            returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
+            returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
+            returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
+            return new RequirementsRequest(returnedRequest, this);
+        } catch (e) {
+            console.error("Error occured while trying to submit a new request");
+            console.error(e);
+            throw new Error("Something went wrong while trying to submit your request, please try again later");
+        }
     }
 }
 

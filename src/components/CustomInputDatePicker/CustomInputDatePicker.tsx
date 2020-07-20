@@ -7,6 +7,7 @@ import './CustomInputeDatePicker.css';
 
 export interface ICustomInputeDatePickerProps {
     headerText: string,
+    readOnly: boolean,
     date: Moment,
     onChange: (date: Moment) => void
 }
@@ -16,11 +17,15 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
     const [open, setOpen] = useState<boolean>(false);
 
     const onChange = (newDate: Date) => {
-        props.onChange(moment(newDate));
+        if (!props.readOnly) {
+            props.onChange(moment(newDate));
+        }
     }
 
     const onClick = (inside: boolean) => {
-        setOpen(inside);
+        if (!props.readOnly) {
+            setOpen(inside);
+        }
     }
 
     const DatePickerCustomInput = () => (
@@ -28,6 +33,7 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
             <Form.Label>{props.headerText}</Form.Label>
             <Form.Control
                 type="text"
+                readOnly={props.readOnly}
                 defaultValue={props.date.format("DD MMM YYYY")}
                 onClick={() => onClick(true)}
             />

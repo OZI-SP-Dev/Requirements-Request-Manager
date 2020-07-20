@@ -19,7 +19,7 @@ const suggestionProps: IBasePickerSuggestionsProps = {
 
 interface IPeoplePickerProps {
 	defaultValue?: IPerson[],
-	readonly?: boolean,
+	readOnly?: boolean,
 	required?: boolean,
 	updatePeople: (p: IPerson[]) => void
 }
@@ -99,6 +99,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 
 	return (
 		<NormalPeoplePicker
+			disabled={props.readOnly}
 			onResolveSuggestions={onFilterChanged}
 			getTextFromItem={getTextFromItem}
 			pickerSuggestionsProps={suggestionProps}
