@@ -7,9 +7,11 @@ import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestA
 export function useRequests(): [IRequirementsRequestCRUD[],
     (request: IRequirementsRequestCRUD) => Promise<void>,
     (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
-    (request: IRequirementsRequestCRUD) => Promise<void>] {
+    (request: IRequirementsRequestCRUD) => Promise<void>,
+    boolean] {
 
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
+    const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
 
     const requirementsRequestApi: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
     const requestApprovalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
@@ -42,12 +44,13 @@ export function useRequests(): [IRequirementsRequestCRUD[],
     }
 
     const fetchRequests = async () => {
-        setRequests(await requirementsRequestApi.fetchRequirementsRequests())
+        setRequests(await requirementsRequestApi.fetchRequirementsRequests());
+        setLoadingRequests(false);
     }
 
     useEffect(() => {
         fetchRequests(); // eslint-disable-next-line
     }, []);
 
-    return ([requests, submitRequest, submitApproval, deleteRequest]);
+    return ([requests, submitRequest, submitApproval, deleteRequest, loadingRequests]);
 }
