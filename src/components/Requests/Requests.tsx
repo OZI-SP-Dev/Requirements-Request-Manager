@@ -1,13 +1,11 @@
-import React, { useState, useContext } from "react";
-import { Button, Container, Table, Accordion, Row, Col, Spinner } from "react-bootstrap";
+import React, { useContext, useState } from "react";
+import { Accordion, Button, Col, Container, Row, Spinner, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { IRequirementsRequestCRUD, ApplicationTypes } from "../../api/DomainObjects";
-import { RequestView } from "../RequestView/RequestView";
+import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { UserContext } from "../../providers/UserProvider";
-import RequestSpinner from "../RequestSpinner/RequestSpinner";
+import { RequestView } from "../RequestView/RequestView";
 
 export interface IRequestsProps {
-    loading: boolean,
     requests: IRequirementsRequestCRUD[],
     deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
@@ -28,7 +26,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
         <Container fluid="md" className="pb-5 pt-3">
             <h1>Requests</h1>
             <Row className="mr-1 mb-3 float-right">
-                <Link to="/Requests/new">
+                <Link to="/Requests/New">
                     <Button variant="primary">New Request</Button>
                 </Link>
             </Row>
@@ -46,8 +44,8 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 </thead>
                 <Accordion as='tbody'>
                     {props.requests.map(request =>
-                        <>
-                            <Accordion.Toggle key={request.Id} eventKey={request.Id.toString()} as='tr' role="button">
+                        <React.Fragment key={request.Id}>
+                            <Accordion.Toggle eventKey={request.Id.toString()} as='tr' role="button">
                                 <td>{request.Title}</td>
                                 <td>{request.Requester.Title}</td>
                                 <td>{request.RequestDate.format("DD MMM YYYY")}</td>
@@ -88,11 +86,10 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     </Accordion.Collapse>
                                 </td>
                             </tr>
-                        </>
+                        </React.Fragment>
                     )}
                 </Accordion>
             </Table>
-            <RequestSpinner show={props.loading || !user} />
         </Container>
     );
 }

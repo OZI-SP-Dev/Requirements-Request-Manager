@@ -3,7 +3,8 @@ import { Spinner } from 'react-bootstrap';
 import './RequestSpinner.css'
 
 export interface IRequestSpinnerProps {
-    show: boolean
+    show: boolean,
+    displayText: string
 }
 
 export const RequestSpinner: React.FunctionComponent<IRequestSpinnerProps> = (props) => {
@@ -13,6 +14,7 @@ export const RequestSpinner: React.FunctionComponent<IRequestSpinnerProps> = (pr
             {props.show &&
                 <div className="spinner">
                     <Spinner animation="border" role="status" />
+                    <span><br />{props.displayText}</span>
                 </div>}
         </>
     );

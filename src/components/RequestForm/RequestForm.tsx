@@ -9,10 +9,8 @@ import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import './RequestForm.css';
-import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 export interface IRequestFormProps {
-    loading: boolean,
     editRequest?: IRequirementsRequest,
     submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
@@ -372,6 +370,5 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     </Button>
                 </Link>
             </Form>
-            <RequestSpinner show={props.loading || !user} />
         </Container>);
 }

@@ -1,16 +1,14 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Button, Col, Container, Form, Spinner, Row } from "react-bootstrap";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
+import { UserContext } from "../../providers/UserProvider";
 import { RequestView } from "../RequestView/RequestView";
 import "./RequestReview.css";
-import { UserContext } from "../../providers/UserProvider";
-import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 
 export interface IRequestReviewProps {
-    loading: boolean,
     request?: IRequirementsRequestCRUD,
     // if not provided, this will be treated as a read-only view
     submitApproval?: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>
@@ -95,7 +93,6 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     </Button>
                 </Col>
             </Row>
-            <RequestSpinner show={props.loading || !user} />
         </Container>
     );
 
