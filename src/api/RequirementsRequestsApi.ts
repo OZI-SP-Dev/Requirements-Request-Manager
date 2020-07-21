@@ -118,7 +118,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     requestApprovalsApi = RequestApprovalsApiConfig.getApi();
 
     // Map the given IRequirementsRequest to a ISubmitRequirementsRequest so that it can be submitted to SP
-    getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
+    private getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
         return {
             Id: request.Id,
             Title: request.Title,
@@ -154,8 +154,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     // Map the given SPRequirementsRequest returned by SP to an IRequirementsRequest to be used interally
-    getIRequirementsRequest = (request: SPRequirementsRequest, approval?: IRequestApproval): IRequirementsRequest => {
-        return {
+    private getIRequirementsRequest = (request: SPRequirementsRequest, approval?: IRequestApproval): IRequirementsRequest => {
+        return approval ? approval.Request : {
             Id: request.Id,
             Title: request.Title,
             RequestDate: moment(request.RequestDate),
@@ -165,8 +165,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
             ApprovingPEO: new Person(request.ApprovingPEO),
-            PEOApprovedDateTime: approval ? approval.Created : null,
-            PEOApprovedComment: approval ? approval.Comment : null,
+            PEOApprovedDateTime: null,
+            PEOApprovedComment: null,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -212,7 +212,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             requirementRequestCRUDs.push(new RequirementsRequest(
                 this.getIRequirementsRequest(request,
                     approvals.find(approval =>
-                        approval.RequestId === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
+                        approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
                 , this));
         }
         return requirementRequestCRUDs;
