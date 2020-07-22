@@ -11,34 +11,34 @@ import { RequestApprovalsApiConfig, IRequestApproval } from "./RequestApprovalsA
  */
 interface ISubmitRequirementsRequest {
     // can be undefined if it is an intial submission
-    Id?: number
-    Title: string
-    RequestDate: string
-    ReceivedDate: string
-    RequesterId: number
-    RequesterOrgSymbol: string
-    RequesterDSNPhone: string
-    RequesterCommPhone: string
-    ApprovingPEOId: number
-    PEOOrgSymbol: string
-    PEO_DSNPhone: string
-    PEO_CommPhone: string
-    RequirementType: RequirementTypes
-    FundingOrgOrPEO: string
-    ApplicationNeeded: ApplicationTypes
-    OtherApplicationNeeded: string
-    IsProjectedOrgsEnterprise: boolean
-    ProjectedOrgsImpactedCenter: Centers
-    ProjectedOrgsImpactedOrg: string
-    ProjectedImpactedUsers: number
-    OperationalNeedDate: string
-    OrgPriority: OrgPriorities
-    PriorityExplanation: string
-    BusinessObjective: string
-    FunctionalRequirements: string
-    Benefits: string
-    Risk: string
-    AdditionalInfo: string
+    Id?: number,
+    Title: string,
+    RequestDate: string,
+    ReceivedDate: string,
+    RequesterId: number,
+    RequesterOrgSymbol: string,
+    RequesterDSNPhone: string,
+    RequesterCommPhone: string,
+    ApprovingPEOId: number,
+    PEOOrgSymbol: string,
+    PEO_DSNPhone: string,
+    PEO_CommPhone: string,
+    RequirementType: RequirementTypes,
+    FundingOrgOrPEO: string,
+    ApplicationNeeded: ApplicationTypes,
+    OtherApplicationNeeded: string,
+    IsProjectedOrgsEnterprise: boolean,
+    ProjectedOrgsImpactedCenter: Centers,
+    ProjectedOrgsImpactedOrg: string,
+    ProjectedImpactedUsers: number,
+    OperationalNeedDate: string,
+    OrgPriority: OrgPriorities,
+    PriorityExplanation: string,
+    BusinessObjective: string,
+    FunctionalRequirements: string,
+    Benefits: string,
+    Risk: string,
+    AdditionalInfo: string,
     // undefined when submitting but will be filled in in the response from SP
     __metadata?: {
         etag: string

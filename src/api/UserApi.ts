@@ -2,9 +2,9 @@ import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { spWebContext } from "../providers/SPWebContext";
 
 export interface IPerson extends IPersonaProps {
-    Id: number
-    Title: string
-    EMail: string
+    Id: number,
+    Title: string,
+    EMail: string,
 }
 
 /**
