@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.5] - 2020-07-21
+### Changed
+- RequestApprovals SP list now has all of the fields of the RequirementsRequests SP list
+- Made a request uneditable after it has been approved
+- The RequirementsRequestsApi will prioritize the request fields found from the RequestApprovalsApi so that it is effectively read-only
+
 ## [0.1.4] - 2020-07-20
 ### Added
 - A spinner for when the requests or the user is currently loading

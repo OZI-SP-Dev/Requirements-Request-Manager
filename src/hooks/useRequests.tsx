@@ -16,7 +16,6 @@ export function useRequests(): [boolean, IRequirementsRequestCRUD[],
     const requestApprovalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
 
     const submitRequest = async (request: IRequirementsRequestCRUD) => {
-        setLoading(true);
         let updatedRequest = new RequirementsRequest(await request.save());
         let newRequests = requests;
         let oldRequestIndex = newRequests.findIndex(req => req.Id === updatedRequest.Id);
@@ -26,11 +25,9 @@ export function useRequests(): [boolean, IRequirementsRequestCRUD[],
             newRequests.push(updatedRequest);
         }
         setRequests(newRequests);
-        setLoading(false);
     }
 
     const submitApproval = async (request: IRequirementsRequestCRUD, comment: string) => {
-        setLoading(true);
         let approval = await requestApprovalsApi.submitApproval(request, comment);
         let newRequest = new RequirementsRequest(request);
         newRequest.PEOApprovedDateTime = approval.Created;
@@ -38,14 +35,11 @@ export function useRequests(): [boolean, IRequirementsRequestCRUD[],
         let newRequests = requests;
         requests[newRequests.findIndex(req => req.Id === newRequest.Id)] = newRequest;
         setRequests(newRequests);
-        setLoading(false);
     }
 
     const deleteRequest = async (request: IRequirementsRequestCRUD) => {
-        setLoading(true);
         await request.delete();
         setRequests(requests.filter(req => req.Id !== request.Id));
-        setLoading(false);
     }
 
     const fetchRequests = async () => {

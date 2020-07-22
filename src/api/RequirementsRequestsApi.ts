@@ -11,34 +11,34 @@ import { RequestApprovalsApiConfig, IRequestApproval } from "./RequestApprovalsA
  */
 interface ISubmitRequirementsRequest {
     // can be undefined if it is an intial submission
-    Id?: number
-    Title: string
-    RequestDate: string
-    ReceivedDate: string
-    RequesterId: number
-    RequesterOrgSymbol: string
-    RequesterDSNPhone: string
-    RequesterCommPhone: string
-    ApprovingPEOId: number
-    PEOOrgSymbol: string
-    PEO_DSNPhone: string
-    PEO_CommPhone: string
-    RequirementType: RequirementTypes
-    FundingOrgOrPEO: string
-    ApplicationNeeded: ApplicationTypes
-    OtherApplicationNeeded: string
-    IsProjectedOrgsEnterprise: boolean
-    ProjectedOrgsImpactedCenter: Centers
-    ProjectedOrgsImpactedOrg: string
-    ProjectedImpactedUsers: number
-    OperationalNeedDate: string
-    OrgPriority: OrgPriorities
-    PriorityExplanation: string
-    BusinessObjective: string
-    FunctionalRequirements: string
-    Benefits: string
-    Risk: string
-    AdditionalInfo: string
+    Id?: number,
+    Title: string,
+    RequestDate: string,
+    ReceivedDate: string,
+    RequesterId: number,
+    RequesterOrgSymbol: string,
+    RequesterDSNPhone: string,
+    RequesterCommPhone: string,
+    ApprovingPEOId: number,
+    PEOOrgSymbol: string,
+    PEO_DSNPhone: string,
+    PEO_CommPhone: string,
+    RequirementType: RequirementTypes,
+    FundingOrgOrPEO: string,
+    ApplicationNeeded: ApplicationTypes,
+    OtherApplicationNeeded: string,
+    IsProjectedOrgsEnterprise: boolean,
+    ProjectedOrgsImpactedCenter: Centers,
+    ProjectedOrgsImpactedOrg: string,
+    ProjectedImpactedUsers: number,
+    OperationalNeedDate: string,
+    OrgPriority: OrgPriorities,
+    PriorityExplanation: string,
+    BusinessObjective: string,
+    FunctionalRequirements: string,
+    Benefits: string,
+    Risk: string,
+    AdditionalInfo: string,
     // undefined when submitting but will be filled in in the response from SP
     __metadata?: {
         etag: string
@@ -118,7 +118,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     requestApprovalsApi = RequestApprovalsApiConfig.getApi();
 
     // Map the given IRequirementsRequest to a ISubmitRequirementsRequest so that it can be submitted to SP
-    getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
+    private getSubmitRequirementsRequest = async (request: IRequirementsRequest): Promise<ISubmitRequirementsRequest> => {
         return {
             Id: request.Id,
             Title: request.Title,
@@ -154,8 +154,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     // Map the given SPRequirementsRequest returned by SP to an IRequirementsRequest to be used interally
-    getIRequirementsRequest = (request: SPRequirementsRequest, approval?: IRequestApproval): IRequirementsRequest => {
-        return {
+    private getIRequirementsRequest = (request: SPRequirementsRequest, approval?: IRequestApproval): IRequirementsRequest => {
+        return approval ? approval.Request : {
             Id: request.Id,
             Title: request.Title,
             RequestDate: moment(request.RequestDate),
@@ -165,8 +165,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
             ApprovingPEO: new Person(request.ApprovingPEO),
-            PEOApprovedDateTime: approval ? approval.Created : null,
-            PEOApprovedComment: approval ? approval.Comment : null,
+            PEOApprovedDateTime: null,
+            PEOApprovedComment: null,
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
@@ -212,32 +212,50 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             requirementRequestCRUDs.push(new RequirementsRequest(
                 this.getIRequirementsRequest(request,
                     approvals.find(approval =>
-                        approval.RequestId === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
+                        approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
                 , this));
         }
         return requirementRequestCRUDs;
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
-        let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
-        let returnedRequest = requirementsRequest;
-        // If this RequirementsRequest already exists
-        if (requirementsRequest.Id > -1) {
-            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
-                .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
-        } else { // This is a new RequirementsRequest
-            let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
-            returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
-            returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
-            returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
-            returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
-        }
-        return new RequirementsRequest(returnedRequest, this);
+        return requirementsRequest.Id > -1 ?
+            this.updateRequest(new RequirementsRequest(requirementsRequest)) :
+            this.submitNewRequest(requirementsRequest);
     }
 
     deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
         // TODO: update this so that it simply changes the Request to have IsDeleted: true
         return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
+    }
+
+    private async updateRequest(requirementsRequest: IRequirementsRequestCRUD): Promise<IRequirementsRequestCRUD> {
+        if (!requirementsRequest.isReadOnly()) {
+            let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
+            let returnedRequest = requirementsRequest;
+            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
+                .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
+            return new RequirementsRequest(returnedRequest, this);
+        } else {
+            throw new Error("You do not have permission update this Request!");
+        }
+    }
+
+    private async submitNewRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
+        try {
+            let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
+            let returnedRequest = requirementsRequest;
+            let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
+            returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
+            returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
+            returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
+            returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
+            return new RequirementsRequest(returnedRequest, this);
+        } catch (e) {
+            console.error("Error occured while trying to submit a new request");
+            console.error(e);
+            throw new Error("Something went wrong while trying to submit your request, please try again later");
+        }
     }
 }
 

@@ -7,7 +7,7 @@ import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprov
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
 
     requests: IRequirementsRequestCRUD[] = [];
-    approvalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
+    approvalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi(this);
 
     constructor() {
         this.requests = [
@@ -107,8 +107,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         let request = this.requests.find(request => request.Id === Id);
         if (request) {
             let approval = await this.approvalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
-            request.PEOApprovedDateTime = approval ? approval.Created : null;
-            request.PEOApprovedComment = approval ? approval.Comment : null;
+            request = new RequirementsRequest(approval ? approval.Request : request);
         }
         return request;
     }
@@ -119,25 +118,26 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             return { requestId: req.Id, approverId: req.ApprovingPEO.Id }
         }));
         return this.requests.map(req => {
-            let approval = approvals.find(app => app.RequestId === req.Id && app.AuthorId === req.ApprovingPEO.Id);
-            let request = new RequirementsRequest(req);
-            request.PEOApprovedDateTime = approval ? approval.Created : null;
-            request.PEOApprovedComment = approval ? approval.Comment : null;
-            return request;
+            let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.ApprovingPEO.Id);
+            return new RequirementsRequest(approval ? approval.Request : req);
         });
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
         await this.sleep();
-        let newRequest = new RequirementsRequest(requirementsRequest);
-        let oldIndex = this.requests.findIndex(request => newRequest.Id === request.Id);
-        if (oldIndex > -1) {
-            this.requests[oldIndex] = newRequest;
+        if (!(new RequirementsRequest(requirementsRequest)).isReadOnly()) {
+            let newRequest = new RequirementsRequest(requirementsRequest);
+            let oldIndex = this.requests.findIndex(request => newRequest.Id === request.Id);
+            if (oldIndex > -1) {
+                this.requests[oldIndex] = newRequest;
+            } else {
+                newRequest.Id = ++this.maxId;
+                this.requests.push(newRequest);
+            }
+            return newRequest;
         } else {
-            newRequest.Id = ++this.maxId;
-            this.requests.push(newRequest);
+            throw new Error("You do not have permission update this Request!");
         }
-        return newRequest;
     }
 
     async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {

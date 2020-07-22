@@ -30,19 +30,25 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
                         path="/Requests/Edit/:requestId"
                         render={({ match }) => {
                             let request = requests.find(req => req.Id === Number(match.params.requestId));
-                            return request ? <RequestForm submitRequest={submitRequest} editRequest={request} /> : <Redirect to="/Requests" />
+                            return request ?
+                                <RequestForm submitRequest={submitRequest} editRequest={request} /> :
+                                <Redirect to="/Requests" />
                         }} />
                     <Route
                         path="/Requests/View/:requestId"
                         render={({ match }) => {
                             let request = requests.find(req => req.Id === Number(match.params.requestId));
-                            return request ? <RequestReview request={request} /> : <Redirect to="/Requests" />
+                            return request ?
+                                <RequestReview request={request} /> :
+                                <Redirect to="/Requests" />
                         }} />
                     <Route
                         path="/Requests/Review/:requestId"
                         render={({ match }) => {
                             let request = requests.find(req => req.Id === Number(match.params.requestId));
-                            return request ? <RequestReview request={request} submitApproval={submitApproval} /> : <Redirect to="/Requests" />
+                            return request ?
+                                <RequestReview request={request} submitApproval={submitApproval} /> :
+                                <Redirect to="/Requests" />
                         }} />
                     <Route exact path="/Requests">
                         <Requests requests={requests} deleteRequest={deleteRequest} />

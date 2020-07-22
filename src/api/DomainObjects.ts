@@ -91,6 +91,14 @@ export interface IRequirementsRequestCRUD extends IRequirementsRequest {
      * Remove this RequirementsRequest from its persistence
      */
     delete: () => Promise<void>
+
+    /**
+     * Returns whether or not this RequirementsRequest is read-only or not. It will
+     * determine this based on roles and whether it has been approved or not.
+     * 
+     * @returns true if this RequirementsRequest is read-only or not
+     */
+    isReadOnly: () => boolean
 }
 
 const blankRequest: IRequirementsRequest = {
@@ -209,12 +217,20 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     }
 
     save = async (): Promise<IRequirementsRequestCRUD | undefined> => {
-        return this.api.submitRequirementsRequest(this);
+        if (!this.isReadOnly()) {
+            return this.api.submitRequirementsRequest(this);
+        } else {
+            throw new Error("You do not have permission update this Request!");
+        }
     }
 
     delete = async (): Promise<void> => {
         if (this.Id && this.Id > -1) {
             return this.api.deleteRequirementsRequest(this);
         }
+    }
+
+    isReadOnly = (): boolean => {
+        return this.PEOApprovedDateTime !== null;
     }
 }
