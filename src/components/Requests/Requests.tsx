@@ -1,13 +1,15 @@
 import React, { useContext, useState } from "react";
-import { Accordion, Button, Col, Container, Row, Spinner, Table } from "react-bootstrap";
+import { Accordion, Button, Col, Container, Row, Spinner, Table, FormCheck, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { UserContext } from "../../providers/UserProvider";
 import { RequestView } from "../RequestView/RequestView";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
+import { IRequests } from "../../hooks/useRequests";
+import "./Requests.css"
 
 export interface IRequestsProps {
-    requests: IRequirementsRequestCRUD[],
+    requests: IRequests,
     deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
 
@@ -16,6 +18,10 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     const [deleting, setDeleting] = useState<boolean>(false);
 
     const { user } = useContext(UserContext);
+
+    const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+        props.requests.setFilters({ ...props.requests.filters, showAllUsers: e.target.checked });
+    }
 
     const deleteRequest = async (request: IRequirementsRequestCRUD) => {
         setDeleting(true);
@@ -26,11 +32,25 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     return (
         <Container fluid="md" className="pb-5 pt-3">
             <h1>Requests</h1>
-            <Row className="mr-1 mb-3 float-right">
-                <Link to="/Requests/New">
-                    <Button variant="primary">New Request</Button>
-                </Link>
-            </Row>
+            <Form>
+                <Row className="mr-1 ml-1 mb-3">
+                    <Col className="request-vertical-center">
+                        <FormCheck
+                            id="userCheck"
+                            className="float-left"
+                            type="switch"
+                            label="Show all users"
+                            checked={props.requests.filters.showAllUsers}
+                            onChange={userSwitchOnClick}
+                        />
+                    </Col>
+                    <Col>
+                        <Link to="/Requests/New">
+                            <Button variant="primary" className="float-right">New Request</Button>
+                        </Link>
+                    </Col>
+                </Row>
+            </Form>
             <Table bordered hover responsive>
                 <thead>
                     <tr>
@@ -44,7 +64,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     </tr>
                 </thead>
                 <Accordion as='tbody'>
-                    {props.requests.map(request =>
+                    {props.requests.requestsList.map(request =>
                         <React.Fragment key={request.Id}>
                             <Accordion.Toggle eventKey={request.Id.toString()} as='tr' role="button">
                                 <td>{request.Title}</td>

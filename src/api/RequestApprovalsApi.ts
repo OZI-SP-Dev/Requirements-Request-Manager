@@ -136,7 +136,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     userApi: IUserApi = UserApiConfig.getApi();
 
     async getRequestApproval(requestId: number, approverId: number): Promise<IRequestApproval | undefined> {
-        let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).expand("Request").get())[0];
+        let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).expand("Request", "Requester", "ApprovingPEO").get())[0];
         return requestApproval ? this.spApprovalToRequestApproval(requestApproval) : undefined;
     }
 

@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
-import { IRequirementsRequestCRUD } from "../../api/DomainObjects";
+import { IRequirementsRequestCRUD, RequirementsRequest, IRequirementsRequest } from "../../api/DomainObjects";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import { RequestView } from "../RequestView/RequestView";
 import "./RequestReview.css";
-import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 
 export interface IRequestReviewProps {
-    request?: IRequirementsRequestCRUD,
+    requestId?: number,
+    fetchRequestById?: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     // if not provided, this will be treated as a read-only view
     submitApproval?: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>
 }
@@ -19,20 +20,38 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
 
     const { user } = useContext(UserContext);
 
-    const checkIfUserCanReview = (): boolean => {
-        return props.submitApproval !== undefined && user !== undefined && props.request !== undefined && !props.request.PEOApprovedDateTime && user.Id === props.request.ApprovingPEO.Id;
-    }
-
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [comment, setComment] = useState<string>("");
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const [userCanReview, setUserCanReview] = useState<boolean>(checkIfUserCanReview());
+    const [userCanReview, setUserCanReview] = useState<boolean>(false);
 
     const history = useHistory();
 
     useScrollToTop();
 
+    const getRequest = async () => {
+        if (props.requestId !== undefined && props.fetchRequestById) {
+            let newRequest = await props.fetchRequestById(props.requestId);
+            if (newRequest) {
+                setRequest(newRequest);
+                setUserCanReview(checkIfUserCanReview(newRequest));
+            } else {
+                history.push("/Requests");
+            }
+        }
+    }
+
+    const checkIfUserCanReview = (request: IRequirementsRequest): boolean => {
+        return props.submitApproval !== undefined && user !== undefined && request !== undefined && !request.PEOApprovedDateTime && user.Id === request.ApprovingPEO.Id;
+    }
+
+    // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
-        setUserCanReview(checkIfUserCanReview()); // eslint-disable-next-line
+        getRequest(); // eslint-disable-next-line
+    }, [props.requestId])
+
+    useEffect(() => {
+        setUserCanReview(checkIfUserCanReview(request)); // eslint-disable-next-line
     }, [user, props.submitApproval])
 
     const updateComment = (value: string): void => {
@@ -41,8 +60,8 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
 
     const approveRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
         setSubmitting(true);
-        if (props.request && props.submitApproval) {
-            await props.submitApproval(props.request, comment);
+        if (request && props.submitApproval) {
+            await props.submitApproval(request, comment);
         }
         setSubmitting(false);
         redirect(e, "/Requests");
@@ -56,7 +75,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     return (
         <Container fluid="md" className="pb-5 pt-3">
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
-            <RequestView request={props.request} />
+            <RequestView request={request} />
             <hr />
             {userCanReview &&
                 <Form>
@@ -77,14 +96,14 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             <Row className="review-vertical-align m-2">
                 <Col>
                     {userCanReview &&
-                        <Button className="float-right" disabled={!props.request} onClick={approveRequest}>
+                        <Button className="float-right" disabled={!request} onClick={approveRequest}>
                             {submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                             {' '}{"Approve Request"}
                         </Button>
                     }
-                    {props.request && !props.request.isReadOnly() &&
+                    {request && !request.isReadOnly() &&
                         <Button className="float-right mr-2" variant="warning"
-                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, `/Requests/Edit/${props.request?.Id}`)}
+                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, `/Requests/Edit/${request.Id}`)}
                         >
                             Edit Request
                         </Button>}

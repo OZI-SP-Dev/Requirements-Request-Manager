@@ -112,15 +112,19 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         return request;
     }
 
-    async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
+    async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         await this.sleep();
         let approvals = await this.approvalsApi.getRequestApprovals(this.requests.map(req => {
             return { requestId: req.Id, approverId: req.ApprovingPEO.Id }
         }));
-        return this.requests.map(req => {
+        let requests = this.requests.map(req => {
             let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.ApprovingPEO.Id);
             return new RequirementsRequest(approval ? approval.Request : req);
         });
+        if (userId !== undefined) {
+            requests = requests.filter(request => request.Requester.Id === userId);
+        }
+        return requests;
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {

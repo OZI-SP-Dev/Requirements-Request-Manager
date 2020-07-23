@@ -14,7 +14,7 @@ export const RequestSpinner: React.FunctionComponent<IRequestSpinnerProps> = (pr
             {props.show &&
                 <div className="spinner">
                     <Spinner animation="border" role="status" />
-                    <span><br />{props.displayText}</span>
+                    <span><br /><strong>{props.displayText}</strong></span>
                 </div>}
         </>
     );

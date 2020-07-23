@@ -10,53 +10,51 @@ import RequestSpinner from "../RequestSpinner/RequestSpinner";
 
 export const RequestRoutes: React.FunctionComponent<any> = (props) => {
 
-    const [loadingRequests, requests, submitRequest, submitApproval, deleteRequest] = useRequests();
+    const requests = useRequests();
 
     const { loadingUser } = useContext(UserContext);
 
-    // Notes: Routing like this requires that loading any particular request means that we MUST load
-    //    the entire Requests list first. This will be problematic if we ever move to paging.
     return (
-        loadingRequests || loadingUser ?
-            <RequestSpinner
-                show={loadingRequests || loadingUser === undefined || loadingUser}
-                displayText={loadingRequests ? "Loading Requests..." : "Loading User..."} /> :
+        <>
             <HashRouter>
                 <Switch>
                     <Route exact path="/Requests/New">
-                        <RequestForm submitRequest={submitRequest} />
+                        <RequestForm submitRequest={requests.submitRequest} />
                     </Route>
                     <Route
                         path="/Requests/Edit/:requestId"
-                        render={({ match }) => {
-                            let request = requests.find(req => req.Id === Number(match.params.requestId));
-                            return request ?
-                                <RequestForm submitRequest={submitRequest} editRequest={request} /> :
-                                <Redirect to="/Requests" />
-                        }} />
+                        render={({ match }) =>
+                            <RequestForm
+                                fetchRequestById={requests.fetchRequestById}
+                                submitRequest={requests.submitRequest}
+                                editRequestId={Number(match.params.requestId)} />}
+                    />
                     <Route
                         path="/Requests/View/:requestId"
-                        render={({ match }) => {
-                            let request = requests.find(req => req.Id === Number(match.params.requestId));
-                            return request ?
-                                <RequestReview request={request} /> :
-                                <Redirect to="/Requests" />
-                        }} />
+                        render={({ match }) =>
+                            <RequestReview
+                                fetchRequestById={requests.fetchRequestById}
+                                requestId={Number(match.params.requestId)} />}
+                    />
                     <Route
                         path="/Requests/Review/:requestId"
-                        render={({ match }) => {
-                            let request = requests.find(req => req.Id === Number(match.params.requestId));
-                            return request ?
-                                <RequestReview request={request} submitApproval={submitApproval} /> :
-                                <Redirect to="/Requests" />
-                        }} />
+                        render={({ match }) =>
+                            <RequestReview
+                                fetchRequestById={requests.fetchRequestById}
+                                submitApproval={requests.submitApproval}
+                                requestId={Number(match.params.requestId)} />}
+                    />
                     <Route exact path="/Requests">
-                        <Requests requests={requests} deleteRequest={deleteRequest} />
+                        <Requests requests={requests} deleteRequest={requests.deleteRequest} />
                     </Route>
                     <Route path="*">
                         <Redirect to="/Requests" />
                     </Route>
                 </Switch>
             </HashRouter>
+            <RequestSpinner
+                show={requests.loading || loadingUser === undefined || loadingUser}
+                displayText={requests.loading ? "Loading Requests..." : "Loading User..."} />
+        </>
     );
 }
