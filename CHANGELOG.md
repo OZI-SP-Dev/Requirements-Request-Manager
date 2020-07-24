@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.6] 2020-07-24
+### Added
+- Filter on the Requests page that limits the requests to show only the user's requests by default
+
+### Changed
+- The app will only load the user's requests in the initial load, instead of all of them
+- If a user navigates directly to a Request's view/edit page that hasn't been loaded then it will be loaded dynamically
+
+### Fixed
+- The fetchById methods in the API classes now return properly, before they would not map any of the nested list objects such as people
+
 ## [0.1.5] - 2020-07-21
 ### Changed
 - RequestApprovals SP list now has all of the fields of the RequirementsRequests SP list
