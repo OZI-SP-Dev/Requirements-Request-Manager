@@ -1,12 +1,11 @@
 import React, { useContext, useState } from "react";
-import { Accordion, Button, Col, Container, Row, Spinner, Table, FormCheck, Form } from "react-bootstrap";
+import { Accordion, Button, Col, Container, Row, Spinner, Table, FormCheck } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { UserContext } from "../../providers/UserProvider";
 import { RequestView } from "../RequestView/RequestView";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import { IRequests } from "../../hooks/useRequests";
-import "./Requests.css"
 
 export interface IRequestsProps {
     requests: IRequests,
@@ -33,7 +32,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
         <Container fluid="md" className="pb-5 pt-3">
             <h1>Requests</h1>
             <Row className="mr-1 ml-1 mb-3">
-                <Form className="request-vertical-center">
+                <Col className="align-self-center">
                     <FormCheck
                         id="userCheck"
                         className="float-left"
@@ -42,7 +41,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                         checked={!props.requests.filters.showAllUsers}
                         onChange={userSwitchOnClick}
                     />
-                </Form>
+                </Col>
                 <Col>
                     <Link to="/Requests/New">
                         <Button variant="primary" className="float-right">New Request</Button>
