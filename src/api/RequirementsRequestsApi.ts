@@ -94,7 +94,7 @@ export interface IRequirementsRequestApi {
     /**
      * Fetch all of the RequirementsRequests
      */
-    fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]>,
+    fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]>,
 
     /**
      * Submit/update/persist the given RequirementsRequest
@@ -191,15 +191,21 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
-        let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).get();
+        let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").get();
         let approval = await this.requestApprovalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
         // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
         return new RequirementsRequest(this.getIRequirementsRequest(request, approval));
     }
 
-    async fetchRequirementsRequests(): Promise<IRequirementsRequestCRUD[]> {
+    async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         // TODO: Change this so that it filters on IsDeleted: false
-        let pagedRequests = await this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").getPaged();
+        let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO");
+
+        if (userId !== undefined) {
+            query = query.filter(`AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId}`);
+        }
+
+        let pagedRequests = await query.getPaged();
         let requests: SPRequirementsRequest[] = pagedRequests.results;
         while (pagedRequests.hasNext) {
             requests = requests.concat((await pagedRequests.getNext()).results);

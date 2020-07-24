@@ -2,23 +2,24 @@ import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
-import './RequestForm.css';
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
+import './RequestForm.css';
 
 export interface IRequestFormProps {
-    editRequest?: IRequirementsRequest,
+    editRequestId?: number,
+    fetchRequestById?: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest(props.editRequest));
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [readOnly, setReadOnly] = useState<boolean>(false);
@@ -28,12 +29,22 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
 
     useScrollToTop();
 
+    const getRequest = async () => {
+        if (props.editRequestId !== undefined && props.fetchRequestById) {
+            let newRequest = await props.fetchRequestById(props.editRequestId);
+            if (newRequest) {
+                setReadOnly(newRequest.isReadOnly());
+                setRequest(newRequest);
+            } else {
+                history.push("/Requests");
+            }
+        }
+    }
+
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
-        let newRequest = new RequirementsRequest(props.editRequest);
-        setReadOnly(newRequest.isReadOnly());
-        setRequest(newRequest);
-    }, [props.editRequest])
+        getRequest(); // eslint-disable-next-line
+    }, [props.editRequestId])
 
     useEffect(() => {
         // only update the requester if this is a new request
