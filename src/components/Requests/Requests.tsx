@@ -20,7 +20,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     const { user } = useContext(UserContext);
 
     const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
-        props.requests.setFilters({ ...props.requests.filters, showAllUsers: e.target.checked });
+        props.requests.setFilters({ ...props.requests.filters, showAllUsers: !e.target.checked });
     }
 
     const deleteRequest = async (request: IRequirementsRequestCRUD) => {
@@ -32,25 +32,23 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     return (
         <Container fluid="md" className="pb-5 pt-3">
             <h1>Requests</h1>
-            <Form>
-                <Row className="mr-1 ml-1 mb-3">
-                    <Col className="request-vertical-center">
-                        <FormCheck
-                            id="userCheck"
-                            className="float-left"
-                            type="switch"
-                            label="Show all users"
-                            checked={props.requests.filters.showAllUsers}
-                            onChange={userSwitchOnClick}
-                        />
-                    </Col>
-                    <Col>
-                        <Link to="/Requests/New">
-                            <Button variant="primary" className="float-right">New Request</Button>
-                        </Link>
-                    </Col>
-                </Row>
-            </Form>
+            <Row className="mr-1 ml-1 mb-3">
+                <Form className="request-vertical-center">
+                    <FormCheck
+                        id="userCheck"
+                        className="float-left"
+                        type="switch"
+                        label="My Requests Only"
+                        checked={!props.requests.filters.showAllUsers}
+                        onChange={userSwitchOnClick}
+                    />
+                </Form>
+                <Col>
+                    <Link to="/Requests/New">
+                        <Button variant="primary" className="float-right">New Request</Button>
+                    </Link>
+                </Col>
+            </Row>
             <Table bordered hover responsive>
                 <thead>
                     <tr>
