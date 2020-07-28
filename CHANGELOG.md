@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.7] 2020-07-28
+### Added
+- Added Requester field that defaults to the current user.
+- Added a check that uses the requester as the PEO.
+
+### Changed
+- Changed the PEO fields to say 2 Ltr/PEO.
+
+### Fixed
+- Fixed bug that didn't check the funded checkbox when it should be
+
 ## [0.1.6] 2020-07-24
 ### Added
 - Filter on the Requests page that limits the requests to show only the user's requests by default
