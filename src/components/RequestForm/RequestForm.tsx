@@ -21,6 +21,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
+    const [peoSameAsRequester, setPeoSameAsRequester] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [readOnly, setReadOnly] = useState<boolean>(false);
 
@@ -34,6 +35,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             let newRequest = await props.fetchRequestById(props.editRequestId);
             if (newRequest) {
                 setReadOnly(newRequest.isReadOnly());
+                setPeoSameAsRequester(newRequest.Requester.Id === newRequest.ApprovingPEO.Id);
+                setShowFundingField(newRequest.FundingOrgOrPEO !== "" && newRequest.FundingOrgOrPEO !== undefined && newRequest.FundingOrgOrPEO !== null);
                 setRequest(newRequest);
             } else {
                 history.push("/Requests");
@@ -73,9 +76,20 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         setShowFundingField(!showFundingField);
     }
 
+    const flipPeoSameAsRequester = (): void => {
+        setPeoSameAsRequester(!peoSameAsRequester);
+    }
+
     const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSaving(true);
+        let req = request;
+        if (peoSameAsRequester) {
+            req.ApprovingPEO = req.Requester;
+            req.PEOOrgSymbol = req.RequesterOrgSymbol;
+            req.PEO_DSNPhone = req.RequesterDSNPhone;
+            req.PEO_CommPhone = req.RequesterCommPhone;
+        }
         await props.submitRequest(request);
         setSaving(false);
         history.push("/Requests");
@@ -86,8 +100,21 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
-                    <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label lg="4" sm="6">Requester Org Symbol</Form.Label>
+                    <Col xl="6" lg="6" md="8" sm="12" xs="12">
+                        <Form.Label>Requester:</Form.Label>
+                        <Form.Control
+                            as={PeoplePicker}
+                            defaultValue={request.Requester.Title ? [request.Requester] : undefined}
+                            updatePeople={(p: IPerson[]) => {
+                                let persona = p[0];
+                                updateRequest('Requester', persona ? new Person(persona) : new Person());
+                            }}
+                            readOnly={readOnly}
+                            required
+                        />
+                    </Col>
+                    <Col xl="4" lg="4" md="4" sm="6" xs="12">
+                        <Form.Label lg="4" sm="6">Requester Org Symbol:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your Org Symbol"
@@ -97,7 +124,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label lg="4" sm="6">Requester DSN #</Form.Label>
+                        <Form.Label lg="4" sm="6">Requester DSN #:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your DSN Phone Number"
@@ -106,8 +133,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             onChange={e => updatePhoneField('RequesterDSNPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
-                    <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label lg="4" sm="6">Requester Comm #</Form.Label>
+                    <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
+                        <Form.Label lg="4" sm="6">Requester Comm #:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your Commercial Phone Number"
@@ -116,8 +143,15 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             onChange={e => updatePhoneField('RequesterCommPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
+                    <Col className="mt-4" xl="12" lg="12" md="12" sm="12" xs="12">
+                        <Form.Check inline label="2 Ltr/PEO Same as Requester?" type="checkbox" id="peo-requester-checkbox"
+                            disabled={readOnly}
+                            checked={peoSameAsRequester}
+                            onChange={flipPeoSameAsRequester}
+                        />
+                    </Col>
                 </Form.Row>
-                <Form.Row>
+                {!peoSameAsRequester && <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
                         <Form.Label>2 Ltr/PEO to Approve:</Form.Label>
                         <Form.Control
@@ -128,11 +162,11 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                 updateRequest('ApprovingPEO', persona ? new Person(persona) : new Person());
                             }}
                             readOnly={readOnly}
-                            required={true}
+                            required
                         />
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
-                        <Form.Label>PEO Org Symbol</Form.Label>
+                        <Form.Label>2 Ltr/PEO Org Symbol</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Approving PEO's Org Symbol"
@@ -142,7 +176,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label>PEO DSN #</Form.Label>
+                        <Form.Label>2 Ltr/PEO DSN #</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Approving PEO's DSN Phone Number"
@@ -152,7 +186,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
-                        <Form.Label>PEO Comm #</Form.Label>
+                        <Form.Label>2 Ltr/PEO Comm #</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Approving PEO's Commercial Phone Number"
@@ -161,7 +195,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             onChange={e => updatePhoneField('PEO_CommPhone', getNumbersOnly(e.target.value))}
                         />
                     </Col>
-                </Form.Row>
+                </Form.Row>}
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
                         <Form.Label>Requirement Title</Form.Label>
