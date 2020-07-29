@@ -4,6 +4,7 @@ import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
 import { UserApiConfig, Person, IPerson } from "./UserApi";
 import { RequestApprovalsApiConfig, IRequestApproval } from "./RequestApprovalsApi";
+import { ApiError, NotAuthorizedError, InternalError } from "./InternalErrors";
 
 /**
  * This interface is used to submit/update requests to SP and it also models what SP returns from those endpoints.
@@ -191,59 +192,117 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     }
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
-        let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").get();
-        let approval = await this.requestApprovalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
-        // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
-        return new RequirementsRequest(this.getIRequirementsRequest(request, approval));
+        try {
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").get();
+            let approval = await this.requestApprovalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
+            // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
+            return new RequirementsRequest(this.getIRequirementsRequest(request, approval));
+        } catch (e) {
+            console.error(`Error occurred while trying to fetch Request with ID ${Id}`);
+            console.error(e);
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch Request with ID ${Id}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch Request with ID ${Id}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to fetch Request with ID ${Id}`);
+            }
+        }
     }
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
-        // TODO: Change this so that it filters on IsDeleted: false
-        let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO");
+        try {
+            // TODO: Change this so that it filters on IsDeleted: false
+            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO");
 
-        if (userId !== undefined) {
-            query = query.filter(`AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId}`);
-        }
+            if (userId !== undefined) {
+                query = query.filter(`AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId}`);
+            }
 
-        let pagedRequests = await query.getPaged();
-        let requests: SPRequirementsRequest[] = pagedRequests.results;
-        while (pagedRequests.hasNext) {
-            requests = requests.concat((await pagedRequests.getNext()).results);
+            let pagedRequests = await query.getPaged();
+            let requests: SPRequirementsRequest[] = pagedRequests.results;
+            while (pagedRequests.hasNext) {
+                requests = requests.concat((await pagedRequests.getNext()).results);
+            }
+            let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => {
+                return { requestId: request.Id, approverId: request.ApprovingPEO.Id }
+            }));
+            let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
+            for (let request of requests) {
+                requirementRequestCRUDs.push(new RequirementsRequest(
+                    this.getIRequirementsRequest(request,
+                        approvals.find(approval =>
+                            approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
+                    , this));
+            }
+            return requirementRequestCRUDs;
+        } catch (e) {
+            console.error(`Error occurred while trying to fetch Requests from SharePoint${userId ? " for userId " + userId : ""}`);
+            console.error(e);
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e,
+                    `Error occurred while trying to fetch Requests from SharePoint${userId ? " for userId " + userId : ""}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(
+                    `Error occurred while trying to fetch Requests from SharePoint${userId ? " for userId " + userId : ""}: ${e}`));
+            } else {
+                throw new ApiError(undefined,
+                    `Unknown error occurred while trying to fetch Requests from SharePoint${userId ? " for userId " + userId : ""}:`);
+            }
         }
-        let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => {
-            return { requestId: request.Id, approverId: request.ApprovingPEO.Id }
-        }));
-        let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
-        for (let request of requests) {
-            requirementRequestCRUDs.push(new RequirementsRequest(
-                this.getIRequirementsRequest(request,
-                    approvals.find(approval =>
-                        approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
-                , this));
-        }
-        return requirementRequestCRUDs;
     }
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
-        return requirementsRequest.Id > -1 ?
-            this.updateRequest(new RequirementsRequest(requirementsRequest)) :
-            this.submitNewRequest(requirementsRequest);
+        let request = new RequirementsRequest(requirementsRequest);
+        if (!request.isReadOnly()) {
+            return request.Id > -1 ?
+                this.updateRequest(request) :
+                this.submitNewRequest(request);
+        } else {
+            throw new NotAuthorizedError();
+        }
     }
 
     deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
-        // TODO: update this so that it simply changes the Request to have IsDeleted: true
-        return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
+        try {
+            // TODO: update this so that it simply changes the Request to have IsDeleted: true
+            return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
+        } catch (e) {
+            console.error(`Error occurred while trying to delete Request with ID ${requirementsRequest.Id}`);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to delete Request with ID ${requirementsRequest.Id}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to delete Request with ID ${requirementsRequest.Id}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to delete Request with ID ${requirementsRequest.Id}`);
+            }
+        }
     }
 
     private async updateRequest(requirementsRequest: IRequirementsRequestCRUD): Promise<IRequirementsRequestCRUD> {
-        if (!requirementsRequest.isReadOnly()) {
+        try {
             let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
             let returnedRequest = requirementsRequest;
             returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
                 .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
             return new RequirementsRequest(returnedRequest, this);
-        } else {
-            throw new Error("You do not have permission update this Request!");
+        } catch (e) {
+            console.error(`Error occurred while trying to update Request with ID ${requirementsRequest.Id}`);
+            console.error(e);
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to update Request with ID ${requirementsRequest.Id}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to update Request with ID ${requirementsRequest.Id}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to update Request with ID ${requirementsRequest.Id}`);
+            }
         }
     }
 
@@ -260,7 +319,15 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         } catch (e) {
             console.error("Error occured while trying to submit a new request");
             console.error(e);
-            throw new Error("Something went wrong while trying to submit your request, please try again later");
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to submit a new Request: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to submit a new Request: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to submit a new Request`);
+            }
         }
     }
 }

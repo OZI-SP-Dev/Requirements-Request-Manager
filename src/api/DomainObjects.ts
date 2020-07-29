@@ -1,6 +1,7 @@
 import moment, { Moment } from 'moment';
 import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from './RequirementsRequestsApi';
 import { Person, IPerson } from './UserApi';
+import { NotAuthorizedError } from './InternalErrors';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",
@@ -217,11 +218,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     }
 
     save = async (): Promise<IRequirementsRequestCRUD | undefined> => {
-        if (!this.isReadOnly()) {
-            return this.api.submitRequirementsRequest(this);
-        } else {
-            throw new Error("You do not have permission update this Request!");
-        }
+        return this.api.submitRequirementsRequest(this);
     }
 
     delete = async (): Promise<void> => {
