@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { Alert, Col } from "react-bootstrap";
 import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
@@ -6,8 +7,6 @@ import { RequestForm } from "../RequestForm/RequestForm";
 import { RequestReview } from "../RequestReview/RequestReview";
 import { Requests } from "../Requests/Requests";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
-import { Alert, Row, Col } from "react-bootstrap";
-import './RequestRoutes.css'
 
 
 export const RequestRoutes: React.FunctionComponent<any> = (props) => {
