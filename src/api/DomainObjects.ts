@@ -1,7 +1,6 @@
 import moment, { Moment } from 'moment';
-import { RequirementsRequestsApiConfig, IRequirementsRequestApi } from './RequirementsRequestsApi';
-import { Person, IPerson } from './UserApi';
-import { NotAuthorizedError } from './InternalErrors';
+import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from './RequirementsRequestsApi';
+import { IPerson, Person } from './UserApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",

@@ -51,12 +51,16 @@ export function useRequests(): IRequests {
             console.error(e);
             if (e instanceof InternalError) {
                 setError(e.message + " Please copy your work so far and refresh the page to try again!");
+                throw e;
             } else if (e instanceof Error) {
                 setError(e.message + " Please copy your work so far and refresh the page to try again!");
+                throw new InternalError(e);
             } else if (typeof (e) === "string") {
                 setError(e + " Please copy your work so far and refresh the page to try again!");
+                throw new InternalError(new Error(e));
             } else {
                 setError("Unknown error occurred while trying to submit Request, please copy your work so far and refresh the page to try again!");
+                throw new InternalError(new Error("Unknown error occurred while trying to submit Request, please copy your work so far and refresh the page to try again!"));
             }
         }
     }
@@ -75,12 +79,16 @@ export function useRequests(): IRequests {
             console.error(e);
             if (e instanceof InternalError) {
                 setError(e.message);
+                throw e;
             } else if (e instanceof Error) {
                 setError(e.message);
+                throw new InternalError(e);
             } else if (typeof (e) === "string") {
                 setError(e);
+                throw new InternalError(new Error(e));
             } else {
                 setError("Unknown error occurred while trying to approve Request!");
+                throw new InternalError(new Error("Unknown error occurred while trying to approve Request!"));
             }
         }
     }
@@ -94,12 +102,16 @@ export function useRequests(): IRequests {
             console.error(e);
             if (e instanceof InternalError) {
                 setError(e.message);
+                throw e;
             } else if (e instanceof Error) {
                 setError(e.message);
+                throw new InternalError(e);
             } else if (typeof (e) === "string") {
                 setError(e);
+                throw new InternalError(new Error(e));
             } else {
                 setError("Unknown error occurred while trying to delete Request!");
+                throw new InternalError(new Error("Unknown error occurred while trying to delete Request!"));
             }
         }
     }
@@ -114,12 +126,16 @@ export function useRequests(): IRequests {
             console.error(e);
             if (e instanceof InternalError) {
                 setError(e.message);
+                throw e;
             } else if (e instanceof Error) {
                 setError(e.message);
+                throw new InternalError(e);
             } else if (typeof (e) === "string") {
                 setError(e);
+                throw new InternalError(new Error(e));
             } else {
                 setError("Unknown error occurred while trying to fetch Requests!");
+                throw new InternalError(new Error("Unknown error occurred while trying to fetch Requests!"));
             }
         } finally {
             setLoading(false);
@@ -140,12 +156,16 @@ export function useRequests(): IRequests {
             console.error(e);
             if (e instanceof InternalError) {
                 setError(e.message);
+                throw e;
             } else if (e instanceof Error) {
                 setError(e.message);
+                throw new InternalError(e);
             } else if (typeof (e) === "string") {
                 setError(e);
+                throw new InternalError(new Error(e));
             } else {
                 setError("Unknown error occurred while trying to fetch Request!");
+                throw new InternalError(new Error("Unknown error occurred while trying to approve Request!"));
             }
         } finally {
             setLoading(false);

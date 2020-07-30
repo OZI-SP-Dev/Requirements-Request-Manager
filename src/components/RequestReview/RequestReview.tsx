@@ -59,12 +59,18 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     }
 
     const approveRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
-        setSubmitting(true);
-        if (request && props.submitApproval) {
-            await props.submitApproval(request, comment);
+        try {
+            setSubmitting(true);
+            if (request && props.submitApproval) {
+                await props.submitApproval(request, comment);
+            }
+            redirect(e, "/Requests");
+        } catch (e) {
+            console.error("Error while approving Request on Review page");
+            console.error(e);
+        } finally {
+            setSubmitting(false);
         }
-        setSubmitting(false);
-        redirect(e, "/Requests");
     }
 
     const redirect = (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, route: string) => {

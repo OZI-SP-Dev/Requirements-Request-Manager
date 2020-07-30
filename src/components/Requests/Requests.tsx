@@ -23,9 +23,15 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     }
 
     const deleteRequest = async (request: IRequirementsRequestCRUD) => {
-        setDeleting(true);
-        await props.deleteRequest(request);
-        setDeleting(false);
+        try {
+            setDeleting(true);
+            await props.deleteRequest(request);
+        } catch (e) {
+            console.error("Error while deleting request from Requests page!");
+            console.error(e);
+        } finally {
+            setDeleting(false);
+        }
     }
 
     return (

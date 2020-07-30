@@ -31,16 +31,21 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     useScrollToTop();
 
     const getRequest = async () => {
-        if (props.editRequestId !== undefined && props.fetchRequestById) {
-            let newRequest = await props.fetchRequestById(props.editRequestId);
-            if (newRequest) {
-                setReadOnly(newRequest.isReadOnly());
-                setPeoSameAsRequester(newRequest.Requester.Id === newRequest.ApprovingPEO.Id);
-                setShowFundingField(newRequest.FundingOrgOrPEO !== "" && newRequest.FundingOrgOrPEO !== undefined && newRequest.FundingOrgOrPEO !== null);
-                setRequest(newRequest);
-            } else {
-                history.push("/Requests");
+        try {
+            if (props.editRequestId !== undefined && props.fetchRequestById) {
+                let newRequest = await props.fetchRequestById(props.editRequestId);
+                if (newRequest) {
+                    setReadOnly(newRequest.isReadOnly());
+                    setPeoSameAsRequester(newRequest.Requester.Id === newRequest.ApprovingPEO.Id);
+                    setShowFundingField(newRequest.FundingOrgOrPEO !== "" && newRequest.FundingOrgOrPEO !== undefined && newRequest.FundingOrgOrPEO !== null);
+                    setRequest(newRequest);
+                } else {
+                    history.push("/Requests");
+                }
             }
+        } catch (e) {
+            console.error("Error trying to fetch Request for Request Form");
+            console.error(e);
         }
     }
 
@@ -81,18 +86,24 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }
 
     const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSaving(true);
-        let req = request;
-        if (peoSameAsRequester) {
-            req.ApprovingPEO = req.Requester;
-            req.PEOOrgSymbol = req.RequesterOrgSymbol;
-            req.PEO_DSNPhone = req.RequesterDSNPhone;
-            req.PEO_CommPhone = req.RequesterCommPhone;
+        try {
+            e.preventDefault();
+            setSaving(true);
+            let req = request;
+            if (peoSameAsRequester) {
+                req.ApprovingPEO = req.Requester;
+                req.PEOOrgSymbol = req.RequesterOrgSymbol;
+                req.PEO_DSNPhone = req.RequesterDSNPhone;
+                req.PEO_CommPhone = req.RequesterCommPhone;
+            }
+            await props.submitRequest(request);
+            history.push("/Requests");
+        } catch (e) {
+            console.error("Error trying to submit request from request form");
+            console.error(e);
+        } finally {
+            setSaving(false);
         }
-        await props.submitRequest(request);
-        setSaving(false);
-        history.push("/Requests");
     }
 
     return (
