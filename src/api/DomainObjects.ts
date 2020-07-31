@@ -230,3 +230,76 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         return this.PEOApprovedDateTime !== null;
     }
 }
+
+export interface IRequestValidation {
+    IsErrored?: boolean,
+    TitleError: string,
+    RequesterError: string,
+    RequesterOrgSymbolError: string,
+    RequesterDSNPhoneError: string,
+    RequesterCommPhoneError: string,
+    ApprovingPEOError: string,
+    PEOOrgSymbolError: string,
+    PEO_DSNPhoneError: string,
+    PEO_CommPhoneError: string,
+    FundingOrgOrPEOError: string,
+    OtherApplicationNeededError: string,
+    ProjectedOrgsImpactedOrgError: string,
+    ProjectedImpactedUsersError: string,
+    OperationalNeedDateError: string,
+    PriorityExplanationError: string,
+    BusinessObjectiveError: string,
+    FunctionalRequirementsError: string,
+    BenefitsError: string,
+    RiskError: string,
+}
+
+export class RequestValidation {
+
+    private static getSingleLineValidation(field: string): string {
+        if (field) {
+            return field.length < 255 ? "" : "Too many characters entered, please shorten the length!";
+        } else {
+            return "Please fill in this field!";
+        }
+    }
+
+    private static getPhoneNumberValidation(field: string): string {
+        if (new RegExp("[^0-9]").exec(field)) {
+            return "Only numeric values should be used!";
+        } else if (field.length < 10) {
+            return "Please enter the full phone number, includig area code!";
+        } else if (field.length > 10) {
+            return "Too many numbers given, please use a 10 digit phone number!";
+        } else {
+            return "";
+        }
+    }
+
+    static getValidation(request: IRequirementsRequest, isFunded: boolean): IRequestValidation {
+        let validation: IRequestValidation = {
+            TitleError: this.getSingleLineValidation(request.Title),
+            RequesterError: request.Requester ? "" : "Please provide a Requester!",
+            RequesterOrgSymbolError: this.getSingleLineValidation(request.RequesterOrgSymbol),
+            RequesterDSNPhoneError: this.getPhoneNumberValidation(request.RequesterDSNPhone),
+            RequesterCommPhoneError: this.getPhoneNumberValidation(request.RequesterCommPhone),
+            ApprovingPEOError: request.ApprovingPEO ? "" : "Please provide a 2 Ltr/PEO to approve this request!",
+            PEOOrgSymbolError: this.getSingleLineValidation(request.PEOOrgSymbol),
+            PEO_DSNPhoneError: this.getPhoneNumberValidation(request.PEO_DSNPhone),
+            PEO_CommPhoneError: this.getPhoneNumberValidation(request.PEO_CommPhone),
+            FundingOrgOrPEOError: isFunded ? this.getSingleLineValidation(request.FundingOrgOrPEO) : "",
+            OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded) : "",
+            ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg),
+            ProjectedImpactedUsersError: request.ProjectedImpactedUsers > 0 ? "" : "Please enter the projected number of users to be impacted by the request!",
+            OperationalNeedDateError: request.OperationalNeedDate ? "" : "Please enter a date that the requirement is needed by!",
+            PriorityExplanationError: request.PriorityExplanation ? "" : "Please enter an explanation for why the priority of the requirements request was given!",
+            BusinessObjectiveError: request.BusinessObjective ? "" : "Please enter the business objective for the requirement being requested!",
+            FunctionalRequirementsError: request.FunctionalRequirements ? "" : "Please enter the functional requirements for the requirement being requested!",
+            BenefitsError: request.Benefits ? "" : "Please enter the benefits to your org that the requirement being requested will provide!",
+            RiskError: request.Risk ? "" : "Please provide the risks associated to your org for the requirement being requested!"
+        }
+        validation.IsErrored = Object.values(validation).findIndex(value => value !== "") > -1;
+        return validation;
+    }
+
+}

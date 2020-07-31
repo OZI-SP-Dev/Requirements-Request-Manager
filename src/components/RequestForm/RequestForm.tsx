@@ -1,8 +1,8 @@
 import { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Form, Spinner, Alert } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequestValidation, RequestValidation } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
@@ -20,10 +20,12 @@ export interface IRequestFormProps {
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
+    const [validation, setValidation] = useState<IRequestValidation | undefined>();
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [peoSameAsRequester, setPeoSameAsRequester] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [readOnly, setReadOnly] = useState<boolean>(false);
+    const [error, setError] = useState<string>("");
 
     const { user } = useContext(UserContext);
     const history = useHistory();
@@ -52,15 +54,21 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
     useEffect(() => {
         getRequest(); // eslint-disable-next-line
-    }, [props.editRequestId])
+    }, [props.editRequestId]);
 
     useEffect(() => {
         // only update the requester if this is a new request
         if (request.Id < 0) {
             updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
-        }
-        // eslint-disable-next-line
-    }, [user])
+        } // eslint-disable-next-line
+    }, [user]);
+
+    useEffect(() => {
+        // Update validation whenever a field changes after a submission attempt
+        if (validation) {
+            setValidation(RequestValidation.getValidation(request, showFundingField));
+        } // eslint-disable-next-line
+    }, [request, showFundingField]);
 
     const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | IPerson): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
@@ -96,8 +104,17 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 req.PEO_DSNPhone = req.RequesterDSNPhone;
                 req.PEO_CommPhone = req.RequesterCommPhone;
             }
-            await props.submitRequest(request);
-            history.push("/Requests");
+            if (!showFundingField) {
+                req.FundingOrgOrPEO = "";
+            }
+            let requestValidation = RequestValidation.getValidation(req, showFundingField);
+            if (!requestValidation.IsErrored) {
+                await props.submitRequest(request);
+                history.push("/Requests");
+            } else {
+                setValidation(requestValidation);
+                setError("Please fix the errored fields!");
+            }
         } catch (e) {
             console.error("Error trying to submit request from request form");
             console.error(e);
@@ -121,8 +138,13 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                 updateRequest('Requester', persona ? new Person(persona) : new Person());
                             }}
                             readOnly={readOnly}
+                            isValid={validation && !validation.RequesterError}
+                            isInvalid={validation && validation.RequesterError !== ""}
                             required
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.RequesterError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
                         <Form.Label lg="4" sm="6">Requester Org Symbol:</Form.Label>
@@ -132,7 +154,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.RequesterOrgSymbol}
                             onChange={e => updateRequest('RequesterOrgSymbol', e.target.value)}
+                            isValid={validation && !validation.RequesterOrgSymbolError}
+                            isInvalid={validation && validation.RequesterOrgSymbolError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.RequesterOrgSymbolError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         <Form.Label lg="4" sm="6">Requester DSN #:</Form.Label>
@@ -142,7 +169,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.RequesterDSNPhone}
                             onChange={e => updatePhoneField('RequesterDSNPhone', getNumbersOnly(e.target.value))}
+                            isValid={validation && !validation.RequesterDSNPhoneError}
+                            isInvalid={validation && validation.RequesterDSNPhoneError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.RequesterDSNPhoneError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
                         <Form.Label lg="4" sm="6">Requester Comm #:</Form.Label>
@@ -152,7 +184,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.RequesterCommPhone}
                             onChange={e => updatePhoneField('RequesterCommPhone', getNumbersOnly(e.target.value))}
+                            isValid={validation && !validation.RequesterCommPhoneError}
+                            isInvalid={validation && validation.RequesterCommPhoneError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.RequesterCommPhoneError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col className="mt-4" xl="12" lg="12" md="12" sm="12" xs="12">
                         <Form.Check inline label="2 Ltr/PEO Same as Requester?" type="checkbox" id="peo-requester-checkbox"
@@ -174,7 +211,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             }}
                             readOnly={readOnly}
                             required
+                            isValid={validation && !validation.ApprovingPEOError}
+                            isInvalid={validation && validation.ApprovingPEOError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.ApprovingPEOError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
                         <Form.Label>2 Ltr/PEO Org Symbol:</Form.Label>
@@ -184,7 +226,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.PEOOrgSymbol}
                             onChange={e => updateRequest('PEOOrgSymbol', e.target.value)}
+                            isValid={validation && !validation.PEOOrgSymbolError}
+                            isInvalid={validation && validation.PEOOrgSymbolError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.PEOOrgSymbolError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         <Form.Label>2 Ltr/PEO DSN #:</Form.Label>
@@ -194,7 +241,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.PEO_DSNPhone}
                             onChange={e => updatePhoneField('PEO_DSNPhone', getNumbersOnly(e.target.value))}
+                            isValid={validation && !validation.PEO_DSNPhoneError}
+                            isInvalid={validation && validation.PEO_DSNPhoneError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.PEO_DSNPhoneError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
                         <Form.Label>2 Ltr/PEO Comm #:</Form.Label>
@@ -204,7 +256,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.PEO_CommPhone}
                             onChange={e => updatePhoneField('PEO_CommPhone', getNumbersOnly(e.target.value))}
+                            isValid={validation && !validation.PEO_CommPhoneError}
+                            isInvalid={validation && validation.PEO_CommPhoneError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.PEO_CommPhoneError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>}
                 <Form.Row>
@@ -216,7 +273,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.Title}
                             onChange={e => updateRequest('Title', e.target.value)}
+                            isValid={validation && !validation.TitleError}
+                            isInvalid={validation && validation.TitleError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.TitleError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
                         <Form.Label className="mr-3 mb-0">Requirement Type:</Form.Label>
@@ -245,7 +307,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                     readOnly={readOnly}
                                     value={request.FundingOrgOrPEO}
                                     onChange={e => updateRequest('FundingOrgOrPEO', e.target.value)}
+                                    isValid={validation && !validation.FundingOrgOrPEOError}
+                                    isInvalid={validation && validation.FundingOrgOrPEOError !== ""}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {validation ? validation.FundingOrgOrPEOError : ""}
+                                </Form.Control.Feedback>
                             </>
                         }
                     </Col>
@@ -272,7 +339,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                     readOnly={readOnly}
                                     value={request.OtherApplicationNeeded}
                                     onChange={e => updateRequest('OtherApplicationNeeded', e.target.value)}
+                                    isValid={validation && !validation.OtherApplicationNeededError}
+                                    isInvalid={validation && validation.OtherApplicationNeededError !== ""}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {validation ? validation.OtherApplicationNeededError : ""}
+                                </Form.Control.Feedback>
                             </>
                         }
                     </Col>
@@ -307,7 +379,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.ProjectedOrgsImpactedOrg}
                             onChange={e => updateRequest('ProjectedOrgsImpactedOrg', e.target.value)}
+                            isValid={validation && !validation.ProjectedOrgsImpactedOrgError}
+                            isInvalid={validation && validation.ProjectedOrgsImpactedOrgError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.ProjectedOrgsImpactedOrgError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -319,7 +396,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : ''}
                             onChange={e => updateRequest("ProjectedImpactedUsers", parseInt(getNumbersOnly(e.target.value)))}
+                            isValid={validation && !validation.ProjectedImpactedUsersError}
+                            isInvalid={validation && validation.ProjectedImpactedUsersError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.ProjectedImpactedUsersError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">
                         <CustomInputeDatePicker
@@ -327,6 +409,9 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             date={request.OperationalNeedDate}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
+                            isValid={validation && !validation.OperationalNeedDateError}
+                            isInvalid={validation && validation.OperationalNeedDateError !== ""}
+                            errorMessage={validation ? validation.OperationalNeedDateError : ""}
                         />
                     </Col>
                     <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
@@ -367,7 +452,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.PriorityExplanation}
                             onChange={e => updateRequest('PriorityExplanation', e.target.value)}
+                            isValid={validation && !validation.PriorityExplanationError}
+                            isInvalid={validation && validation.PriorityExplanationError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.PriorityExplanationError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -382,7 +472,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.BusinessObjective}
                             onChange={e => updateRequest('BusinessObjective', e.target.value)}
+                            isValid={validation && !validation.BusinessObjectiveError}
+                            isInvalid={validation && validation.BusinessObjectiveError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.BusinessObjectiveError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -397,7 +492,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.FunctionalRequirements}
                             onChange={e => updateRequest('FunctionalRequirements', e.target.value)}
+                            isValid={validation && !validation.FunctionalRequirementsError}
+                            isInvalid={validation && validation.FunctionalRequirementsError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.FunctionalRequirementsError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -412,7 +512,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.Benefits}
                             onChange={e => updateRequest('Benefits', e.target.value)}
+                            isValid={validation && !validation.BenefitsError}
+                            isInvalid={validation && validation.BenefitsError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.BenefitsError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -427,7 +532,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             readOnly={readOnly}
                             value={request.Risk}
                             onChange={e => updateRequest('Risk', e.target.value)}
+                            isValid={validation && !validation.RiskError}
+                            isInvalid={validation && validation.RiskError !== ""}
                         />
+                        <Form.Control.Feedback type="invalid">
+                            {validation ? validation.RiskError : ""}
+                        </Form.Control.Feedback>
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -460,5 +570,19 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Link>
             </Form>
             <RequestSpinner show={saving} displayText="Saving Request..." />
+            {error &&
+                <Col className="mt-3 fixed-top"
+                    xl={{ span: 6, offset: 3 }}
+                    lg={{ span: 6, offset: 3 }}
+                    md={{ span: 8, offset: 2 }}
+                    sm={{ span: 10, offset: 1 }}
+                    xs={12}
+                >
+                    <Alert variant="danger" onClose={() => setError("")} dismissible>
+                        <Alert.Heading>Error Submitting!</Alert.Heading>
+                        <p>{error}</p>
+                    </Alert>
+                </Col>
+            }
         </Container>);
 }
