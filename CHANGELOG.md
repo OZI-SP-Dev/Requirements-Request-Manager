@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Error handling on all external facing code
 - Error alerts for when errors do occur
+- Form validation on submit for the Request form
 
 ## [0.1.7] 2020-07-28
 ### Added
