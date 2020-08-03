@@ -256,9 +256,9 @@ export interface IRequestValidation {
 
 export class RequestValidation {
 
-    private static getSingleLineValidation(field: string): string {
+    private static getSingleLineValidation(field: string, charLimit: number): string {
         if (field) {
-            return field.length < 255 ? "" : "Too many characters entered, please shorten the length!";
+            return field.length <= charLimit ? "" : "Too many characters entered, please shorten the length!";
         } else {
             return "Please fill in this field!";
         }
@@ -278,18 +278,18 @@ export class RequestValidation {
 
     static getValidation(request: IRequirementsRequest, isFunded: boolean): IRequestValidation {
         let validation: IRequestValidation = {
-            TitleError: this.getSingleLineValidation(request.Title),
-            RequesterError: request.Requester ? "" : "Please provide a Requester!",
-            RequesterOrgSymbolError: this.getSingleLineValidation(request.RequesterOrgSymbol),
+            TitleError: this.getSingleLineValidation(request.Title, 255),
+            RequesterError: request.Requester && request.Requester.EMail ? "" : "Please provide a Requester!",
+            RequesterOrgSymbolError: this.getSingleLineValidation(request.RequesterOrgSymbol,15),
             RequesterDSNPhoneError: this.getPhoneNumberValidation(request.RequesterDSNPhone),
             RequesterCommPhoneError: this.getPhoneNumberValidation(request.RequesterCommPhone),
-            ApprovingPEOError: request.ApprovingPEO ? "" : "Please provide a 2 Ltr/PEO to approve this request!",
-            PEOOrgSymbolError: this.getSingleLineValidation(request.PEOOrgSymbol),
+            ApprovingPEOError: request.ApprovingPEO && request.ApprovingPEO.EMail ? "" : "Please provide a 2 Ltr/PEO to approve this request!",
+            PEOOrgSymbolError: this.getSingleLineValidation(request.PEOOrgSymbol, 15),
             PEO_DSNPhoneError: this.getPhoneNumberValidation(request.PEO_DSNPhone),
             PEO_CommPhoneError: this.getPhoneNumberValidation(request.PEO_CommPhone),
-            FundingOrgOrPEOError: isFunded ? this.getSingleLineValidation(request.FundingOrgOrPEO) : "",
-            OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded) : "",
-            ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg),
+            FundingOrgOrPEOError: isFunded ? this.getSingleLineValidation(request.FundingOrgOrPEO, 255) : "",
+            OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded, 255) : "",
+            ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg, 15),
             ProjectedImpactedUsersError: request.ProjectedImpactedUsers > 0 ? "" : "Please enter the projected number of users to be impacted by the request!",
             OperationalNeedDateError: request.OperationalNeedDate ? "" : "Please enter a date that the requirement is needed by!",
             PriorityExplanationError: request.PriorityExplanation ? "" : "Please enter an explanation for why the priority of the requirements request was given!",

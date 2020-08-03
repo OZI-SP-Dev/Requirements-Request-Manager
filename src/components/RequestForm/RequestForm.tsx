@@ -138,7 +138,6 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                                 updateRequest('Requester', persona ? new Person(persona) : new Person());
                             }}
                             readOnly={readOnly}
-                            isValid={validation && !validation.RequesterError}
                             isInvalid={validation && validation.RequesterError !== ""}
                             required
                         />
@@ -211,7 +210,6 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             }}
                             readOnly={readOnly}
                             required
-                            isValid={validation && !validation.ApprovingPEOError}
                             isInvalid={validation && validation.ApprovingPEOError !== ""}
                         />
                         <Form.Control.Feedback type="invalid">
