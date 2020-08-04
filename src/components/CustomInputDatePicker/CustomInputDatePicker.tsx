@@ -9,6 +9,8 @@ export interface ICustomInputeDatePickerProps {
     headerText: string,
     readOnly: boolean,
     date: Moment,
+    minDate?: Moment,
+    maxDate?: Moment,
     isValid?: boolean,
     isInvalid?: boolean,
     errorMessage?: string,
@@ -51,7 +53,8 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
         <DatePicker
             selected={props.date.toDate()}
             onChange={onChange}
-            minDate={new Date()}
+            minDate={props.minDate?.toDate()}
+            maxDate={props.maxDate?.toDate()}
             customInput={<DatePickerCustomInput />}
             open={open}
             onClickOutside={() => onClick(false)}

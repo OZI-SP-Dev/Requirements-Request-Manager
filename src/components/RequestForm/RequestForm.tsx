@@ -10,6 +10,7 @@ import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDate
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import './RequestForm.css';
+import moment from "moment";
 
 export interface IRequestFormProps {
     editRequestId?: number,
@@ -127,6 +128,20 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         <Container className="pb-5 pt-3">
             <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
+                <Form.Row>
+                    <Col xl="3" lg="4" md="4" sm="4" xs="12">
+                        <CustomInputeDatePicker
+                            headerText="Requested Date:"
+                            readOnly={readOnly}
+                            date={request.RequestDate}
+                            maxDate={moment()}
+                            onChange={date => updateRequest('RequestDate', date)}
+                            isValid={validation && !validation.RequestDateError}
+                            isInvalid={validation && validation.RequestDateError !== ""}
+                            errorMessage={validation ? validation.RequestDateError : ""}
+                        />
+                    </Col>
+                </Form.Row>
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
                         <Form.Label>Requester:</Form.Label>
@@ -406,6 +421,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             headerText="Operational Need Date:"
                             readOnly={readOnly}
                             date={request.OperationalNeedDate}
+                            minDate={moment()}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
                             isValid={validation && !validation.OperationalNeedDateError}
                             isInvalid={validation && validation.OperationalNeedDateError !== ""}
