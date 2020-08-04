@@ -21,6 +21,7 @@ interface IPeoplePickerProps {
 	defaultValue?: IPerson[],
 	readOnly?: boolean,
 	required?: boolean,
+	itemLimit?: number,
 	updatePeople: (p: IPerson[]) => void
 }
 
@@ -109,6 +110,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 			onChange={onItemsChange}
 			resolveDelay={300}
 			componentRef={peoplePickerInput}
+			itemLimit={props.itemLimit ? props.itemLimit : 1}
 		/>
 	);
 };

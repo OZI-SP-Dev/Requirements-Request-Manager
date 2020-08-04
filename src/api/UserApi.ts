@@ -1,5 +1,6 @@
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { spWebContext } from "../providers/SPWebContext";
+import { ApiError } from './InternalErrors';
 
 export interface IPerson extends IPersonaProps {
     Id: number,
@@ -55,22 +56,46 @@ export interface IUserApi {
 
 export class UserApi implements IUserApi {
 
-    currentUser: IPerson | undefined
+    private currentUser: IPerson | undefined
 
     getCurrentUser = async (): Promise<IPerson> => {
-        if (!this.currentUser) {
-            let user = await spWebContext.currentUser();
-            this.currentUser = new Person({
-                Id: user.Id,
-                Title: user.Title,
-                EMail: user.Email
-            }, user.LoginName)
+        try {
+            if (!this.currentUser) {
+                let user = await spWebContext.currentUser();
+                this.currentUser = new Person({
+                    Id: user.Id,
+                    Title: user.Title,
+                    EMail: user.Email
+                }, user.LoginName)
+            }
+            return this.currentUser;
+        } catch (e) {
+            console.error("Error occurred while trying to fetch the current user");
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch the current user: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch the current user: ${e}`));
+            } else {
+                throw new ApiError(undefined, "Unknown error occurred while trying to fetch the current user");
+            }
         }
-        return this.currentUser;
     };
 
     getUserId = async (email: string) => {
-        return (await spWebContext.ensureUser(email)).data.Id;
+        try {
+            return (await spWebContext.ensureUser(email)).data.Id;
+        } catch (e) {
+            console.error(`Error occurred while trying to fetch user with Email ${email}`);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch user with Email ${email}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch user with Email ${email}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to fetch user with Email ${email}`);
+            }
+        }
     }
 }
 

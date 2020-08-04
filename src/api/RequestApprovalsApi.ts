@@ -3,6 +3,7 @@ import { spWebContext } from "../providers/SPWebContext";
 import { IUserApi, UserApiConfig, IPerson, Person } from "./UserApi";
 import { IRequirementsRequest, RequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities } from "./DomainObjects";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
+import { InternalError, ApiError, NotAuthorizedError } from "./InternalErrors";
 
 
 export interface IRequestApproval {
@@ -136,34 +137,73 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     userApi: IUserApi = UserApiConfig.getApi();
 
     async getRequestApproval(requestId: number, approverId: number): Promise<IRequestApproval | undefined> {
-        let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).expand("Request", "Requester", "ApprovingPEO").get())[0];
-        return requestApproval ? this.spApprovalToRequestApproval(requestApproval) : undefined;
+        try {
+            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).expand("Request", "Requester", "ApprovingPEO").get())[0];
+            return requestApproval ? this.spApprovalToRequestApproval(requestApproval) : undefined;
+        } catch (e) {
+            console.error(`Error occurred while trying to fetch Approval for Request with ID ${requestId}`);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch Approval for Request with ID ${requestId}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch Approval for Request with ID ${requestId}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to fetch Approval for Request with ID ${requestId}`);
+            }
+        }
     }
 
     async getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]> {
-        let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "ApprovingPEO").getPaged();
-        let approvals: SPRequestApproval[] = pages.results;
-        while (pages.hasNext) {
-            approvals = approvals.concat((await pages.getNext()).results);
+        try {
+            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "ApprovingPEO").getPaged();
+            let approvals: SPRequestApproval[] = pages.results;
+            while (pages.hasNext) {
+                approvals = approvals.concat((await pages.getNext()).results);
+            }
+            return approvals
+                .filter(approval =>
+                    requests.findIndex(request => request.requestId === approval.Request.Id && request.approverId === approval.AuthorId) > -1)
+                .map(approval => this.spApprovalToRequestApproval(approval))
+        } catch (e) {
+            let requestIds = requests.map((req, i) => `${req.requestId}${i < requests.length - 1 ? ", " : ""}`);
+            console.error(`Error occurred while trying to fetch Approvals for Requests with IDs in [${requestIds}]`);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch Approvals for Requests with IDs in [${requestIds}]: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch Approvals for Requests with IDs in [${requestIds}]: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to fetch Approvals for Requests with IDs in [${requestIds}]`);
+            }
         }
-        return approvals
-            .filter(approval =>
-                requests.findIndex(request => request.requestId === approval.Request.Id && request.approverId === approval.AuthorId) > -1)
-            .map(approval => this.spApprovalToRequestApproval(approval))
     }
 
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
-        let requestCrud = new RequirementsRequest(request);
-        if (!requestCrud.isReadOnly()) {
-            if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
-                let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
+        try {
+            let requestCrud = new RequirementsRequest(request);
+            if (!requestCrud.isReadOnly()) {
+                if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+                    let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
 
-                return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
+                    return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
+                } else {
+                    throw new NotAuthorizedError(new Error("You cannot approve a Request for which you are not the approver!"));
+                }
             } else {
-                throw new Error("You cannot approve a Request for which you are not the approver!");
+                throw new NotAuthorizedError(new Error("You cannot approve a Request that has already been approved!"));
             }
-        } else {
-            throw new Error("You cannot approve a Request that has already been approved!");
+        } catch (e) {
+            console.error(`Error occured while trying to approve Request with ID ${request.Id}`);
+            console.error(e);
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e, `Error occured while trying to approve Request with ID ${request.Id}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occured while trying to approve Request with ID ${request.Id}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to approve Request with ID ${request.Id}`);
+            }
         }
     }
 
