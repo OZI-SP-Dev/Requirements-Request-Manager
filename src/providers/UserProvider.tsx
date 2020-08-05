@@ -1,9 +1,11 @@
 import React, { createContext, FunctionComponent, useEffect, useState } from "react";
+import { RolesApiConfig, RoleType } from "../api/RolesApi";
 import { IPerson, UserApiConfig } from "../api/UserApi";
 
 
 export interface IUserContext {
     user: IPerson | undefined,
+    roles: RoleType[],
     loadingUser: boolean
 }
 
@@ -12,13 +14,19 @@ export const UserContext = createContext<Partial<IUserContext>>({ user: undefine
 export const UserProvider: FunctionComponent = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<IPerson>();
+    const [roles, setRoles] = useState<RoleType[]>([]);
 
     const userApi = UserApiConfig.getApi();
+    const rolesApi = RolesApiConfig.getApi();
 
     const fetchUser = async () => {
         const user = await userApi.getCurrentUser();
         if (user) {
             setUser(user);
+            let userRoles = await rolesApi.getRolesForUser(user.Id);
+            if (userRoles) {
+                setRoles(userRoles.Roles.map(ur => ur.Role));
+            }
         }
         setLoading(false);
     }
@@ -29,6 +37,7 @@ export const UserProvider: FunctionComponent = ({ children }) => {
 
     const userContext: IUserContext = {
         user,
+        roles,
         loadingUser: loading
     }
 

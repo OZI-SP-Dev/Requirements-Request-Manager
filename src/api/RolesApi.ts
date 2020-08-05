@@ -1,20 +1,20 @@
-import { IPerson } from "./UserApi";
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError, InternalError } from "./InternalErrors";
+import { IPerson } from "./UserApi";
 
 export enum RoleType {
     ADMIN = "Admin",
     MANAGER = "Manager"
 }
 
-export interface IRoles {
+export interface IRole {
     Id: number,
     Role: RoleType
 }
 
 export interface IUserRoles {
     User: IPerson,
-    Roles: IRoles[]
+    Roles: IRole[]
 }
 
 interface SPRole {
@@ -34,6 +34,8 @@ export interface IRolesApi {
      * Get the Roles of a given user.
      * 
      * @param userId The Id of the user whose roles are being requested
+     * @returns The Roles for a given User in the form of IUserRoles, 
+     *          may be undefined if the User does not have any roles.
      */
     getRolesForUser(userId: number): Promise<IUserRoles | undefined>,
 
