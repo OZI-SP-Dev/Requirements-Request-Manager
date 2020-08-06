@@ -6,6 +6,7 @@ import { AppHeader } from './components/AppHeader/AppHeader';
 import { RequestRoutes } from './components/RequestRoutes/RequestRoutes';
 import { UserProvider } from './providers/UserProvider';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+import { Administration } from './components/Administration/Administration';
 
 function App() {
   initializeIcons(/* optional base url */);
@@ -17,6 +18,9 @@ function App() {
           <Switch>
             <Route path="/Requests">
               <RequestRoutes />
+            </Route>
+            <Route path="/RoleManagement">
+              <Administration />
             </Route>
           </Switch>
         </Container>

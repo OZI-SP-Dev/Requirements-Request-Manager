@@ -184,7 +184,7 @@ export class RolesApiDev implements IRolesApi {
     roles: IUserRoles[] = [{
         User: {
             Id: 1,
-            Title: "Default User",
+            Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
             EMail: "me@example.com"
         },
         Roles: [{
@@ -197,7 +197,7 @@ export class RolesApiDev implements IRolesApi {
     }, {
         User: {
             Id: 2,
-            Title: "Just Manager",
+            Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
             EMail: "me@example.com"
         },
         Roles: [{

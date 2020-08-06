@@ -9,7 +9,7 @@ export interface IRoles {
     clearError: () => void,
     roles: IUserRoles[],
     submitRole: (user: IPerson, role: RoleType) => Promise<void>,
-    deleteRole: (role: IRole) => Promise<void>
+    deleteRole: (user: IPerson, role: IRole) => Promise<void>
 }
 
 export function useRoles(): IRoles {
@@ -80,10 +80,24 @@ export function useRoles(): IRoles {
         }
     }
 
-    const deleteRole = async (role: IRole) => {
+    const deleteRole = async (user: IPerson, role: IRole) => {
         try {
             setLoading(true);
             await rolesApi.deleteRole(role.Id);
+            // Filter out the old role from the list of that user's roles
+            // If that was the last of their roles, then filter out the user from the list of UserRoles
+            let allRoles = roles;
+            let oldRolesIndex = allRoles.findIndex(r => r.User.Id === user.Id);
+            if (oldRolesIndex >= 0) {
+                let newRoles = allRoles[oldRolesIndex];
+                newRoles.Roles = newRoles.Roles.filter(r => r.Id !== role.Id);
+                if (newRoles.Roles.length > 0) {
+                    allRoles[oldRolesIndex] = newRoles;
+                } else {
+                    allRoles.splice(oldRolesIndex, 1);
+                }
+            }
+            setRoles(allRoles);
         } catch (e) {
             console.error("Error trying to delete Role");
             console.error(e);
