@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { UserContext } from "../../providers/UserProvider";
+import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import './AppHeader.css';
 
 export const AppHeader: React.FunctionComponent<any> = (props) => {
+
+    const userContext = useContext(UserContext);
 
     return (
         <Navbar expand="md" variant="dark" bg="dark" className="p-0 shadow m-0">
@@ -13,7 +17,7 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
-                    <LinkContainer to="/">
+                    <LinkContainer isActive={m => m !== null && m?.isExact} to="/">
                         <Nav.Link>Home</Nav.Link>
                     </LinkContainer>
                     <NavDropdown title="Reports" id="basic-nav-dropdown">
@@ -38,9 +42,10 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                             Contact Us
 						</Button>
                     </OverlayTrigger>*/}
-                    <LinkContainer to="/RoleManagement">
-                        <Nav.Link>Admin</Nav.Link>
-                    </LinkContainer>
+                    {RoleDefinitions.userCanAccessAdminPage(userContext.roles) &&
+                        <LinkContainer to="/RoleManagement">
+                            <Nav.Link>Admin</Nav.Link>
+                        </LinkContainer>}
                 </Nav>
             </Navbar.Collapse>
         </Navbar >

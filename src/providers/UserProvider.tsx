@@ -17,15 +17,14 @@ export const UserProvider: FunctionComponent = ({ children }) => {
     const [roles, setRoles] = useState<RoleType[]>([]);
 
     const userApi = UserApiConfig.getApi();
-    const rolesApi = RolesApiConfig.getApi();
 
     const fetchUser = async () => {
         const user = await userApi.getCurrentUser();
         if (user) {
             setUser(user);
-            let userRoles = await rolesApi.getRolesForUser(user.Id);
+            let userRoles = await userApi.getCurrentUsersRoles();
             if (userRoles) {
-                setRoles(userRoles.Roles.map(ur => ur.Role));
+                setRoles(userRoles);
             }
         }
         setLoading(false);

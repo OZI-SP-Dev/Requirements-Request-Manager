@@ -18,7 +18,7 @@ export interface IRequestReviewProps {
 
 export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (props) => {
 
-    const { user } = useContext(UserContext);
+    const { user, roles } = useContext(UserContext);
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [comment, setComment] = useState<string>("");
@@ -107,7 +107,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                             {' '}{"Approve Request"}
                         </Button>
                     }
-                    {request && !request.isReadOnly() &&
+                    {request && !request.isReadOnly(user, roles) &&
                         <Button className="float-right mr-2" variant="warning"
                             onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, `/Requests/Edit/${request.Id}`)}
                         >

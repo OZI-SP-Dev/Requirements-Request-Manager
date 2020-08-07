@@ -1,9 +1,9 @@
 import moment, { Moment } from "moment";
 import { spWebContext } from "../providers/SPWebContext";
-import { IUserApi, UserApiConfig, IPerson, Person } from "./UserApi";
-import { IRequirementsRequest, RequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, OrgPriorities, RequirementsRequest, RequirementTypes } from "./DomainObjects";
+import { ApiError, InternalError, NotAuthorizedError } from "./InternalErrors";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
-import { InternalError, ApiError, NotAuthorizedError } from "./InternalErrors";
+import { IPerson, IUserApi, Person, UserApiConfig } from "./UserApi";
 
 
 export interface IRequestApproval {
@@ -68,7 +68,7 @@ interface ISubmitRequestApproval {
     RequestId: number,
     RequestTitle: string,
     RequestDate: string,
-    ReceivedDate: string,
+    ReceivedDate?: string,
     RequesterId: number,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
@@ -181,7 +181,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
         try {
             let requestCrud = new RequirementsRequest(request);
-            if (!requestCrud.isReadOnly()) {
+            if (!requestCrud.isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles())) {
                 if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
                     let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
 
@@ -213,7 +213,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             RequestId: request.Id,
             RequestTitle: request.Title,
             RequestDate: request.RequestDate.toISOString(),
-            ReceivedDate: request.ReceivedDate.toISOString(),
+            ReceivedDate: request.ReceivedDate?.toISOString(),
             RequesterId: request.Requester.Id,
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
@@ -460,7 +460,7 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
 
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
         let requestCrud = new RequirementsRequest(request);
-        if (!requestCrud.isReadOnly()) {
+        if (!requestCrud.isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles())) {
             if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
                 let newApproval: IRequestApproval = {
                     Id: ++this.maxId,

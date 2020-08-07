@@ -1,6 +1,7 @@
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { spWebContext } from "../providers/SPWebContext";
-import { ApiError } from './InternalErrors';
+import { ApiError, InternalError } from './InternalErrors';
+import { IUserRoles, IRolesApi, RolesApiConfig, RoleType } from './RolesApi';
 
 export interface IPerson extends IPersonaProps {
     Id: number,
@@ -40,9 +41,14 @@ export class Person implements IPerson {
 
 export interface IUserApi {
     /**
-     * @returns The current, logged in user
+     * @returns The current, logged in user. It will return a cached version after fetching it the first time.
      */
     getCurrentUser: () => Promise<IPerson>
+
+    /**
+     * @returns The current, logged in user's roles. It will return a cached version after fetching it the first time.
+     */
+    getCurrentUsersRoles: () => Promise<RoleType[]>
 
     /**
      * Get the Id of the user with the email given
@@ -56,7 +62,10 @@ export interface IUserApi {
 
 export class UserApi implements IUserApi {
 
-    private currentUser: IPerson | undefined
+    private rolesApi: IRolesApi = RolesApiConfig.getApi();
+
+    private currentUser?: IPerson;
+    private currentUsersRoles?: RoleType[];
 
     getCurrentUser = async (): Promise<IPerson> => {
         try {
@@ -82,6 +91,29 @@ export class UserApi implements IUserApi {
         }
     };
 
+    getCurrentUsersRoles = async (): Promise<RoleType[]> => {
+        try {
+            if (!this.currentUsersRoles) {
+                let currentUser = await this.getCurrentUser();
+                let currentUsersRoles = await this.rolesApi.getRolesForUser(currentUser.Id);
+                this.currentUsersRoles = currentUsersRoles ? currentUsersRoles.Roles.map(r => r.Role) : [];
+            }
+            return this.currentUsersRoles;
+        } catch (e) {
+            console.error("Error occurred while trying to fetch the current user's roles");
+            console.error(e);
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to fetch the current user's roles: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to fetch the current user's roles: ${e}`));
+            } else {
+                throw new ApiError(undefined, "Unknown error occurred while trying to fetch the current user's roles");
+            }
+        }
+    }
+
     getUserId = async (email: string) => {
         try {
             return (await spWebContext.ensureUser(email)).data.Id;
@@ -101,8 +133,10 @@ export class UserApi implements IUserApi {
 
 export class UserApiDev implements IUserApi {
 
+    rolesApi: IRolesApi = RolesApiConfig.getApi();
+
     sleep() {
-        return new Promise(r => setTimeout(r, 1500));
+        return new Promise(r => setTimeout(r, 500));
     }
 
     getCurrentUser = async (): Promise<IPerson> => {
@@ -113,6 +147,13 @@ export class UserApiDev implements IUserApi {
             EMail: "me@example.com"
         })
     };
+
+    getCurrentUsersRoles = async (): Promise<RoleType[]> => {
+        await this.sleep();
+        let currentUser = await this.getCurrentUser();
+        let userRoles = await this.rolesApi.getRolesForUser(currentUser.Id);
+        return userRoles ? userRoles.Roles.map(r => r.Role) : [];
+    }
 
     getUserId = async () => {
         await this.sleep();

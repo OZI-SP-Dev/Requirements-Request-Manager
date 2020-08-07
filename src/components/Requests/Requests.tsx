@@ -16,7 +16,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
     const [deleting, setDeleting] = useState<boolean>(false);
 
-    const { user } = useContext(UserContext);
+    const { user, roles } = useContext(UserContext);
 
     const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
         props.requests.setFilters({ ...props.requests.filters, showAllUsers: !e.target.checked });
@@ -86,14 +86,15 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                             <RequestView request={request} />
                                             <Row className="ml-2 mr-2">
                                                 <Col xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    <Button className="float-left" variant="danger"
-                                                        onClick={async () => deleteRequest(request)}
-                                                    >
-                                                        {deleting &&
-                                                            <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                                                        {' '}{"Delete Request"}
-                                                    </Button>
-                                                    {!request.isReadOnly() &&
+                                                    {!request.isReadOnly(user, roles) &&
+                                                        <Button className="float-left" variant="danger"
+                                                            onClick={async () => deleteRequest(request)}
+                                                        >
+                                                            {deleting &&
+                                                                <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                                                            {' '}{"Delete Request"}
+                                                        </Button>}
+                                                    {!request.isReadOnly(user, roles) &&
                                                         <Link to={`/Requests/Edit/${request.Id}`}>
                                                             <Button className="float-left ml-2" variant="warning">Edit Request</Button>
                                                         </Link>}

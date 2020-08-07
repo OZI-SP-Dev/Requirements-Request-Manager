@@ -1,8 +1,8 @@
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Col, Container, Form, Spinner, Alert } from "react-bootstrap";
+import { Alert, Button, Col, Container, Form, Spinner } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes, IRequestValidation, RequestValidation } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
@@ -10,7 +10,8 @@ import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDate
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import './RequestForm.css';
-import moment from "moment";
+import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
+import { RoleDefinitions } from "../../utils/RoleDefinitions";
 
 export interface IRequestFormProps {
     editRequestId?: number,
@@ -28,7 +29,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [readOnly, setReadOnly] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
 
-    const { user } = useContext(UserContext);
+    const userContext = useContext(UserContext);
     const history = useHistory();
 
     useScrollToTop();
@@ -38,7 +39,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             if (props.editRequestId !== undefined && props.fetchRequestById) {
                 let newRequest = await props.fetchRequestById(props.editRequestId);
                 if (newRequest) {
-                    setReadOnly(newRequest.isReadOnly());
+                    setReadOnly(newRequest.isReadOnly(userContext.user, userContext.roles));
                     setPeoSameAsRequester(newRequest.Requester.Id === newRequest.ApprovingPEO.Id);
                     setShowFundingField(newRequest.FundingOrgOrPEO !== "" && newRequest.FundingOrgOrPEO !== undefined && newRequest.FundingOrgOrPEO !== null);
                     setRequest(newRequest);
@@ -60,9 +61,9 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     useEffect(() => {
         // only update the requester if this is a new request
         if (request.Id < 0) {
-            updateRequest('Requester', user ? user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
+            updateRequest('Requester', userContext.user ? userContext.user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
         } // eslint-disable-next-line
-    }, [user]);
+    }, [userContext]);
 
     useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
@@ -71,7 +72,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         } // eslint-disable-next-line
     }, [request, showFundingField]);
 
-    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | IPerson): void => {
+    const updateRequest = (fieldUpdating: string, newValue: string | number | boolean | Moment | IPerson | null): void => {
         setRequest(new RequirementsRequest({ ...request, [fieldUpdating]: newValue }));
     }
 
@@ -129,7 +130,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
-                    <Col xl="3" lg="4" md="4" sm="4" xs="12">
+                    <Col xl="3" lg="4" md="6" sm="6" xs="12">
                         <CustomInputeDatePicker
                             headerText="Requested Date:"
                             readOnly={readOnly}
@@ -141,6 +142,17 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             errorMessage={validation ? validation.RequestDateError : ""}
                         />
                     </Col>
+                    {RoleDefinitions.userCanReceiveRequests(userContext.roles) &&
+                        <Col xl={{ span: 3, offset: 3 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
+                            <CustomInputeDatePicker
+                                headerText="Received Date:"
+                                readOnly={readOnly}
+                                date={request.ReceivedDate}
+                                maxDate={moment()}
+                                onChange={date => updateRequest('ReceivedDate', date)}
+                                isClearable={!readOnly}
+                            />
+                        </Col>}
                 </Form.Row>
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">

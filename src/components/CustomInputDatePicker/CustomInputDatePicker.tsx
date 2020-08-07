@@ -8,22 +8,23 @@ import './CustomInputeDatePicker.css';
 export interface ICustomInputeDatePickerProps {
     headerText: string,
     readOnly: boolean,
-    date: Moment,
+    date: Moment | null,
     minDate?: Moment,
     maxDate?: Moment,
+    isClearable?: boolean,
     isValid?: boolean,
     isInvalid?: boolean,
     errorMessage?: string,
-    onChange: (date: Moment) => void
+    onChange: (date: Moment | null) => void
 }
 
 export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePickerProps> = (props: ICustomInputeDatePickerProps) => {
 
     const [open, setOpen] = useState<boolean>(false);
 
-    const onChange = (newDate: Date) => {
+    const onChange = (newDate: Date | null) => {
         if (!props.readOnly) {
-            props.onChange(moment(newDate));
+            props.onChange(newDate ? moment(newDate) : null);
         }
     }
 
@@ -39,7 +40,7 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
             <Form.Control
                 type="text"
                 readOnly={props.readOnly}
-                defaultValue={props.date.format("DD MMM YYYY")}
+                defaultValue={props.date ? props.date.format("DD MMM YYYY") : undefined}
                 onClick={() => onClick(true)}
                 isValid={props.isValid}
                 isInvalid={props.isInvalid}
@@ -51,15 +52,16 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
 
     return (
         <DatePicker
-            selected={props.date.toDate()}
+            selected={props.date ? props.date.toDate() : undefined}
             onChange={onChange}
-            minDate={props.minDate?.toDate()}
-            maxDate={props.maxDate?.toDate()}
+            minDate={props.minDate ? props.minDate.toDate() : undefined}
+            maxDate={props.maxDate ? props.maxDate.toDate() : undefined}
             customInput={<DatePickerCustomInput />}
             open={open}
             onClickOutside={() => onClick(false)}
             shouldCloseOnSelect={false}
             customInputRef="DatePickerCustomInput"
+            isClearable={props.isClearable}
         />
     );
 }

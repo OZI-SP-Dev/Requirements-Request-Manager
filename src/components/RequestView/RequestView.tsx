@@ -28,7 +28,7 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                 </Col>
                 <Col className="mt-2" xl={4} lg={8} md={6} sm={6} xs={12}>
                     <strong>Recieved Date: </strong>
-                    {request.ReceivedDate.format("DD MMM YYYY")}
+                    {request.ReceivedDate ? request.ReceivedDate.format("DD MMM YYYY") : "None"}
                 </Col>
                 <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
                     <strong>Requester: </strong>
