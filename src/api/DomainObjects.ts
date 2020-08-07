@@ -1,9 +1,8 @@
 import moment, { Moment } from 'moment';
-import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from './RequirementsRequestsApi';
-import { IPerson, Person, IUserApi, UserApiConfig } from './UserApi';
-import { IUserContext } from '../providers/UserProvider';
 import { RoleDefinitions } from '../utils/RoleDefinitions';
+import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from './RequirementsRequestsApi';
 import { RoleType } from './RolesApi';
+import { IPerson, IUserApi, Person, UserApiConfig } from './UserApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",

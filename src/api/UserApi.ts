@@ -1,7 +1,7 @@
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError, InternalError } from './InternalErrors';
-import { IUserRoles, IRolesApi, RolesApiConfig, RoleType } from './RolesApi';
+import { IRolesApi, RolesApiConfig, RoleType } from './RolesApi';
 
 export interface IPerson extends IPersonaProps {
     Id: number,

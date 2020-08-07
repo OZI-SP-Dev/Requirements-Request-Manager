@@ -1,7 +1,7 @@
 import { IUserRoles, RoleType, IRole, RolesApiConfig } from "../api/RolesApi";
 import { useState, useEffect } from "react";
 import { InternalError } from "../api/InternalErrors";
-import { IPerson } from "../api/UserApi";
+import { IPerson, UserApiConfig } from "../api/UserApi";
 
 export interface IRoles {
     loading: boolean,
@@ -19,6 +19,7 @@ export function useRoles(): IRoles {
     const [roles, setRoles] = useState<IUserRoles[]>([]);
 
     const rolesApi = RolesApiConfig.getApi();
+    const userApi = UserApiConfig.getApi();
 
     const clearError = () => setError("");
 
@@ -50,9 +51,14 @@ export function useRoles(): IRoles {
     const submitRole = async (user: IPerson, role: RoleType) => {
         try {
             setLoading(true);
-            let newRole = await rolesApi.submitRole(user, role);
+            let userToSubmit: IPerson = {
+                Id: user.Id > -1 ? user.Id : await userApi.getUserId(user.EMail),
+                EMail: user.EMail,
+                Title: user.Title
+            }
+            let newRole = await rolesApi.submitRole(userToSubmit, role);
             let allRoles = roles;
-            let i = allRoles.findIndex(r => r.User.Id === user.Id);
+            let i = allRoles.findIndex(r => r.User.Id === userToSubmit.Id);
             if (i >= 0) {
                 allRoles[i] = newRole;
             } else {

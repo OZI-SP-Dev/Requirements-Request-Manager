@@ -47,7 +47,7 @@ export interface IRolesApi {
     /**
      * Attach a Role to the given User, and return their complete set of Roles with the new Role added in.
      * 
-     * @param user The User for which the Role is being added.
+     * @param user The User for which the Role is being added. The Id needs to be set.
      * @param role The Role being created.
      */
     submitRole(user: IPerson, role: RoleType): Promise<IUserRoles>,
@@ -156,7 +156,7 @@ export class RolesApi implements IRolesApi {
         let userRoles: IUserRoles[] = [];
         for (let role of roles) {
             if (Object.values(RoleType).includes(role.Title)) {
-                let i = userRoles.findIndex(userRole => userRole.User.Id === role.Id);
+                let i = userRoles.findIndex(userRole => userRole.User.Id === role.User.Id);
                 if (i > -1) {
                     userRoles[i].Roles.push({ Id: role.Id, Role: role.Title });
                 } else {

@@ -1,5 +1,5 @@
 import React, { createContext, FunctionComponent, useEffect, useState } from "react";
-import { RolesApiConfig, RoleType } from "../api/RolesApi";
+import { RoleType } from "../api/RolesApi";
 import { IPerson, UserApiConfig } from "../api/UserApi";
 
 
