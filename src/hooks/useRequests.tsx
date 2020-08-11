@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { IRequirementsRequestCRUD, RequirementsRequest } from "../api/DomainObjects";
-import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
-import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
-import { IUserApi, UserApiConfig } from "../api/UserApi";
 import { InternalError } from "../api/InternalErrors";
+import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
+import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
+import { IUserApi, UserApiConfig } from "../api/UserApi";
+import { useEmail } from "./useEmail";
 
 export interface IRequestFilters {
     showAllUsers: boolean
@@ -17,7 +18,7 @@ export interface IRequests {
     filters: IRequestFilters,
     setFilters: (filters: IRequestFilters) => void,
     fetchRequestById: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
-    submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>,
+    submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequestCRUD>,
     submitApproval: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
@@ -29,6 +30,7 @@ export function useRequests(): IRequests {
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
     const [filters, setFilters] = useState<IRequestFilters>({ showAllUsers: false });
 
+    const email = useEmail();
     const requirementsRequestApi: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
     const requestApprovalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
     const userApi: IUserApi = UserApiConfig.getApi();
@@ -46,6 +48,13 @@ export function useRequests(): IRequests {
                 newRequests.push(updatedRequest);
             }
             setRequests(newRequests);
+
+            // if the IDs are different then that means that it is a new request and it should send a notif out
+            if (request.Id !== updatedRequest.Id) {
+                await email.sendSubmitNotif(updatedRequest);
+            }
+
+            return updatedRequest;
         } catch (e) {
             console.error("Error trying to submit Request");
             console.error(e);
@@ -74,6 +83,7 @@ export function useRequests(): IRequests {
             let newRequests = requests;
             requests[newRequests.findIndex(req => req.Id === newRequest.Id)] = newRequest;
             setRequests(newRequests);
+            await email.sendApprovalNotif(newRequest);
         } catch (e) {
             console.error("Error trying to approve Request");
             console.error(e);

@@ -2,21 +2,21 @@ import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Alert, Button, Col, Container, Form, Spinner } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
+import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
+import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import './RequestForm.css';
-import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
-import { RoleDefinitions } from "../../utils/RoleDefinitions";
 
 export interface IRequestFormProps {
     editRequestId?: number,
     fetchRequestById?: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
-    submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>
+    submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequest>
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
@@ -99,7 +99,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         try {
             e.preventDefault();
             setSaving(true);
-            let req = request;
+            let req = new RequirementsRequest(request);
             if (peoSameAsRequester) {
                 req.ApprovingPEO = req.Requester;
                 req.PEOOrgSymbol = req.RequesterOrgSymbol;
@@ -111,8 +111,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             }
             let requestValidation = RequestValidation.getValidation(req, showFundingField);
             if (!requestValidation.IsErrored) {
-                await props.submitRequest(request);
-                history.push("/Requests");
+                let newRequest = await props.submitRequest(req);
+                history.push(`/Requests/Review/${newRequest.Id}`);
             } else {
                 setValidation(requestValidation);
                 setError("Please fix the errored fields!");
