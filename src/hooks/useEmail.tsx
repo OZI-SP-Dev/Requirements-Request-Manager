@@ -13,8 +13,8 @@ export interface IEmailSender {
     error: string,
     clearError: () => void,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>,
-    sendSubmitNotif: (request: IRequirementsRequest) => Promise<void>,
-    sendApprovalNotif: (request: IRequirementsRequest) => Promise<void>
+    sendSubmitEmail: (request: IRequirementsRequest) => Promise<void>,
+    sendApprovalEmail: (request: IRequirementsRequest) => Promise<void>
 }
 
 export function useEmail(): IEmailSender {
@@ -64,28 +64,25 @@ export function useEmail(): IEmailSender {
         }
     }
 
-    const sendSubmitNotif = async (request: IRequirementsRequest): Promise<void> => {
-        console.log(request.ApprovingPEO);
-        console.log(request.Requester);
-        if (request.ApprovingPEO.EMail !== request.Requester.EMail) {
-            let to = [request.ApprovingPEO];
-            let subject = `Request ${request.Id} Submitted`;
-            let body = `Hello, a requirements request has been submitted for which you are the approving official by ${request.Requester.Title}.
+    const sendSubmitEmail = async (request: IRequirementsRequest): Promise<void> => {
+        let to = [request.ApprovingPEO];
+        let subject = `Request ${request.Id} Submitted`;
+        let body = `Hello, a requirements request has been submitted for which you are the approving official by ${request.Requester.Title}.
             
             To review/approve the request, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
-            let cc = getManagers();
+        let cc = getManagers();
 
-            return sendEmail(to, subject, body, cc);
-        }
+        return sendEmail(to, subject, body, cc);
     }
 
-    const sendApprovalNotif = async (request: IRequirementsRequest): Promise<void> => {
+    const sendApprovalEmail = async (request: IRequirementsRequest): Promise<void> => {
         let to = getManagers();
         if (request.ApprovingPEO.Id !== request.Requester.Id) {
             to.push(request.Requester);
         }
         let subject = `Request ${request.Id} Approved`;
         let body = `Hello, requirements request ${request.Id} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.ApprovingPEO.Title}.
+        ${request.PEOApprovedComment ? `The approver left a comment saying "${request.PEOApprovedComment}"` : ''}
         
         To view the request and any comments/modifications left by the approver, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/View/${request.Id}">here</a>.`;
 
@@ -97,7 +94,7 @@ export function useEmail(): IEmailSender {
         error,
         clearError,
         sendEmail,
-        sendSubmitNotif,
-        sendApprovalNotif
+        sendSubmitEmail,
+        sendApprovalEmail
     }
 }

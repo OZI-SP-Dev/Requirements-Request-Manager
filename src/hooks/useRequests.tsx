@@ -49,9 +49,9 @@ export function useRequests(): IRequests {
             }
             setRequests(newRequests);
 
-            // if the IDs are different then that means that it is a new request and it should send a notif out
-            if (request.Id !== updatedRequest.Id) {
-                await email.sendSubmitNotif(updatedRequest);
+            // Only send the notif if the request is new (new ID returned) and the Approver is not the Requester
+            if (request.Id !== updatedRequest.Id && updatedRequest.ApprovingPEO.EMail !== updatedRequest.Requester.EMail) {
+                await email.sendSubmitEmail(updatedRequest);
             }
 
             return updatedRequest;
@@ -77,13 +77,11 @@ export function useRequests(): IRequests {
     const submitApproval = async (request: IRequirementsRequestCRUD, comment: string) => {
         try {
             let approval = await requestApprovalsApi.submitApproval(request, comment);
-            let newRequest = new RequirementsRequest(request);
-            newRequest.PEOApprovedDateTime = approval.Created;
-            newRequest.PEOApprovedComment = approval.Comment;
+            let newRequest = new RequirementsRequest(approval.Request);
             let newRequests = requests;
             requests[newRequests.findIndex(req => req.Id === newRequest.Id)] = newRequest;
             setRequests(newRequests);
-            await email.sendApprovalNotif(newRequest);
+            await email.sendApprovalEmail(newRequest);
         } catch (e) {
             console.error("Error trying to approve Request");
             console.error(e);

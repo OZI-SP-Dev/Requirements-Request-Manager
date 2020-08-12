@@ -181,8 +181,9 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
         try {
             let requestCrud = new RequirementsRequest(request);
-            if (!requestCrud.isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles())) {
-                if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+            let currentUser = await this.userApi.getCurrentUser();
+            if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles())) {
+                if (currentUser.Id === request.ApprovingPEO.Id) {
                     let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
 
                     return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
@@ -460,8 +461,9 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
 
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
         let requestCrud = new RequirementsRequest(request);
-        if (!requestCrud.isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles())) {
-            if ((await this.userApi.getCurrentUser()).Id === request.ApprovingPEO.Id) {
+        let currentUser = await this.userApi.getCurrentUser();
+        if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles())) {
+            if (currentUser.Id === request.ApprovingPEO.Id) {
                 let newApproval: IRequestApproval = {
                     Id: ++this.maxId,
                     Comment: comment,
@@ -469,6 +471,8 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                     AuthorId: (await this.userApi.getCurrentUser()).Id,
                     Request: new RequirementsRequest(request)
                 }
+                newApproval.Request.PEOApprovedComment = newApproval.Comment;
+                newApproval.Request.PEOApprovedDateTime = newApproval.Created;
                 this.approvals.push(newApproval);
                 return newApproval;
             } else {
