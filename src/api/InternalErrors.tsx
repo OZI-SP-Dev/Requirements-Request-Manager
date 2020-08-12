@@ -20,7 +20,7 @@ export class ApiError extends InternalError {
     name: string = "ApiError";
 
     constructor(e?: Error, message?: string) {
-        super(e, message ? message : "An unknown error occurred while communicating with SharePoint!");
+        super(e, message ? message : e ? e.message : "An unknown error occurred while communicating with SharePoint!");
     }
 }
 
@@ -28,6 +28,6 @@ export class NotAuthorizedError extends InternalError {
     name: string = "NotAuthorizedError";
 
     constructor(e?: Error, message?: string) {
-        super(e, message ? message : "You are not authorized to do this!");
+        super(e, message ? message : e ? e.message : "You are not authorized to do this!");
     }
 }

@@ -15,7 +15,7 @@ interface ISubmitRequirementsRequest {
     Id?: number,
     Title: string,
     RequestDate: string,
-    ReceivedDate: string,
+    ReceivedDate?: string,
     RequesterId: number,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
@@ -124,7 +124,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Id: request.Id,
             Title: request.Title,
             RequestDate: request.RequestDate.toISOString(),
-            ReceivedDate: request.ReceivedDate.toISOString(),
+            ReceivedDate: request.ReceivedDate ? request.ReceivedDate.toISOString() : undefined,
             // If the RequesterId is not known, then get the current user from the UserApi and use that
             RequesterId: request.Requester.Id > -1 ? request.Requester.Id : (await this.userApi.getCurrentUser()).Id,
             RequesterOrgSymbol: request.RequesterOrgSymbol,
@@ -258,7 +258,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
         let request = new RequirementsRequest(requirementsRequest);
-        if (!request.isReadOnly()) {
+        if (!request.isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles())) {
             return request.Id > -1 ?
                 this.updateRequest(request) :
                 this.submitNewRequest(request);
@@ -267,14 +267,20 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         }
     }
 
-    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
+    async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
         try {
-            // TODO: update this so that it simply changes the Request to have IsDeleted: true
-            return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
+            if (!(new RequirementsRequest(requirementsRequest).isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles()))) {
+                // TODO: update this so that it simply changes the Request to have IsDeleted: true
+                return this.requirementsRequestList.items.getById(requirementsRequest.Id).delete();
+            } else {
+                throw new NotAuthorizedError();
+            }
         } catch (e) {
             console.error(`Error occurred while trying to delete Request with ID ${requirementsRequest.Id}`);
             console.error(e);
-            if (e instanceof Error) {
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
                 throw new ApiError(e, `Error occurred while trying to delete Request with ID ${requirementsRequest.Id}: ${e.message}`);
             } else if (typeof (e) === "string") {
                 throw new ApiError(new Error(`Error occurred while trying to delete Request with ID ${requirementsRequest.Id}: ${e}`));

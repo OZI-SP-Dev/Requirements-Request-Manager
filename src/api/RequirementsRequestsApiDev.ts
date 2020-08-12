@@ -1,13 +1,15 @@
 import moment from "moment";
-import { IRequirementsRequest, RequirementTypes, ApplicationTypes, Centers, OrgPriorities, IRequirementsRequestCRUD, RequirementsRequest } from "./DomainObjects";
-import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
-import { Person } from "./UserApi";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "./DomainObjects";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
+import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
+import { Person, UserApiConfig } from "./UserApi";
+import { NotAuthorizedError } from "./InternalErrors";
 
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
 
     requests: IRequirementsRequestCRUD[] = [];
     approvalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi(this);
+    userApi = UserApiConfig.getApi();
 
     constructor() {
         this.requests = [
@@ -99,7 +101,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
     maxId: number = 2;
 
     sleep() {
-        return new Promise(r => setTimeout(r, 1500));
+        return new Promise(r => setTimeout(r, 500));
     }
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
@@ -129,7 +131,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
 
     async submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD> {
         await this.sleep();
-        if (!(new RequirementsRequest(requirementsRequest)).isReadOnly()) {
+        if (!(new RequirementsRequest(requirementsRequest)).isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles())) {
             let newRequest = new RequirementsRequest(requirementsRequest);
             let oldIndex = this.requests.findIndex(request => newRequest.Id === request.Id);
             if (oldIndex > -1) {
@@ -146,8 +148,12 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
 
     async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
         await this.sleep();
-        this.requests.filter(request => request.Id !== requirementsRequest.Id);
-        return;
+        if (!(new RequirementsRequest(requirementsRequest).isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles()))) {
+            this.requests.filter(request => request.Id !== requirementsRequest.Id);
+            return;
+        } else {
+            throw new NotAuthorizedError();
+        }
     }
 
 }

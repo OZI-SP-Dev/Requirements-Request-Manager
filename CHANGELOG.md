@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.9] 2020-08-07
+### Added
+- Roles page for managing roles
+- Roles SP List
+- Roles enforcement throughout the application
+
 ## [0.1.8] 2020-07-30
 ### Added
 - Error handling on all external facing code
