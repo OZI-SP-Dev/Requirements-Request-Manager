@@ -38,7 +38,9 @@ export function useEmail(): IEmailSender {
     const sendEmail = async (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson): Promise<void> => {
         try {
             setSending(true);
-            await emailApi.sendEmail(to, subject, body, cc, from);
+            if (to.length) {
+                await emailApi.sendEmail(to, subject, body, cc, from);
+            }
         } catch (e) {
             let message = `Error trying to send Email to ${to} with subject ${subject} and body ${body}`;
             console.error(message);
