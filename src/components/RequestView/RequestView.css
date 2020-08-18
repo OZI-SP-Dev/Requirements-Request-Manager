@@ -5,3 +5,19 @@
 .view-form {
     text-align: left;
 }
+
+.note {
+    border-color: lightblue;
+    border-top: hidden;
+}
+
+.note-header {
+    background-color: lightblue;
+    border-color: lightblue;
+}
+
+.notes-card {
+    max-height: 35em;
+    overflow: auto;
+    border: hidden
+}

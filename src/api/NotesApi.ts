@@ -108,6 +108,11 @@ export class NotesApiDev implements INotesApi {
         Title: "Less Super Important Note",
         Text: "This is a less important note, everyone should still know about the ramifications of this note.",
         RequestId: 1
+    }, {
+        Id: 3,
+        Title: "Not Important Note",
+        Text: "No one cares about this note.",
+        RequestId: 1
     }];
 
     maxId: number = 2;

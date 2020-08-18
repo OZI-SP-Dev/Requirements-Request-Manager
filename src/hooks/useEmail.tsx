@@ -1,12 +1,10 @@
-import { sp } from "@pnp/sp";
-import { IEmailProperties } from "@pnp/sp/sputilities";
-import { useEffect, useState } from "react";
-import { IPerson, UserApiConfig } from "../api/UserApi";
-import { InternalError } from "../api/InternalErrors";
-import { IRequirementsRequest, ApplicationTypes } from "../api/DomainObjects";
-import { useRoles } from "./useRoles";
-import { RoleType } from "../api/RolesApi";
+import { useState } from "react";
+import { ApplicationTypes, IRequirementsRequest } from "../api/DomainObjects";
 import { EmailApiConfig } from "../api/EmailApi";
+import { InternalError } from "../api/InternalErrors";
+import { RoleType } from "../api/RolesApi";
+import { IPerson } from "../api/UserApi";
+import { useRoles } from "./useRoles";
 
 export interface IEmailSender {
     sending: boolean,

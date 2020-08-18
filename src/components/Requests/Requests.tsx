@@ -15,6 +15,7 @@ export interface IRequestsProps {
 export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
     const [deleting, setDeleting] = useState<boolean>(false);
+    const [requestIdShown, setRequestIdShown] = useState<number>(-1);
 
     const { user, roles } = useContext(UserContext);
 
@@ -69,7 +70,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 <Accordion as='tbody'>
                     {props.requests.requestsList.map(request =>
                         <React.Fragment key={request.Id}>
-                            <Accordion.Toggle eventKey={request.Id.toString()} as='tr' role="button">
+                            <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button">
                                 <td>{request.Title}</td>
                                 <td>{request.Requester.Title}</td>
                                 <td>{request.RequestDate.format("DD MMM YYYY")}</td>
@@ -83,7 +84,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 <td colSpan={7} className="p-0">
                                     <Accordion.Collapse eventKey={request.Id.toString()}>
                                         <div className="p-1">
-                                            <RequestView request={request} />
+                                            <RequestView request={request} load={requestIdShown === request.Id} size="sm" />
                                             <Row className="ml-2 mr-2">
                                                 <Col xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     {!request.isReadOnly(user, roles) &&
