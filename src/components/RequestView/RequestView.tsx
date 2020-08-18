@@ -1,9 +1,12 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { Card, Col, Row } from "react-bootstrap";
+import { Card, Col, Row, Button } from "react-bootstrap";
 import { ApplicationTypes, IRequirementsRequest, IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
 import { INotes, useNotes } from "../../hooks/useNotes";
-import "./RequestView.css";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
+import "./RequestView.css";
+import { NoteModal } from '../NoteModal/NoteModal';
 
 export interface IRequestViewProps {
     request?: IRequirementsRequestCRUD,
@@ -14,6 +17,7 @@ export interface IRequestViewProps {
 export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     const [request, setRequest] = useState<IRequirementsRequest>(props.request ? props.request : new RequirementsRequest());
+    const [showNoteModal, setShowNoteModal] = useState<boolean>(false);
 
     const notes: INotes = useNotes(props.load ? props.request?.Id : undefined);
 
@@ -22,10 +26,10 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
     }, [props.request]);
 
     // enable side panel for notes if it is 'lg' size and there are notes to display
-    const notesOnSide: boolean = props.size === "lg" && notes.notes.length > 0;
+    const lgDisplay: boolean = props.size === "lg" && notes.notes.length > 0;
 
     let noteCards = notes.notes.map(note =>
-        <Col className="mt-3 mb-3" xl={notesOnSide ? "12" : "4"} lg={notesOnSide ? "12" : "6"} md="12" sm="12" xs="12">
+        <Col className="mt-3 mb-3" xl={lgDisplay ? "12" : "4"} lg={lgDisplay ? "12" : "6"} md="12" sm="12" xs="12">
             <Card className="note">
                 <Card.Header className="note-header">{note.Title}</Card.Header>
                 <Card.Body>{note.Text}</Card.Body>
@@ -35,7 +39,7 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     return (
         <Row>
-            <Col xl={notesOnSide ? "8" : "12"} lg={notesOnSide ? "8" : "12"} md="12" sm="12" xs="12">
+            <Col xl={lgDisplay ? "8" : "12"} lg={lgDisplay ? "8" : "12"} md="12" sm="12" xs="12">
                 <Row className="ml-2 mr-2 mt-2 view-form">
                     <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
                         <strong>Request Title: </strong>
@@ -167,14 +171,27 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                     </Col>
                 </Row>
             </Col>
-            {notesOnSide ?
+            {lgDisplay ?
                 <Col xl="4" lg="4" md="12" sm="12" xs="12">
-                    <Card className="notes-card">{noteCards}</Card>
+                    <Card className="notes-card">
+                        <Button className="mr-3" onClick={() => setShowNoteModal(true)}><FontAwesomeIcon icon={faPlus} /></Button>
+                        {noteCards}
+                    </Card>
                 </Col> :
                 <Row className="m-3">
                     {noteCards}
                 </Row>
             }
+            <NoteModal
+                show={showNoteModal}
+                error={notes.error}
+                clearError={notes.clearError}
+                handleClose={() => {
+                    setShowNoteModal(false);
+                    notes.clearError();
+                }}
+                submitNote={notes.submitNote}
+            />
             <RequestSpinner show={notes.loading} displayText="Loading Notes..." />
         </Row>
     )

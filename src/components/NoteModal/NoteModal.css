@@ -1,0 +1,7 @@
+.note-error {
+    width: 100%
+}
+
+.note-error div {
+    width: inherit
+}

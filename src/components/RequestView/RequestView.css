@@ -17,7 +17,14 @@
 }
 
 .notes-card {
-    max-height: 35em;
+    max-height: 40em;
     overflow: auto;
     border: hidden
+}
+
+.notes-card button {
+    width: fit-content;
+    align-self: flex-end;
+    background-color: lightblue;
+    border-color: lightblue;
 }

@@ -4,6 +4,10 @@
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.121.5",
+    "@fortawesome/fontawesome-free": "^5.14.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.30",
+    "@fortawesome/free-solid-svg-icons": "^5.14.0",
+    "@fortawesome/react-fontawesome": "^0.1.11",
     "@pnp/sp": "^2.0.5",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",

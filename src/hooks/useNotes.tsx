@@ -51,18 +51,22 @@ export function useNotes(requestId?: number): INotes {
 
     const submitNote = async (title: string, text: string) => {
         try {
-            if (requestId !== undefined && requestId >= 0) {
-                let newNote = await notesApi.submitNewNote({
-                    Title: title,
-                    Text: text,
-                    RequestId: requestId
-                });
-                let allNotes = notes;
-                allNotes.push(newNote);
-                setNotes(allNotes);
-                return newNote;
+            if (title && text) {
+                if (requestId !== undefined && requestId >= 0) {
+                    let newNote = await notesApi.submitNewNote({
+                        Title: title,
+                        Text: text,
+                        RequestId: requestId
+                    });
+                    let allNotes = notes;
+                    allNotes.push(newNote);
+                    setNotes(allNotes);
+                    return newNote;
+                } else {
+                    throw new InternalError(new Error("Cannot submit a new Note for an unknown Request!"))
+                }
             } else {
-                throw new InternalError(new Error("Cannot submit a new Note for an unknown Request!"))
+                throw new InternalError(new Error("The Title and Body must be filled out!"))
             }
         } catch (e) {
             console.error(`Error trying to submit Note for Request ${requestId}`);
