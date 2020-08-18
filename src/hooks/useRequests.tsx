@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { IRequirementsRequestCRUD, RequirementsRequest } from "../api/DomainObjects";
-import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
-import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
-import { IUserApi, UserApiConfig } from "../api/UserApi";
 import { InternalError } from "../api/InternalErrors";
+import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
+import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
+import { IUserApi, UserApiConfig } from "../api/UserApi";
+import { useEmail } from "./useEmail";
 
 export interface IRequestFilters {
     showAllUsers: boolean
@@ -17,7 +18,7 @@ export interface IRequests {
     filters: IRequestFilters,
     setFilters: (filters: IRequestFilters) => void,
     fetchRequestById: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
-    submitRequest: (request: IRequirementsRequestCRUD) => Promise<void>,
+    submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequestCRUD>,
     submitApproval: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
@@ -29,6 +30,7 @@ export function useRequests(): IRequests {
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
     const [filters, setFilters] = useState<IRequestFilters>({ showAllUsers: false });
 
+    const email = useEmail();
     const requirementsRequestApi: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
     const requestApprovalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
     const userApi: IUserApi = UserApiConfig.getApi();
@@ -46,6 +48,13 @@ export function useRequests(): IRequests {
                 newRequests.push(updatedRequest);
             }
             setRequests(newRequests);
+
+            // Only send the notif if the request is new (new ID returned) and the Approver is not the Requester
+            if (request.Id !== updatedRequest.Id && updatedRequest.ApprovingPEO.EMail !== updatedRequest.Requester.EMail) {
+                await email.sendSubmitEmail(updatedRequest);
+            }
+
+            return updatedRequest;
         } catch (e) {
             console.error("Error trying to submit Request");
             console.error(e);
@@ -68,12 +77,11 @@ export function useRequests(): IRequests {
     const submitApproval = async (request: IRequirementsRequestCRUD, comment: string) => {
         try {
             let approval = await requestApprovalsApi.submitApproval(request, comment);
-            let newRequest = new RequirementsRequest(request);
-            newRequest.PEOApprovedDateTime = approval.Created;
-            newRequest.PEOApprovedComment = approval.Comment;
+            let newRequest = new RequirementsRequest(approval.Request);
             let newRequests = requests;
             requests[newRequests.findIndex(req => req.Id === newRequest.Id)] = newRequest;
             setRequests(newRequests);
+            await email.sendApprovalEmail(newRequest);
         } catch (e) {
             console.error("Error trying to approve Request");
             console.error(e);

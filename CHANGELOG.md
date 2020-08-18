@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.10] 2020-08-12
+### Added
+- Emails are now sent when a request is submitted and approved
+
+### Fixed
+- Bug with showing empty ReceviedDate correctly
+
 ## [0.1.9] 2020-08-07
 ### Added
 - Roles page for managing roles

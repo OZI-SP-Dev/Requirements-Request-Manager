@@ -126,7 +126,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequestDate: request.RequestDate.toISOString(),
             ReceivedDate: request.ReceivedDate ? request.ReceivedDate.toISOString() : undefined,
             // If the RequesterId is not known, then get the current user from the UserApi and use that
-            RequesterId: request.Requester.Id > -1 ? request.Requester.Id : (await this.userApi.getCurrentUser()).Id,
+            RequesterId: request.Requester.Id > -1 ? request.Requester.Id : await this.userApi.getUserId(request.Requester.EMail),
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
@@ -160,7 +160,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Id: request.Id,
             Title: request.Title,
             RequestDate: moment(request.RequestDate),
-            ReceivedDate: moment(request.ReceivedDate),
+            ReceivedDate: request.ReceivedDate ? moment(request.ReceivedDate) : null,
             Requester: new Person(request.Requester),
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
