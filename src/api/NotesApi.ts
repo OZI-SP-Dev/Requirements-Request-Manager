@@ -6,25 +6,37 @@ export interface INote {
     Id: number,
     Title: string,
     Text: string,
-    RequestId: number
+    RequestId: number,
+    "odata.etag": string
 }
 
-export interface INewNote {
+export interface ISubmitNote {
     Title: string,
     Text: string,
     RequestId: number
+}
+
+interface INewNote extends ISubmitNote {
+    Id: number,
+    __metadata: {
+        etag: string
+    }
 }
 
 interface SPNote {
     Id: number,
     Title: string,
     Text: string,
-    Request: { Id: number }
+    Request: { Id: number },
+    __metadata: {
+        etag: string
+    }
 }
 
 export interface INotesApi {
     fetchNotesByRequestId(requestId: number): Promise<INote[]>,
-    submitNewNote(newNote: INewNote): Promise<INote>,
+    submitNewNote(newNote: ISubmitNote): Promise<INote>,
+    updateNote(note: INote): Promise<INote>,
     deleteNoteById(noteId: number): Promise<void>
 }
 
@@ -40,7 +52,8 @@ export class NotesApi implements INotesApi {
                     Id: spNote.Id,
                     Title: spNote.Title,
                     Text: spNote.Text,
-                    RequestId: spNote.Request.Id
+                    RequestId: spNote.Request.Id,
+                    "odata.etag": spNote.__metadata.etag
                 }
             });
         } catch (e) {
@@ -57,11 +70,41 @@ export class NotesApi implements INotesApi {
         }
     }
 
-    async submitNewNote(newNote: INewNote): Promise<INote> {
+    async submitNewNote(newNote: ISubmitNote): Promise<INote> {
         try {
-            return (await this.notesList.items.add(newNote)).data;
+            let returnedNote: INewNote = (await this.notesList.items.add(newNote)).data;
+            return {
+                Id: returnedNote.Id,
+                Title: returnedNote.Title,
+                Text: returnedNote.Text,
+                RequestId: returnedNote.RequestId,
+                "odata.etag": returnedNote.__metadata.etag
+            }
         } catch (e) {
             let message = `Error occurred while trying to submit a Note for Request with ID ${newNote.RequestId}`;
+            console.error(message);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, message + `: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(message + `: ${e}`));
+            } else {
+                throw new ApiError(undefined, message);
+            }
+        }
+    }
+
+    async updateNote(note: INote): Promise<INote> {
+        try {
+            let returnedNote = { ...note };
+            returnedNote["odata.etag"] = (await this.notesList.items.getById(note.Id).update({
+                Title: note.Title,
+                Text: note.Text,
+                RequestId: note.RequestId
+            }, note["odata.etag"])).data["odata.etag"];
+            return returnedNote;
+        } catch (e) {
+            let message = `Error occurred while trying to update a Note with ID ${note.Id}`;
             console.error(message);
             console.error(e);
             if (e instanceof Error) {
@@ -102,17 +145,20 @@ export class NotesApiDev implements INotesApi {
         Id: 1,
         Title: "Super Note",
         Text: "This is a very important note, everyone must know about the ramifications of this note.",
-        RequestId: 1
+        RequestId: 1,
+        "odata.etag": "1"
     }, {
         Id: 2,
         Title: "Less Super Important Note",
         Text: "This is a less important note, everyone should still know about the ramifications of this note.",
-        RequestId: 1
+        RequestId: 1,
+        "odata.etag": "1"
     }, {
         Id: 3,
         Title: "Not Important Note",
         Text: "No one cares about this note.",
-        RequestId: 1
+        RequestId: 1,
+        "odata.etag": "1"
     }];
 
     maxId: number = 2;
@@ -122,13 +168,20 @@ export class NotesApiDev implements INotesApi {
         return this.notesList.filter(note => note.RequestId === requestId);
     }
 
-    async submitNewNote(newNote: INewNote): Promise<INote> {
+    async submitNewNote(newNote: ISubmitNote): Promise<INote> {
         await this.sleep();
         let note = {
             Id: ++this.maxId,
-            ...newNote
+            ...newNote,
+            "odata.etag": "1"
         }
         this.notesList.push(note);
+        return note;
+    }
+    
+    async updateNote(note: INote): Promise<INote> {
+        await this.sleep();
+        this.notesList[this.notesList.findIndex(n => n.Id === note.Id)] = note;
         return note;
     }
 

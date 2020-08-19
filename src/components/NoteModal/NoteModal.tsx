@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState, useEffect } from "react";
 import React from "react";
 import { Modal, Button, Form, Spinner, Alert, Row } from "react-bootstrap";
 import { INote } from "../../api/NotesApi";
@@ -19,15 +19,28 @@ export const NoteModal: FunctionComponent<INoteModalProps> = (props) => {
     const [noteBody, setNoteBody] = useState<string>(props.note ? props.note.Text : "");
     const [saving, setSaving] = useState(false);
 
-    const submitNote = () => {
-        setSaving(true);
-        props.submitNote(noteTitle, noteBody).then(() => {
+    const submitNote = async () => {
+        try {
+            setSaving(true);
+            await props.submitNote(noteTitle, noteBody);
             setNoteTitle("");
             setNoteBody("");
-            setSaving(false);
             props.handleClose();
-        }).catch(() => setSaving(false));
+        } finally {
+            setSaving(false);
+        }
     }
+
+    // when the note prop gets update, fill in the fields with its values
+    useEffect(() => {
+        if (props.note) {
+            setNoteTitle(props.note.Title);
+            setNoteBody(props.note.Text);
+        } else { // clear the fields when the note is undefined bc it will keep the fields if you click the new Note button
+            setNoteTitle('');
+            setNoteBody('');
+        }
+    }, [props.note])
 
     return (
         <>

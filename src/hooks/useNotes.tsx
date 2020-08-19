@@ -8,7 +8,8 @@ export interface INotes {
     error: string,
     clearError: () => void,
     notes: INote[],
-    submitNote: (title: string, text: string) => Promise<INote>,
+    submitNewNote: (title: string, text: string) => Promise<INote>,
+    updateNote: (note: INote) => Promise<INote>,
     deleteNote: (note: INote) => Promise<void>
 }
 
@@ -49,25 +50,29 @@ export function useNotes(requestId?: number): INotes {
         }
     }
 
-    const submitNote = async (title: string, text: string) => {
+    const validateNewNote = (title: string, text: string) => {
+        if (!title) {
+            throw new InternalError(new Error("The Title must be filled out!"));
+        } else if (!text) {
+            throw new InternalError(new Error("The Body must be filled out!"));
+        } else if (requestId === undefined || requestId < 0) {
+            throw new InternalError(new Error("Cannot submit a Note for an unknown Request!"));
+        }
+    }
+
+    const submitNewNote = async (title: string, text: string) => {
         try {
-            if (title && text) {
-                if (requestId !== undefined && requestId >= 0) {
-                    let newNote = await notesApi.submitNewNote({
-                        Title: title,
-                        Text: text,
-                        RequestId: requestId
-                    });
-                    let allNotes = notes;
-                    allNotes.push(newNote);
-                    setNotes(allNotes);
-                    return newNote;
-                } else {
-                    throw new InternalError(new Error("Cannot submit a new Note for an unknown Request!"))
-                }
-            } else {
-                throw new InternalError(new Error("The Title and Body must be filled out!"))
-            }
+            validateNewNote(title, text);
+            let newNote = await notesApi.submitNewNote({
+                Title: title,
+                Text: text,
+                // requestId can't be undefined here because of validateNewNote(), but ts throws an error
+                RequestId: requestId !== undefined ? requestId : -1
+            });
+            let allNotes = notes;
+            allNotes.unshift(newNote);
+            setNotes(allNotes);
+            return newNote;
         } catch (e) {
             console.error(`Error trying to submit Note for Request ${requestId}`);
             console.error(e);
@@ -87,9 +92,36 @@ export function useNotes(requestId?: number): INotes {
         }
     }
 
+    const updateNote = async (note: INote) => {
+        try {
+            validateNewNote(note.Title, note.Text);
+            let updatedNote = await notesApi.updateNote(note);
+            let allNotes = notes;
+            allNotes[allNotes.findIndex(n => n.Id === note.Id)] = updatedNote;
+            return updatedNote;
+        } catch (e) {
+            console.error(`Error trying to update Note for Request ${requestId}`);
+            console.error(e);
+            if (e instanceof InternalError) {
+                setError(e.message);
+                throw e;
+            } else if (e instanceof Error) {
+                setError(e.message);
+                throw new InternalError(e);
+            } else if (typeof (e) === "string") {
+                setError(e);
+                throw new InternalError(new Error(e));
+            } else {
+                setError(`Unknown error occurred while trying to update Note for Request ${requestId}`);
+                throw new InternalError(new Error(`Unknown error occurred while trying to update Note for Request ${requestId}`));
+            }
+        }
+    }
+
     const deleteNote = async (note: INote) => {
         try {
             await notesApi.deleteNoteById(note.Id);
+            setNotes(notes.filter(n => n.Id !== note.Id));
         } catch (e) {
             console.error(`Error trying to delete Note for Request ${requestId}`);
             console.error(e);
@@ -118,7 +150,8 @@ export function useNotes(requestId?: number): INotes {
         error,
         clearError,
         notes,
-        submitNote,
+        submitNewNote,
+        updateNote,
         deleteNote
     })
 

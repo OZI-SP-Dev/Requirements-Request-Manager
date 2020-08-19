@@ -11,20 +11,28 @@
     border-top: hidden;
 }
 
+.note p {
+    text-align: left;
+}
+
 .note-header {
     background-color: lightblue;
     border-color: lightblue;
 }
 
 .notes-card {
-    max-height: 40em;
+    max-height: 35em;
     overflow: auto;
     border: hidden
 }
 
-.notes-card button {
+.notes-button {
     width: fit-content;
     align-self: flex-end;
     background-color: lightblue;
     border-color: lightblue;
+}
+
+.notes-row {
+    width: -webkit-fill-available;
 }

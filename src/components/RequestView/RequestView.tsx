@@ -1,12 +1,11 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { Card, Col, Row, Button } from "react-bootstrap";
+import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { ApplicationTypes, IRequirementsRequest, IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
+import { INote } from '../../api/NotesApi';
 import { INotes, useNotes } from "../../hooks/useNotes";
+import { NoteModal } from '../NoteModal/NoteModal';
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import "./RequestView.css";
-import { NoteModal } from '../NoteModal/NoteModal';
 
 export interface IRequestViewProps {
     request?: IRequirementsRequestCRUD,
@@ -18,28 +17,77 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     const [request, setRequest] = useState<IRequirementsRequest>(props.request ? props.request : new RequirementsRequest());
     const [showNoteModal, setShowNoteModal] = useState<boolean>(false);
+    const [editNote, setEditNote] = useState<INote>();
+    const [deletingNoteId, setDeletingNoteId] = useState<number>();
 
     const notes: INotes = useNotes(props.load ? props.request?.Id : undefined);
+
+    const lgDisplay: boolean = props.size === "lg";
+    const notesEmpty: boolean = notes.notes.length === 0;
 
     useEffect(() => {
         setRequest(props.request ? props.request : new RequirementsRequest());
     }, [props.request]);
 
-    // enable side panel for notes if it is 'lg' size and there are notes to display
-    const lgDisplay: boolean = props.size === "lg" && notes.notes.length > 0;
+    const getDetailsColSize = (size: "xl" | "lg" | "md" | "sm" | "xs"): number => {
+        if (size === "xl" || size === "lg") {
+            if (lgDisplay && notesEmpty) {
+                return 10;
+            } else if (lgDisplay) {
+                return 8;
+            } else {
+                return 12;
+            }
+        } else {
+            return 12;
+        }
+    }
+
+    const submitNote = (title: string, text: string) => {
+        return editNote ? notes.updateNote({ ...editNote, Title: title, Text: text }) : notes.submitNewNote(title, text);
+    }
+
+    const deleteNote = async (note: INote) => {
+        setDeletingNoteId(note.Id);
+        await notes.deleteNote(note);
+        setDeletingNoteId(note.Id);
+    }
 
     let noteCards = notes.notes.map(note =>
         <Col className="mt-3 mb-3" xl={lgDisplay ? "12" : "4"} lg={lgDisplay ? "12" : "6"} md="12" sm="12" xs="12">
             <Card className="note">
                 <Card.Header className="note-header">{note.Title}</Card.Header>
-                <Card.Body>{note.Text}</Card.Body>
+                <Card.Body><p className="preserve-whitespace">{note.Text}</p></Card.Body>
+                <Card.Footer>
+                    <Button
+                        variant="outline-danger"
+                        className="float-left"
+                        onClick={() => deleteNote(note)}
+                    >
+                        {deletingNoteId === note.Id && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                        {' '}{"Delete"}
+                    </Button>
+                    <Button
+                        className="notes-button float-right"
+                        onClick={() => {
+                            setEditNote(note);
+                            setShowNoteModal(true);
+                        }}
+                    >Edit</Button>
+                </Card.Footer>
             </Card>
         </Col>
     );
 
     return (
         <Row>
-            <Col xl={lgDisplay ? "8" : "12"} lg={lgDisplay ? "8" : "12"} md="12" sm="12" xs="12">
+            <Col
+                xl={getDetailsColSize("xl")}
+                lg={getDetailsColSize("lg")}
+                md={getDetailsColSize("md")}
+                sm={getDetailsColSize("sm")}
+                xs={getDetailsColSize("xs")}
+            >
                 <Row className="ml-2 mr-2 mt-2 view-form">
                     <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
                         <strong>Request Title: </strong>
@@ -172,25 +220,31 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                 </Row>
             </Col>
             {lgDisplay ?
-                <Col xl="4" lg="4" md="12" sm="12" xs="12">
+                <Col xl={notesEmpty ? "2" : "4"} lg={notesEmpty ? "2" : "4"} md="12" sm="12" xs="12">
+                    <Row>
+                        <Col>
+                            <Button className="notes-button m-3 float-right" onClick={() => setShowNoteModal(true)}>New Note</Button>
+                        </Col>
+                    </Row>
                     <Card className="notes-card">
-                        <Button className="mr-3" onClick={() => setShowNoteModal(true)}><FontAwesomeIcon icon={faPlus} /></Button>
                         {noteCards}
                     </Card>
                 </Col> :
-                <Row className="m-3">
+                <Row className="m-3 notes-row">
                     {noteCards}
                 </Row>
             }
             <NoteModal
+                note={editNote}
                 show={showNoteModal}
                 error={notes.error}
                 clearError={notes.clearError}
                 handleClose={() => {
+                    setEditNote(undefined);
                     setShowNoteModal(false);
                     notes.clearError();
                 }}
-                submitNote={notes.submitNote}
+                submitNote={submitNote}
             />
             <RequestSpinner show={notes.loading} displayText="Loading Notes..." />
         </Row>
