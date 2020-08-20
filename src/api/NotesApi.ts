@@ -161,7 +161,7 @@ export class NotesApiDev implements INotesApi {
         "odata.etag": "1"
     }];
 
-    maxId: number = 2;
+    maxId: number = 3;
 
     async fetchNotesByRequestId(requestId: number): Promise<INote[]> {
         await this.sleep();

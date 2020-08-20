@@ -1,0 +1,24 @@
+.note {
+    border-color: lightblue;
+    border-top: hidden;
+}
+
+.note p {
+    text-align: left;
+}
+
+.note-header {
+    background-color: lightblue;
+    border-color: lightblue;
+}
+
+.notes-button {
+    width: fit-content;
+    align-self: flex-end;
+    background-color: lightblue;
+    border-color: lightblue;
+}
+
+.preserve-whitespace {
+    white-space: pre-wrap;
+}

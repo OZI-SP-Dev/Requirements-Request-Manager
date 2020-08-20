@@ -12,6 +12,7 @@ import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDate
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import './RequestForm.css';
+import { DismissableErrorAlert } from "../DismissableErrorAlert/DismissableErrorAlert";
 
 export interface IRequestFormProps {
     editRequestId?: number,
@@ -596,19 +597,11 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Link>
             </Form>
             <RequestSpinner show={saving} displayText="Saving Request..." />
-            {error &&
-                <Col className="mt-3 fixed-top"
-                    xl={{ span: 6, offset: 3 }}
-                    lg={{ span: 6, offset: 3 }}
-                    md={{ span: 8, offset: 2 }}
-                    sm={{ span: 10, offset: 1 }}
-                    xs={12}
-                >
-                    <Alert variant="danger" onClose={() => setError("")} dismissible>
-                        <Alert.Heading>Error Submitting!</Alert.Heading>
-                        <p>{error}</p>
-                    </Alert>
-                </Col>
-            }
+            <DismissableErrorAlert
+                show={error !== undefined && error !== ""}
+                header="Error Submitting!"
+                message={error}
+                onClose={() => setError("")}
+            />
         </Container>);
 }

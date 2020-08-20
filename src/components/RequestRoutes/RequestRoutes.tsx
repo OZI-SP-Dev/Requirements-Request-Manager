@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { Alert, Col } from "react-bootstrap";
 import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
+import { DismissableErrorAlert } from "../DismissableErrorAlert/DismissableErrorAlert";
 import { RequestForm } from "../RequestForm/RequestForm";
 import { RequestReview } from "../RequestReview/RequestReview";
 import { Requests } from "../Requests/Requests";
@@ -46,7 +46,7 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
                                 requestId={Number(match.params.requestId)} />}
                     />
                     <Route exact path="/Requests">
-                        <Requests requests={requests} deleteRequest={requests.deleteRequest} />
+                        <Requests requests={requests} />
                     </Route>
                     <Route path="*">
                         <Redirect to="/Requests" />
@@ -56,20 +56,12 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
             <RequestSpinner
                 show={requests.loading || loadingUser === undefined || loadingUser}
                 displayText={requests.loading ? "Loading Requests..." : "Loading User..."} />
-            {requests.error &&
-                <Col className="fixed-bottom"
-                    xl={{ span: 6, offset: 3 }}
-                    lg={{ span: 6, offset: 3 }}
-                    md={{ span: 8, offset: 2 }}
-                    sm={{ span: 10, offset: 1 }}
-                    xs={12}
-                >
-                    <Alert variant="danger" onClose={() => requests.clearError()} dismissible>
-                        <Alert.Heading>Error!</Alert.Heading>
-                        <p>{requests.error}</p>
-                    </Alert>
-                </Col>
-            }
+            <DismissableErrorAlert
+                show={requests.error !== undefined && requests.error !== ""}
+                header="Error!"
+                message={requests.error}
+                onClose={requests.clearError}
+            />
         </>
     );
 }
