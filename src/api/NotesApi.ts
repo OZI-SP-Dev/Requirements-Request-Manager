@@ -1,11 +1,14 @@
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
+import { Moment } from "moment";
+import moment from "moment";
 
 
 export interface INote {
     Id: number,
     Title: string,
     Text: string,
+    Modified: Moment,
     RequestId: number,
     "odata.etag": string
 }
@@ -18,6 +21,7 @@ export interface ISubmitNote {
 
 interface INewNote extends ISubmitNote {
     Id: number,
+    Modified: string,
     __metadata: {
         etag: string
     }
@@ -27,6 +31,7 @@ interface SPNote {
     Id: number,
     Title: string,
     Text: string,
+    Modified: string,
     Request: { Id: number },
     __metadata: {
         etag: string
@@ -46,12 +51,13 @@ export class NotesApi implements INotesApi {
 
     async fetchNotesByRequestId(requestId: number): Promise<INote[]> {
         try {
-            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text").filter(`RequestId eq ${requestId}`).expand("Request").get();
+            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text").filter(`RequestId eq ${requestId}`).expand("Request").orderBy("Modified", false).get();
             return notes.map(spNote => {
                 return {
                     Id: spNote.Id,
                     Title: spNote.Title,
                     Text: spNote.Text,
+                    Modified: moment(spNote.Modified),
                     RequestId: spNote.Request.Id,
                     "odata.etag": spNote.__metadata.etag
                 }
@@ -77,6 +83,7 @@ export class NotesApi implements INotesApi {
                 Id: returnedNote.Id,
                 Title: returnedNote.Title,
                 Text: returnedNote.Text,
+                Modified: moment(returnedNote.Modified),
                 RequestId: returnedNote.RequestId,
                 "odata.etag": returnedNote.__metadata.etag
             }
@@ -145,18 +152,21 @@ export class NotesApiDev implements INotesApi {
         Id: 1,
         Title: "Super Note",
         Text: "This is a very important note, everyone must know about the ramifications of this note.",
+        Modified: moment(),
         RequestId: 1,
         "odata.etag": "1"
     }, {
         Id: 2,
         Title: "Less Super Important Note",
         Text: "This is a less important note, everyone should still know about the ramifications of this note.",
+        Modified: moment().subtract(1, 'day'),
         RequestId: 1,
         "odata.etag": "1"
     }, {
         Id: 3,
         Title: "Not Important Note",
         Text: "No one cares about this note.",
+        Modified: moment().subtract(2, 'day'),
         RequestId: 1,
         "odata.etag": "1"
     }];
@@ -172,16 +182,19 @@ export class NotesApiDev implements INotesApi {
         await this.sleep();
         let note = {
             Id: ++this.maxId,
+            Modified: moment(),
             ...newNote,
             "odata.etag": "1"
         }
-        this.notesList.push(note);
+        this.notesList.unshift(note);
         return note;
     }
-    
+
     async updateNote(note: INote): Promise<INote> {
         await this.sleep();
-        this.notesList[this.notesList.findIndex(n => n.Id === note.Id)] = note;
+        note.Modified = moment();
+        this.notesList = this.notesList.filter(n => n.Id !== note.Id);
+        this.notesList.unshift(note);
         return note;
     }
 

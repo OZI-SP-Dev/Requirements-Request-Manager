@@ -150,7 +150,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                 </Row>
                 <Card className="notes-card">
                     {props.notes.notes.map(note =>
-                        <Col className="mt-3 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
+                        <Col key={note.Id} className="mt-3 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
                             <NoteCard note={note} editOnClick={() => props.editNoteOnClick(note)} deleteNote={props.notes.deleteNote} />
                         </Col>
                     )}

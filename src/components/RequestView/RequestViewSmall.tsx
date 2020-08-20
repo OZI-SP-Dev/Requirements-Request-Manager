@@ -142,7 +142,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
             </Col>
             <Row className="m-3 notes-row">
                 {props.notes.notes.map(note =>
-                    <Col className="mt-3 mb-3" xl="4" lg="6" md="12" sm="12" xs="12">
+                    <Col key={note.Id} className="mt-3 mb-3" xl="4" lg="6" md="12" sm="12" xs="12">
                         <NoteCard note={note} editOnClick={() => props.editNoteOnClick(note)} deleteNote={props.notes.deleteNote} />
                     </Col>
                 )}

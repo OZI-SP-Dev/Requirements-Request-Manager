@@ -97,7 +97,9 @@ export function useNotes(requestId?: number): INotes {
             validateNewNote(note.Title, note.Text);
             let updatedNote = await notesApi.updateNote(note);
             let allNotes = notes;
-            allNotes[allNotes.findIndex(n => n.Id === note.Id)] = updatedNote;
+            allNotes = allNotes.filter(n => n.Id !== updatedNote.Id);
+            allNotes.unshift(updatedNote);
+            setNotes(allNotes);
             return updatedNote;
         } catch (e) {
             console.error(`Error trying to update Note for Request ${requestId}`);
