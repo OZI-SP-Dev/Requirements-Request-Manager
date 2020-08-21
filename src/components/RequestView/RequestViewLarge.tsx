@@ -8,9 +8,23 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
 
     const notesEmpty = props.notes.notes.length === 0;
 
+    const getColSize = (displaySize: "xl" | "lg" | "md" | "sm" | "xs") => {
+        if (displaySize === "xl" || displaySize === "lg") {
+            if (!notesEmpty) {
+                return 8;
+            } else if (props.notesEditable) {
+                return 10;
+            } else {
+                return 12;
+            }
+        } else {
+            return 12;
+        }
+    }
+
     return (
         <Row>
-            <Col xl={notesEmpty ? "10" : "8"} lg={notesEmpty ? "10" : "8"} md="12" sm="12" xs="12">
+            <Col xl={getColSize("xl")} lg={getColSize("lg")} md={getColSize("md")} sm={getColSize("sm")} xs={getColSize("xs")}>
                 <Row className="ml-2 mr-2 mt-2 view-form">
                     <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
                         <strong>Request Title: </strong>
@@ -142,20 +156,27 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                 </Row>
             </Col>
-            <Col xl={notesEmpty ? "2" : "4"} lg={notesEmpty ? "2" : "4"} md="12" sm="12" xs="12">
-                <Row>
-                    <Col>
-                        <Button className="notes-button m-3 float-right" onClick={() => props.editNoteOnClick()}>New Note</Button>
-                    </Col>
-                </Row>
-                <Card className="notes-card">
-                    {props.notes.notes.map(note =>
-                        <Col key={note.Id} className="mt-3 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
-                            <NoteCard note={note} editOnClick={() => props.editNoteOnClick(note)} deleteNote={props.notes.deleteNote} />
-                        </Col>
-                    )}
-                </Card>
-            </Col>
+            {(!notesEmpty || props.notesEditable) && // don't have column if there's nothing to display
+                <Col xl={notesEmpty ? "2" : "4"} lg={notesEmpty ? "2" : "4"} md="12" sm="12" xs="12">
+                    {props.notesEditable &&
+                        <Row>
+                            <Col>
+                                <Button className="notes-button m-3 float-right" onClick={() => props.editNoteOnClick()}>New Note</Button>
+                            </Col>
+                        </Row>
+                    }
+                    <Card className="notes-card">
+                        {props.notes.notes.map(note =>
+                            <Col key={note.Id} className="mt-3 mb-3">
+                                <NoteCard
+                                    note={note}
+                                    editable={props.notesEditable}
+                                    editOnClick={() => props.editNoteOnClick(note)}
+                                    deleteNote={props.notes.deleteNote} />
+                            </Col>
+                        )}
+                    </Card>
+                </Col>}
         </Row>
     )
 

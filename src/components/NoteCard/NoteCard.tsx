@@ -6,6 +6,7 @@ import './NoteCard.css'
 
 export interface INoteCardProps {
     note: INote,
+    editable: boolean,
     editOnClick: () => void,
     deleteNote: (note: INote) => Promise<void>
 }
@@ -16,8 +17,10 @@ export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
 
     const deleteNote = async () => {
         try {
-            setDeleting(true);
-            await props.deleteNote(props.note);
+            if (props.editable) {
+                setDeleting(true);
+                await props.deleteNote(props.note);
+            }
         } finally {
             setDeleting(false);
         }
@@ -27,19 +30,21 @@ export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
         <Card className="note">
             <Card.Header className="note-header">{props.note.Title}</Card.Header>
             <Card.Body><p className="preserve-whitespace">{props.note.Text}</p></Card.Body>
-            <Card.Footer>
-                <Button
-                    variant="outline-danger"
-                    className="float-left"
-                    onClick={deleteNote}
-                >
-                    {deleting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                    {' '}{"Delete"}
+            {props.editable &&
+                <Card.Footer>
+                    <Button
+                        variant="outline-danger"
+                        className="float-left"
+                        onClick={deleteNote}
+                    >
+                        {deleting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                        {' '}{"Delete"}
+                    </Button>
+                    <Button className="notes-button float-right" onClick={props.editOnClick}>
+                        Edit
                 </Button>
-                <Button className="notes-button float-right" onClick={props.editOnClick}>
-                    Edit
-                </Button>
-            </Card.Footer>
+                </Card.Footer>
+            }
         </Card>
     );
 

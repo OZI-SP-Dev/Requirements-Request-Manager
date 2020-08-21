@@ -5,6 +5,7 @@ import { InternalError } from "../api/InternalErrors";
 import { RoleType } from "../api/RolesApi";
 import { IPerson } from "../api/UserApi";
 import { useRoles } from "./useRoles";
+import { INote } from "../api/NotesApi";
 
 export interface IEmailSender {
     sending: boolean,
@@ -12,7 +13,8 @@ export interface IEmailSender {
     clearError: () => void,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>,
     sendSubmitEmail: (request: IRequirementsRequest) => Promise<void>,
-    sendApprovalEmail: (request: IRequirementsRequest) => Promise<void>
+    sendApprovalEmail: (request: IRequirementsRequest) => Promise<void>,
+    sendNoteEmail: (request: IRequirementsRequest, note: INote) => Promise<void>
 }
 
 export function useEmail(): IEmailSender {
@@ -89,12 +91,27 @@ export function useEmail(): IEmailSender {
         return sendEmail(to, subject, body);
     }
 
+    const sendNoteEmail = async (request: IRequirementsRequest, note: INote): Promise<void> => {
+        let to = [request.ApprovingPEO, request.Requester];
+        let subject = `Note Added for Request ${request.Id}`;
+        let body = `Hello, a note has been added to your requirements request ${request.Title}
+
+            The note is:
+            <h4>${note.Title}</h4>
+            <p>${note.Text}</p>
+            
+            To review the request/note, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
+
+        return sendEmail(to, subject, body);
+    }
+
     return {
         sending,
         error,
         clearError,
         sendEmail,
         sendSubmitEmail,
-        sendApprovalEmail
+        sendApprovalEmail,
+        sendNoteEmail
     }
 }

@@ -10,19 +10,20 @@ export interface INoteModalProps {
     error: string,
     clearError: () => void,
     handleClose: () => void,
-    submitNote: (title: string, text: string) => Promise<any>
+    submitNote: (title: string, text: string, notifyUsers: boolean) => Promise<any>
 }
 
 export const NoteModal: FunctionComponent<INoteModalProps> = (props) => {
 
     const [noteTitle, setNoteTitle] = useState<string>(props.note ? props.note.Title : "");
     const [noteBody, setNoteBody] = useState<string>(props.note ? props.note.Text : "");
+    const [notifyUsers, setNotifyUsers] = useState(false);
     const [saving, setSaving] = useState(false);
 
     const submitNote = async () => {
         try {
             setSaving(true);
-            await props.submitNote(noteTitle, noteBody);
+            await props.submitNote(noteTitle, noteBody, notifyUsers);
             setNoteTitle("");
             setNoteBody("");
             props.handleClose();
@@ -69,6 +70,10 @@ export const NoteModal: FunctionComponent<INoteModalProps> = (props) => {
                                 onChange={e => setNoteBody(e.target.value)}
                             />
                         </Form.Group>
+                        <Form.Check inline label="Notify Users?" type="checkbox" id="enterprise-checkbox"
+                            checked={notifyUsers}
+                            onChange={() => setNotifyUsers(!notifyUsers)}
+                        />
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
