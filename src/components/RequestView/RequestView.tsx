@@ -43,7 +43,9 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     const submitNote = async (title: string, text: string, notifyUsers: boolean) => {
         let newNote = editNote ? await notes.updateNote({ ...editNote, Title: title, Text: text }) : await notes.submitNewNote(title, text);
-        await email.sendNoteEmail(request, newNote);
+        if (notifyUsers) {
+            await email.sendNoteEmail(request, newNote);
+        }
         return newNote;
     }
 

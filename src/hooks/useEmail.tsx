@@ -97,8 +97,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, a note has been added to your requirements request ${request.Title}
 
             The note is:
-            <h4>${note.Title}</h4>
-            <p>${note.Text}</p>
+            <h4>${note.Title}</h4><p>"${note.Text}"</p>
             
             To review the request/note, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
 

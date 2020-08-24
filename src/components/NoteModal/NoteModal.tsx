@@ -26,6 +26,7 @@ export const NoteModal: FunctionComponent<INoteModalProps> = (props) => {
             await props.submitNote(noteTitle, noteBody, notifyUsers);
             setNoteTitle("");
             setNoteBody("");
+            setNotifyUsers(false);
             props.handleClose();
         } finally {
             setSaving(false);
@@ -41,6 +42,7 @@ export const NoteModal: FunctionComponent<INoteModalProps> = (props) => {
             setNoteTitle('');
             setNoteBody('');
         }
+        setNotifyUsers(false);
     }, [props.note])
 
     return (
