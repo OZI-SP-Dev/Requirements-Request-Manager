@@ -2,6 +2,7 @@ import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { spWebContext } from "../providers/SPWebContext";
 import { ApiError, InternalError } from './InternalErrors';
 import { IRolesApi, RolesApiConfig, RoleType } from './RolesApi';
+import { TestImages } from '@uifabric/example-data';
 
 export interface IPerson extends IPersonaProps {
     Id: number,
@@ -144,7 +145,8 @@ export class UserApiDev implements IUserApi {
         return new Person({
             Id: 1,
             Title: "Default User",
-            EMail: "me@example.com"
+            EMail: "me@example.com",
+            imageUrl: TestImages.personaMale
         })
     };
 
