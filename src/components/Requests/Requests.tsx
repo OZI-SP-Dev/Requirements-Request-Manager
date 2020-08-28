@@ -1,20 +1,20 @@
 import React, { useContext, useState } from "react";
-import { Accordion, Button, Col, Container, Row, Spinner, Table, FormCheck } from "react-bootstrap";
+import { Accordion, Button, Col, Container, FormCheck, Row, Spinner, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
-import { UserContext } from "../../providers/UserProvider";
-import { RequestView } from "../RequestView/RequestView";
-import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import { IRequests } from "../../hooks/useRequests";
+import { UserContext } from "../../providers/UserProvider";
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
+import { RequestView } from "../RequestView/RequestView";
 
 export interface IRequestsProps {
-    requests: IRequests,
-    deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
+    requests: IRequests
 }
 
 export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
     const [deleting, setDeleting] = useState<boolean>(false);
+    const [requestIdShown, setRequestIdShown] = useState<number>(-1);
 
     const { user, roles } = useContext(UserContext);
 
@@ -25,10 +25,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     const deleteRequest = async (request: IRequirementsRequestCRUD) => {
         try {
             setDeleting(true);
-            await props.deleteRequest(request);
-        } catch (e) {
-            console.error("Error while deleting request from Requests page!");
-            console.error(e);
+            await props.requests.deleteRequest(request);
         } finally {
             setDeleting(false);
         }
@@ -69,7 +66,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 <Accordion as='tbody'>
                     {props.requests.requestsList.map(request =>
                         <React.Fragment key={request.Id}>
-                            <Accordion.Toggle eventKey={request.Id.toString()} as='tr' role="button">
+                            <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button">
                                 <td>{request.Title}</td>
                                 <td>{request.Requester.Title}</td>
                                 <td>{request.RequestDate.format("DD MMM YYYY")}</td>
@@ -83,7 +80,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 <td colSpan={7} className="p-0">
                                     <Accordion.Collapse eventKey={request.Id.toString()}>
                                         <div className="p-1">
-                                            <RequestView request={request} />
+                                            <RequestView request={request} loadNotes={requestIdShown === request.Id} size="sm" />
                                             <Row className="ml-2 mr-2">
                                                 <Col xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     {!request.isReadOnly(user, roles) &&

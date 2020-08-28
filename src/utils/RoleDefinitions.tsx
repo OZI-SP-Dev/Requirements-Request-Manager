@@ -21,4 +21,8 @@ export class RoleDefinitions {
     static userCanEditOtherUsersRequests(roles?: RoleType[]): boolean {
         return this.userIsManager(roles);
     }
+
+    static userCanEditNotes(roles?: RoleType[]): boolean {
+        return this.userIsManager(roles);
+    }
 }

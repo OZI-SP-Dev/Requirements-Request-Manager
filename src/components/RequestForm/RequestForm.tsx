@@ -1,6 +1,6 @@
 import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { Alert, Button, Col, Container, Form, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
@@ -9,6 +9,7 @@ import { UserContext } from "../../providers/UserProvider";
 import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
+import { DismissableErrorAlert } from "../DismissableErrorAlert/DismissableErrorAlert";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import './RequestForm.css';
@@ -596,19 +597,11 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Link>
             </Form>
             <RequestSpinner show={saving} displayText="Saving Request..." />
-            {error &&
-                <Col className="mt-3 fixed-top"
-                    xl={{ span: 6, offset: 3 }}
-                    lg={{ span: 6, offset: 3 }}
-                    md={{ span: 8, offset: 2 }}
-                    sm={{ span: 10, offset: 1 }}
-                    xs={12}
-                >
-                    <Alert variant="danger" onClose={() => setError("")} dismissible>
-                        <Alert.Heading>Error Submitting!</Alert.Heading>
-                        <p>{error}</p>
-                    </Alert>
-                </Col>
-            }
+            <DismissableErrorAlert
+                show={error !== undefined && error !== ""}
+                header="Error Submitting!"
+                message={error}
+                onClose={() => setError("")}
+            />
         </Container>);
 }

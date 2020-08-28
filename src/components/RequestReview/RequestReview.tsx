@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
-import { IRequirementsRequestCRUD, RequirementsRequest, IRequirementsRequest } from "../../api/DomainObjects";
+import { IRequirementsRequest, IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
-import { RequestView } from "../RequestView/RequestView";
 import "./RequestReview.css";
+import { RequestView } from "../RequestView/RequestView";
 
 
 export interface IRequestReviewProps {
@@ -81,7 +81,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     return (
         <Container fluid="md" className="pb-5 pt-3">
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
-            <RequestView request={request} />
+            <RequestView request={request} loadNotes size="lg" />
             <hr />
             {userCanReview &&
                 <Form>

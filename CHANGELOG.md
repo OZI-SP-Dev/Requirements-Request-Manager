@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.11] 2020-08-24
+### Added
+- Notes SP List for tracking Notes added to a Request
+- Ability for users with the Manager role to add/edit/delete Notes
+- Note Cards to Request views
+- Option to send email notifying users that a Note has been added to their Request
+
 ## [0.1.10] 2020-08-12
 ### Added
 - Emails are now sent when a request is submitted and approved

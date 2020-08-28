@@ -5,3 +5,13 @@
 .view-form {
     text-align: left;
 }
+
+.notes-card {
+    max-height: 35em;
+    overflow: auto;
+    border: hidden
+}
+
+.notes-row {
+    width: -webkit-fill-available;
+}
