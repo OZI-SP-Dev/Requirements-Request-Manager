@@ -101,6 +101,11 @@ export interface IRequirementsRequestCRUD extends IRequirementsRequest {
      * @returns true if this RequirementsRequest is read-only or not
      */
     isReadOnly: (user?: IPerson, roles?: RoleType[]) => boolean
+
+    /**
+     * Returns a more human readable format for the ID rather than just a number.
+     */
+    getFormattedId: () => string
 }
 
 const blankRequest: IRequirementsRequest = {
@@ -236,5 +241,17 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         let userIsApprover = user?.Id === this.ApprovingPEO.Id;
         let userHasPermissions = RoleDefinitions.userCanEditOtherUsersRequests(roles);
         return requestIsApproved || (!userIsRequester && !userIsApprover && !userHasPermissions);
+    }
+
+    getFormattedId = (): string => {
+        if (this.Id < 0) {
+            return "None";
+        } else if (this.Id < 10) {
+            return `OZI00${this.Id}`;
+        } else if (this.Id < 100) {
+            return `OZI0${this.Id}`;
+        } else {
+            return `OZI${this.Id}`;
+        }
     }
 }

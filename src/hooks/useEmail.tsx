@@ -1,20 +1,20 @@
 import { useState } from "react";
-import { ApplicationTypes, IRequirementsRequest } from "../api/DomainObjects";
+import { ApplicationTypes, IRequirementsRequestCRUD } from "../api/DomainObjects";
 import { EmailApiConfig } from "../api/EmailApi";
 import { InternalError } from "../api/InternalErrors";
+import { INote } from "../api/NotesApi";
 import { RoleType } from "../api/RolesApi";
 import { IPerson } from "../api/UserApi";
 import { useRoles } from "./useRoles";
-import { INote } from "../api/NotesApi";
 
 export interface IEmailSender {
     sending: boolean,
     error: string,
     clearError: () => void,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>,
-    sendSubmitEmail: (request: IRequirementsRequest) => Promise<void>,
-    sendApprovalEmail: (request: IRequirementsRequest) => Promise<void>,
-    sendNoteEmail: (request: IRequirementsRequest, note: INote) => Promise<void>
+    sendSubmitEmail: (request: IRequirementsRequestCRUD) => Promise<void>,
+    sendApprovalEmail: (request: IRequirementsRequestCRUD) => Promise<void>,
+    sendNoteEmail: (request: IRequirementsRequestCRUD, note: INote) => Promise<void>
 }
 
 export function useEmail(): IEmailSender {
@@ -66,9 +66,9 @@ export function useEmail(): IEmailSender {
         }
     }
 
-    const sendSubmitEmail = async (request: IRequirementsRequest): Promise<void> => {
+    const sendSubmitEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
         let to = [request.ApprovingPEO];
-        let subject = `Request ${request.Id} Submitted`;
+        let subject = `Request ${request.getFormattedId()} Submitted`;
         let body = `Hello, a requirements request has been submitted for which you are the approving official by ${request.Requester.Title}.
             
             To review/approve the request, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
@@ -77,13 +77,13 @@ export function useEmail(): IEmailSender {
         return sendEmail(to, subject, body, cc);
     }
 
-    const sendApprovalEmail = async (request: IRequirementsRequest): Promise<void> => {
+    const sendApprovalEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
         let to = getManagers();
         if (request.ApprovingPEO.Id !== request.Requester.Id) {
             to.push(request.Requester);
         }
-        let subject = `Request ${request.Id} Approved`;
-        let body = `Hello, requirements request ${request.Id} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.ApprovingPEO.Title}.
+        let subject = `Request ${request.getFormattedId()} Approved`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.ApprovingPEO.Title}.
         ${request.PEOApprovedComment ? `The approver left a comment saying "${request.PEOApprovedComment}"` : ''}
         
         To view the request and any comments/modifications left by the approver, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/View/${request.Id}">here</a>.`;
@@ -91,9 +91,9 @@ export function useEmail(): IEmailSender {
         return sendEmail(to, subject, body);
     }
 
-    const sendNoteEmail = async (request: IRequirementsRequest, note: INote): Promise<void> => {
+    const sendNoteEmail = async (request: IRequirementsRequestCRUD, note: INote): Promise<void> => {
         let to = [request.ApprovingPEO, request.Requester];
-        let subject = `Note Added for Request ${request.Id}`;
+        let subject = `Note Added for Request ${request.getFormattedId()}`;
         let body = `Hello, a note has been added to your requirements request ${request.Title}
 
             The note is:
