@@ -40,7 +40,7 @@ export class RequestValidation {
         if (new RegExp("[^0-9]").exec(field)) {
             return "Only numeric values should be used!";
         } else if (field.length < 10) {
-            return "Please enter the full phone number, includig area code!";
+            return "Please enter the full phone number, including area code!";
         } else if (field.length > 10) {
             return "Too many numbers given, please use a 10 digit phone number!";
         } else {
