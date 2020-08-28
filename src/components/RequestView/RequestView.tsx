@@ -1,26 +1,26 @@
-import React, { FunctionComponent, useEffect, useState, useContext } from "react";
+import React, { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Row } from "react-bootstrap";
-import { IRequirementsRequest, RequirementsRequest } from "../../api/DomainObjects";
+import { IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
 import { INote } from '../../api/NotesApi';
+import { IEmailSender, useEmail } from "../../hooks/useEmail";
 import { INotes, useNotes } from "../../hooks/useNotes";
+import { UserContext } from "../../providers/UserProvider";
+import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { DismissableErrorAlert } from "../DismissableErrorAlert/DismissableErrorAlert";
 import { NoteModal } from '../NoteModal/NoteModal';
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import "./RequestView.css";
 import { RequestViewLarge } from "./RequestViewLarge";
 import { RequestViewSmall } from "./RequestViewSmall";
-import { UserContext } from "../../providers/UserProvider";
-import { RoleDefinitions } from "../../utils/RoleDefinitions";
-import { IEmailSender, useEmail } from "../../hooks/useEmail";
 
 export interface IRequestViewProps {
-    request?: IRequirementsRequest,
+    request?: IRequirementsRequestCRUD,
     loadNotes: boolean,
     size: "lg" | "sm"
 }
 
 export interface IRequestViewChildProps {
-    request: IRequirementsRequest,
+    request: IRequirementsRequestCRUD,
     notes: INotes,
     notesEditable: boolean,
     editNoteOnClick: (note?: INote) => void
@@ -28,7 +28,7 @@ export interface IRequestViewChildProps {
 
 export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
-    const [request, setRequest] = useState<IRequirementsRequest>(props.request ? props.request : new RequirementsRequest());
+    const [request, setRequest] = useState<IRequirementsRequestCRUD>(props.request ? props.request : new RequirementsRequest());
     const [showNoteModal, setShowNoteModal] = useState<boolean>(false);
     const [editNote, setEditNote] = useState<INote>();
 

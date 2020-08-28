@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.12] 2020-08-28
+### Added
+- A formatted ID to show to the user to help them refer more easily to different requests
+
+### Changed
+- Consolidated the Requests details view on the Requests table so that users only see quick/useful information there and they can go to the full view if they need more info
+
 ## [0.1.11] 2020-08-24
 ### Added
 - Notes SP List for tracking Notes added to a Request

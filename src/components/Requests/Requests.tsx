@@ -54,6 +54,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
             <Table bordered hover responsive>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Title</th>
                         <th>Requester</th>
                         <th>Request Date</th>
@@ -67,6 +68,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     {props.requests.requestsList.map(request =>
                         <React.Fragment key={request.Id}>
                             <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button">
+                                <td>{request.getFormattedId()}</td>
                                 <td>{request.Title}</td>
                                 <td>{request.Requester.Title}</td>
                                 <td>{request.RequestDate.format("DD MMM YYYY")}</td>
@@ -77,7 +79,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 <td>{request.PEOApprovedDateTime ? request.PEOApprovedDateTime.format("DD MMM YYYY") : "None"}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
-                                <td colSpan={7} className="p-0">
+                                <td colSpan={8} className="p-0">
                                     <Accordion.Collapse eventKey={request.Id.toString()}>
                                         <div className="p-1">
                                             <RequestView request={request} loadNotes={requestIdShown === request.Id} size="sm" />

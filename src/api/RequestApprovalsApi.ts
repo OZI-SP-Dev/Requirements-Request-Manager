@@ -348,7 +348,7 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 ReceivedDate: moment(),
                 Requester: new Person({
                     Id: 1,
-                    Title: "Jeremy Clark",
+                    Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
                     EMail: "jeremyclark@superemail.com"
                 }),
                 RequesterOrgSymbol: "OZIC",
@@ -356,7 +356,7 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 RequesterCommPhone: "1234567890",
                 ApprovingPEO: new Person({
                     Id: 2,
-                    Title: "Robert Porterfield",
+                    Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
                     EMail: "robertporterfield@superemail.com"
                 }),
                 PEOApprovedDateTime: moment(),
@@ -394,7 +394,7 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 ReceivedDate: moment(),
                 Requester: new Person({
                     Id: 2,
-                    Title: "Robert Porterfield",
+                    Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
                     EMail: "robertporterfield@superemail.com"
                 }),
                 RequesterOrgSymbol: "OZIC",
@@ -402,7 +402,7 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 RequesterCommPhone: "1234567890",
                 ApprovingPEO: new Person({
                     Id: 1,
-                    Title: "Jeremy Clark",
+                    Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
                     EMail: "jeremyclark@superemail.com"
                 }),
                 PEOApprovedDateTime: null,

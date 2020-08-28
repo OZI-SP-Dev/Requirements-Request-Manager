@@ -15,3 +15,7 @@
 .notes-row {
     width: -webkit-fill-available;
 }
+
+.clickable {
+    cursor: pointer;
+}

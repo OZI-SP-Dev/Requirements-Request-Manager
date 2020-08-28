@@ -1,3 +1,4 @@
+import { Persona, PersonaSize } from 'office-ui-fabric-react/lib/Persona';
 import React, { useContext } from "react";
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -46,6 +47,10 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                         <LinkContainer to="/RoleManagement">
                             <Nav.Link>Admin</Nav.Link>
                         </LinkContainer>}
+                </Nav>
+                <Nav className="justify-content-end">
+                    <Persona className="mr-2 d-none d-md-inline-block" {...userContext.user} hidePersonaDetails size={PersonaSize.size32} />
+                    <span className="user-title mr-2">{userContext.user?.Title}</span>
                 </Nav>
             </Navbar.Collapse>
         </Navbar >

@@ -53,3 +53,8 @@
   .link-button:focus {
   text-decoration: none;
   }
+
+  .user-title {
+    align-self: center;
+    color: white;
+  }
