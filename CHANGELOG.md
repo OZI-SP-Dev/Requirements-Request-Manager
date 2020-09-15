@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.13] 2020-09-15
+### Fixed
+- Bug that prevented a normal user from changing the Requester of a Request that they created
+- Bug that incorrectly made a request read-only if you loaded directly into an edit request page
+
 ## [0.1.12] 2020-08-28
 ### Added
 - A formatted ID to show to the user to help them refer more easily to different requests

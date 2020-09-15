@@ -60,6 +60,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }, [props.editRequestId]);
 
     useEffect(() => {
+        setReadOnly(request.isReadOnly(userContext.user, userContext.roles));
         // only update the requester if this is a new request
         if (request.Id < 0) {
             updateRequest('Requester', userContext.user ? userContext.user : new Person({ Id: -1, Title: "Loading User", EMail: "" }));
