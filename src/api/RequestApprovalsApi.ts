@@ -110,7 +110,7 @@ export interface IRequestApprovalsApi {
      * 
      * @returns An IRequestApproval if one is found for the given params or undefined/null otherwise
      */
-    getRequestApproval(requestId: number, approverId: number): Promise<IRequestApproval | undefined>
+    getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined>
 
     /**
      * This should be used to get a bulk number of IRequestApprovals, and will
@@ -118,7 +118,7 @@ export interface IRequestApprovalsApi {
      * 
      * @param requestIds The list of Ids of the requests whose approvals are being searched for
      */
-    getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]>
+    getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]>
 
     /**
      * Submit an approval for a Request
@@ -136,36 +136,40 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     requestApprovalsList = spWebContext.lists.getByTitle("RequestApprovals");
     userApi: IUserApi = UserApiConfig.getApi();
 
-    async getRequestApproval(requestId: number, approverId: number): Promise<IRequestApproval | undefined> {
+    async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         try {
-            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${requestId} and AuthorId eq ${approverId}`).expand("Request", "Requester", "ApprovingPEO").get())[0];
-            return requestApproval ? this.spApprovalToRequestApproval(requestApproval) : undefined;
+            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.ApprovingPEO.Id}`).expand("Request", "Requester", "ApprovingPEO").get())[0];
+            return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request.Author) : undefined;
         } catch (e) {
-            console.error(`Error occurred while trying to fetch Approval for Request with ID ${requestId}`);
+            console.error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
             console.error(e);
             if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to fetch Approval for Request with ID ${requestId}: ${e.message}`);
+                throw new ApiError(e, `Error occurred while trying to fetch Approval for Request with ID ${request.Id}: ${e.message}`);
             } else if (typeof (e) === "string") {
-                throw new ApiError(new Error(`Error occurred while trying to fetch Approval for Request with ID ${requestId}: ${e}`));
+                throw new ApiError(new Error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}: ${e}`));
             } else {
-                throw new ApiError(undefined, `Unknown error occurred while trying to fetch Approval for Request with ID ${requestId}`);
+                throw new ApiError(undefined, `Unknown error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
             }
         }
     }
 
-    async getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]> {
+    async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         try {
             let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "ApprovingPEO").getPaged();
             let approvals: SPRequestApproval[] = pages.results;
             while (pages.hasNext) {
                 approvals = approvals.concat((await pages.getNext()).results);
             }
-            return approvals
-                .filter(approval =>
-                    requests.findIndex(request => request.requestId === approval.Request.Id && request.approverId === approval.AuthorId) > -1)
-                .map(approval => this.spApprovalToRequestApproval(approval))
+            let requestApprovals: IRequestApproval[] = [];
+            for (let approval of approvals) {
+                let request = requests.find(req => req.Id === approval.Request.Id && req.ApprovingPEO.Id === approval.AuthorId);
+                if (request) {
+                    requestApprovals.push(this.spApprovalToRequestApproval(approval, request.Author));
+                }
+            }
+            return requestApprovals;
         } catch (e) {
-            let requestIds = requests.map((req, i) => `${req.requestId}${i < requests.length - 1 ? ", " : ""}`);
+            let requestIds = requests.map((req, i) => `${req.Id}${i < requests.length - 1 ? ", " : ""}`);
             console.error(`Error occurred while trying to fetch Approvals for Requests with IDs in [${requestIds}]`);
             console.error(e);
             if (e instanceof Error) {
@@ -242,7 +246,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
         }
     }
 
-    private spApprovalToRequestApproval(spApproval: SPRequestApproval): IRequestApproval {
+    private spApprovalToRequestApproval(spApproval: SPRequestApproval, requestAuthor: IPerson): IRequestApproval {
         return {
             Id: spApproval.Id,
             Comment: spApproval.Title,
@@ -253,6 +257,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 Title: spApproval.RequestTitle,
                 RequestDate: moment(spApproval.RequestDate),
                 ReceivedDate: spApproval.ReceivedDate ? moment(spApproval.ReceivedDate) : null,
+                Author: requestAuthor,
                 Requester: new Person(spApproval.Requester),
                 RequesterOrgSymbol: spApproval.RequesterOrgSymbol,
                 RequesterDSNPhone: spApproval.RequesterDSNPhone,
@@ -295,6 +300,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 Title: requestApproval.RequestTitle,
                 RequestDate: moment(requestApproval.RequestDate),
                 ReceivedDate: requestApproval.ReceivedDate ? moment(requestApproval.ReceivedDate) : null,
+                Author: submittedRequest.Author,
                 Requester: submittedRequest.Requester,
                 RequesterOrgSymbol: requestApproval.RequesterOrgSymbol,
                 RequesterDSNPhone: requestApproval.RequesterDSNPhone,
@@ -346,6 +352,11 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 Title: "New Title, Overwriting the Base Title",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
+                Author: new Person({
+                    Id: 1,
+                    Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
+                    EMail: "jeremyclark@superemail.com"
+                }),
                 Requester: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
@@ -392,6 +403,11 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 Title: "Shouldn't appear",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
+                Author: new Person({
+                    Id: 2,
+                    Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
+                    EMail: "robertporterfield@superemail.com"
+                }),
                 Requester: new Person({
                     Id: 2,
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
@@ -437,9 +453,9 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         return new Promise(r => setTimeout(r, 1500));
     }
 
-    async getRequestApproval(requestId: number, approverId: number): Promise<IRequestApproval | undefined> {
+    async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         await this.sleep();
-        let approval = this.approvals.find(approval => approval.Request.Id === requestId && approval.AuthorId === approverId);
+        let approval = this.approvals.find(approval => approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id);
         if (approval) {
             approval.Request.PEOApprovedDateTime = approval.Created;
             approval.Request.PEOApprovedComment = approval.Comment;
@@ -447,10 +463,10 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         return approval;
     }
 
-    async getRequestApprovals(requests: { requestId: number, approverId: number }[]): Promise<IRequestApproval[]> {
+    async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         await this.sleep();
         return this.approvals.filter(approval =>
-            requests.findIndex(request => request.requestId === approval.Request.Id && request.approverId === approval.AuthorId) > -1)
+            requests.findIndex(request => request.Id === approval.Request.Id && request.ApprovingPEO.Id === approval.AuthorId) > -1)
             .map(approval => {
                 return {
                     ...approval,

@@ -44,6 +44,7 @@ export interface IRequirementsRequest {
     Title: string,
     RequestDate: Moment,
     ReceivedDate: Moment | null,
+    Author: IPerson,
     Requester: IPerson,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
@@ -113,6 +114,7 @@ const blankRequest: IRequirementsRequest = {
     Title: "",
     RequestDate: moment(),
     ReceivedDate: null,
+    Author: new Person(),
     Requester: new Person(),
     RequesterOrgSymbol: "",
     RequesterDSNPhone: "",
@@ -156,6 +158,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Title: string;
     RequestDate: Moment;
     ReceivedDate: Moment | null;
+    Author: IPerson;
     Requester: IPerson;
     RequesterOrgSymbol: string;
     RequesterDSNPhone: string;
@@ -192,6 +195,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this.Title = request.Title;
         this.RequestDate = request.RequestDate;
         this.ReceivedDate = request.ReceivedDate;
+        this.Author = request.Author;
         this.Requester = request.Requester;
         this.RequesterOrgSymbol = request.RequesterOrgSymbol;
         this.RequesterDSNPhone = request.RequesterDSNPhone;
@@ -237,10 +241,11 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {
         let requestIsApproved = this.PEOApprovedDateTime !== null;
+        let userIsAuthor = user?.Id === this.Author.Id;
         let userIsRequester = user?.Id === this.Requester.Id;
         let userIsApprover = user?.Id === this.ApprovingPEO.Id;
         let userHasPermissions = RoleDefinitions.userCanEditOtherUsersRequests(roles);
-        return requestIsApproved || (!userIsRequester && !userIsApprover && !userHasPermissions);
+        return requestIsApproved || (!userIsAuthor && !userIsRequester && !userIsApprover && !userHasPermissions);
     }
 
     getFormattedId = (): string => {

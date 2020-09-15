@@ -55,6 +55,7 @@ interface SPRequirementsRequest {
     Title: string,
     RequestDate: string,
     ReceivedDate: string,
+    Author: IPerson,
     Requester: IPerson,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
@@ -161,6 +162,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Title: request.Title,
             RequestDate: moment(request.RequestDate),
             ReceivedDate: request.ReceivedDate ? moment(request.ReceivedDate) : null,
+            Author: new Person(request.Author),
             Requester: new Person(request.Requester),
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
@@ -193,8 +195,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD> {
         try {
-            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO").get();
-            let approval = await this.requestApprovalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "ApprovingPEO").get();
+            let approval = await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request));
             // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
             return new RequirementsRequest(this.getIRequirementsRequest(request, approval));
         } catch (e) {
@@ -215,7 +217,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
             // TODO: Change this so that it filters on IsDeleted: false
-            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Requester", "ApprovingPEO");
+            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "ApprovingPEO");
 
             if (userId !== undefined) {
                 query = query.filter(`AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId}`);
@@ -226,9 +228,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             while (pagedRequests.hasNext) {
                 requests = requests.concat((await pagedRequests.getNext()).results);
             }
-            let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => {
-                return { requestId: request.Id, approverId: request.ApprovingPEO.Id }
-            }));
+            let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => this.getIRequirementsRequest(request)));
             let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
             for (let request of requests) {
                 requirementRequestCRUDs.push(new RequirementsRequest(

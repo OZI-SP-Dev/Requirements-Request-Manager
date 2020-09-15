@@ -18,6 +18,11 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Title: "Test1",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
+                Author: new Person({
+                    Id: 1,
+                    Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
+                    EMail: "jeremyclark@superemail.com"
+                }),
                 Requester: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
@@ -59,6 +64,11 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Title: "Test2",
                 RequestDate: moment(),
                 ReceivedDate: moment(),
+                Author: new Person({
+                    Id: 1,
+                    Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
+                    EMail: "jeremyclark@superemail.com"
+                }),
                 Requester: new Person({
                     Id: 2,
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
@@ -108,7 +118,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         await this.sleep();
         let request = this.requests.find(request => request.Id === Id);
         if (request) {
-            let approval = await this.approvalsApi.getRequestApproval(request.Id, request.ApprovingPEO.Id);
+            let approval = await this.approvalsApi.getRequestApproval(request);
             request = new RequirementsRequest(approval ? approval.Request : request);
         }
         return request;
@@ -116,9 +126,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         await this.sleep();
-        let approvals = await this.approvalsApi.getRequestApprovals(this.requests.map(req => {
-            return { requestId: req.Id, approverId: req.ApprovingPEO.Id }
-        }));
+        let approvals = await this.approvalsApi.getRequestApprovals(this.requests);
         let requests = this.requests.map(req => {
             let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.ApprovingPEO.Id);
             return new RequirementsRequest(approval ? approval.Request : req);
