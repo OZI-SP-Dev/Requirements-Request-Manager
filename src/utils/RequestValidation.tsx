@@ -60,7 +60,7 @@ export class RequestValidation {
         }
     }
 
-    static getValidation(request: IRequirementsRequest, isFunded: boolean): IRequestValidation {
+    static getValidation(request: IRequirementsRequest, isFunded: boolean, oldRequest?: IRequirementsRequest): IRequestValidation {
         let validation: IRequestValidation = {
             TitleError: this.getSingleLineValidation(request.Title, 255),
             RequestDateError: this.getDateValidation(request.RequestDate, undefined, moment()),
@@ -76,7 +76,7 @@ export class RequestValidation {
             OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded, 255) : "",
             ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg, 15),
             ProjectedImpactedUsersError: request.ProjectedImpactedUsers > 0 ? "" : "Please enter the projected number of users to be impacted by the request!",
-            OperationalNeedDateError: this.getDateValidation(request.OperationalNeedDate, moment()),
+            OperationalNeedDateError: this.getDateValidation(request.OperationalNeedDate, oldRequest && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()),
             PriorityExplanationError: request.PriorityExplanation ? "" : "Please enter an explanation for why the priority of the requirements request was given!",
             BusinessObjectiveError: request.BusinessObjective ? "" : "Please enter the business objective for the requirement being requested!",
             FunctionalRequirementsError: request.FunctionalRequirements ? "" : "Please enter the functional requirements for the requirement being requested!",

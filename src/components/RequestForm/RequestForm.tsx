@@ -23,6 +23,7 @@ export interface IRequestFormProps {
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
+    const [oldRequest, setOldRequest] = useState<IRequirementsRequest>();
     const [validation, setValidation] = useState<IRequestValidation | undefined>();
     const [showFundingField, setShowFundingField] = useState<boolean>(false);
     const [peoSameAsRequester, setPeoSameAsRequester] = useState<boolean>(false);
@@ -44,6 +45,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     setPeoSameAsRequester(newRequest.Requester.Id === newRequest.ApprovingPEO.Id);
                     setShowFundingField(newRequest.FundingOrgOrPEO !== "" && newRequest.FundingOrgOrPEO !== undefined && newRequest.FundingOrgOrPEO !== null);
                     setRequest(newRequest);
+                    // copy that doesn't get changed to pass to the validator
+                    setOldRequest(newRequest);
                 } else {
                     history.push("/Requests");
                 }
@@ -70,7 +73,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
         if (validation) {
-            setValidation(RequestValidation.getValidation(request, showFundingField));
+            setValidation(RequestValidation.getValidation(request, showFundingField, oldRequest));
         } // eslint-disable-next-line
     }, [request, showFundingField]);
 
@@ -111,7 +114,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             if (!showFundingField) {
                 req.FundingOrgOrPEO = "";
             }
-            let requestValidation = RequestValidation.getValidation(req, showFundingField);
+            let requestValidation = RequestValidation.getValidation(req, showFundingField, oldRequest);
             if (!requestValidation.IsErrored) {
                 let newRequest = await props.submitRequest(req);
                 history.push(`/Requests/Review/${newRequest.Id}`);
@@ -435,7 +438,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             headerText="Operational Need Date:"
                             readOnly={readOnly}
                             date={request.OperationalNeedDate}
-                            minDate={moment()}
+                            minDate={oldRequest && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
                             isValid={validation && !validation.OperationalNeedDateError}
                             isInvalid={validation && validation.OperationalNeedDateError !== ""}
