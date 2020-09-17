@@ -152,7 +152,6 @@ const blankRequest: IRequirementsRequest = {
 export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     private requestApi: IRequirementsRequestApi;
-    private userApi: IUserApi;
 
     Id: number;
     Title: string;
@@ -189,7 +188,6 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     constructor(request: IRequirementsRequest = blankRequest, requestApi?: IRequirementsRequestApi) {
         this.requestApi = requestApi ? requestApi : RequirementsRequestsApiConfig.getApi();
-        this.userApi = UserApiConfig.getApi();
 
         this.Id = request.Id;
         this.Title = request.Title;
@@ -241,11 +239,12 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {
         let requestIsApproved = this.PEOApprovedDateTime !== null;
+        let requestIsNew = this.Id < 0;
         let userIsAuthor = user?.Id === this.Author.Id;
         let userIsRequester = user?.Id === this.Requester.Id;
         let userIsApprover = user?.Id === this.ApprovingPEO.Id;
         let userHasPermissions = RoleDefinitions.userCanEditOtherUsersRequests(roles);
-        return requestIsApproved || (!userIsAuthor && !userIsRequester && !userIsApprover && !userHasPermissions);
+        return requestIsApproved || (!requestIsNew && !userIsAuthor && !userIsRequester && !userIsApprover && !userHasPermissions);
     }
 
     getFormattedId = (): string => {
