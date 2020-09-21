@@ -1,6 +1,7 @@
 {
   "name": "requirements-request-manager",
-  "version": "0.1.14",
+  "homepage": ".",
+  "version": "0.1.15",
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.121.5",
@@ -14,6 +15,7 @@
     "@types/react-dom": "^16.9.8",
     "@uifabric/example-data": "^7.0.9",
     "bootstrap": "^4.4.1",
+    "concat": "^1.0.3",
     "env-cmd": "^10.1.0",
     "moment": "^2.26.0",
     "react": "^16.13.1",
@@ -22,15 +24,14 @@
     "react-dom": "^16.13.1",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1",
+    "react-scripts": "3.4.3",
     "typescript": "^3.7.5"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "build:rrm-dev": "env-cmd -f ./.env.rrm-dev.json react-scripts build&&npm run rename",
-    "build:rrm-uat": "env-cmd -f ./.env.rrm-uat.json react-scripts build&&npm run rename",
-    "rename": "node -e \"require('fs').rename('build/index.html', 'build/index.aspx', function(err) { if (err) console.log(err); console.log('File successfully renamed!') })\"",
+    "build": "react-scripts build&&npm run mergeaspx",
+    "build:rrm-uat": "env-cmd -f ./.env.rrm-uat.json react-scripts build&&npm run mergeaspx",
+    "mergeaspx": "concat -o build/index.aspx build/index.aspx build/index.html",
     "test": "react-scripts test"
   },
   "eslintConfig": {

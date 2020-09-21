@@ -7,6 +7,8 @@ import { IBasePickerSuggestionsProps, NormalPeoplePicker } from 'office-ui-fabri
 import * as React from 'react';
 import { IPerson, Person } from "../../api/UserApi";
 
+declare var _spPageContextInfo: any;
+
 const suggestionProps: IBasePickerSuggestionsProps = {
 	suggestionsHeaderText: 'Suggested People',
 	mostRecentlyUsedHeaderText: 'Suggested Contacts',
@@ -50,7 +52,7 @@ export const PeoplePicker: React.FunctionComponent<IPeoplePickerProps> = (props)
 			} else {
 				sp.setup({
 					sp: {
-						baseUrl: process.env.REACT_APP_API_URL
+						baseUrl: _spPageContextInfo.webAbsoluteUrl
 					}
 				});
 				const results = await sp.profiles.clientPeoplePickerSearchUser({
