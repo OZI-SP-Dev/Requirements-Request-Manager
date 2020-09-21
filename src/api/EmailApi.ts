@@ -4,17 +4,18 @@ import { IPerson } from "./UserApi";
 import { ApiError } from "./InternalErrors";
 import "@pnp/sp/sputilities";
 
+declare var _spPageContextInfo: any;
 
 export interface IEmailApi {
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>
-}
+};
 
 export class EmailApi implements IEmailApi {
 
     constructor() {
         sp.setup({
             sp: {
-                baseUrl: process.env.REACT_APP_API_URL
+                baseUrl: _spPageContextInfo.webAbsoluteUrl
             }
         });
     }

@@ -7,6 +7,8 @@ import { RoleType } from "../api/RolesApi";
 import { IPerson } from "../api/UserApi";
 import { useRoles } from "./useRoles";
 
+declare var _spPageContextInfo: any;
+
 export interface IEmailSender {
     sending: boolean,
     error: string,
@@ -71,7 +73,7 @@ export function useEmail(): IEmailSender {
         let subject = `Request ${request.getFormattedId()} Submitted`;
         let body = `Hello, a requirements request has been submitted for which you are the approving official by ${request.Requester.Title}.
             
-            To review/approve the request, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
+            To review/approve the request, please click <a href="${_spPageContextInfo.webAbsoluteUrl}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
         let cc = getManagers();
 
         return sendEmail(to, subject, body, cc);
@@ -86,7 +88,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.ApprovingPEO.Title}.
         ${request.PEOApprovedComment ? `The approver left a comment saying "${request.PEOApprovedComment}"` : ''}
         
-        To view the request and any comments/modifications left by the approver, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/View/${request.Id}">here</a>.`;
+        To view the request and any comments/modifications left by the approver, please click <a href="${_spPageContextInfo.webAbsoluteUrl}/index.aspx#/Requests/View/${request.Id}">here</a>.`;
 
         return sendEmail(to, subject, body);
     }
@@ -99,7 +101,7 @@ export function useEmail(): IEmailSender {
             The note is:
             <h4>${note.Title}</h4><p>"${note.Text}"</p>
             
-            To review the request/note, please click <a href="${process.env.PUBLIC_URL}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
+            To review the request/note, please click <a href="${_spPageContextInfo.webAbsoluteUrl}/index.aspx#/Requests/Review/${request.Id}">here</a>.`;
 
         return sendEmail(to, subject, body);
     }
