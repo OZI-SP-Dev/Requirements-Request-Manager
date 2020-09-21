@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.15] 2020-09-21
+### Changed
+- The builds are now location agnostic, so they can run in any SP site with the proper lists
+
 ## [0.1.14] 2020-09-16
 ### Fixed
 - Bug that prevented a user from saving a request that had an operational need date from before the current date
