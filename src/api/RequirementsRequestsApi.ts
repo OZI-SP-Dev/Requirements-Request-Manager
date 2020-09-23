@@ -223,7 +223,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             let queryString = "IsDeleted ne 1";
 
             if (userId !== undefined) {
-                queryString += `and (AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId})`;
+                queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId})`;
             }
 
             let pagedRequests = await query.filter(queryString).getPaged();

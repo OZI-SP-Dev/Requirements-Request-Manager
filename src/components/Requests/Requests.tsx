@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
+import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import { RequestView } from "../RequestView/RequestView";
 
@@ -15,6 +16,8 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
     const [deleting, setDeleting] = useState<boolean>(false);
     const [requestIdShown, setRequestIdShown] = useState<number>(-1);
+    const [showDeletePopover, setShowDeletePopover] = useState<boolean>(false);
+    const [deletePopoverTarget, setDeletePopoverTarget] = useState<any>();
 
     const { user, roles } = useContext(UserContext);
 
@@ -86,13 +89,27 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                             <Row className="ml-2 mr-2">
                                                 <Col xl={12} lg={12} md={12} sm={12} xs={12}>
                                                     {!request.isReadOnly(user, roles) &&
-                                                        <Button className="float-left" variant="danger"
-                                                            onClick={async () => deleteRequest(request)}
-                                                        >
-                                                            {deleting &&
-                                                                <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                                                            {' '}{"Delete Request"}
-                                                        </Button>}
+                                                        <>
+                                                            <ConfirmPopover
+                                                                show={showDeletePopover}
+                                                                target={deletePopoverTarget}
+                                                                variant="danger"
+                                                                titleText="Delete Request"
+                                                                confirmationText="Are you sure you want to delete this request?"
+                                                                onSubmit={async () => deleteRequest(request)}
+                                                                handleClose={() => setShowDeletePopover(false)}
+                                                            />
+                                                            <Button className="float-left" variant="danger"
+                                                                onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                                                                    setDeletePopoverTarget(event.target);
+                                                                    setShowDeletePopover(true);
+                                                                }}
+                                                            >
+                                                                {deleting &&
+                                                                    <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                                                                {' '}{"Delete Request"}
+                                                            </Button>
+                                                        </>}
                                                     {!request.isReadOnly(user, roles) &&
                                                         <Link to={`/Requests/Edit/${request.Id}`}>
                                                             <Button className="float-left ml-2" variant="warning">Edit Request</Button>
@@ -115,6 +132,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     )}
                 </Accordion>
             </Table>
+            {!props.requests.loading && props.requests.requestsList.length === 0 && <h5 className="text-center">There were no Requests found</h5>}
             <RequestSpinner show={deleting} displayText="Deleting Request..." />
         </Container>
     );

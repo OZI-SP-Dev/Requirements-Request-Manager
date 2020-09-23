@@ -20,6 +20,8 @@ function App() {
       <Container fluid="md" className="app-container border shadow-lg p-0">
         <AppHeader />
         <Switch>
+          <Route exact path="/(home)?">
+          </Route>
           <Route path="/Requests">
             <RequestRoutes />
           </Route>
@@ -27,9 +29,18 @@ function App() {
             <Route path="/RoleManagement">
               <Administration />
             </Route>}
+          <Route path="*">
+            <NoMatch />
+          </Route>
         </Switch>
       </Container>
     </HashRouter>
+  );
+}
+
+function NoMatch() {
+  return (
+    <div><h1>Page not found.</h1></div>
   );
 }
 
