@@ -2,7 +2,7 @@ import moment, { Moment } from 'moment';
 import { RoleDefinitions } from '../utils/RoleDefinitions';
 import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from './RequirementsRequestsApi';
 import { RoleType } from './RolesApi';
-import { IPerson, IUserApi, Person, UserApiConfig } from './UserApi';
+import { IPerson, Person } from './UserApi';
 
 export enum RequirementTypes {
     NEW_CAP = "New Capability",

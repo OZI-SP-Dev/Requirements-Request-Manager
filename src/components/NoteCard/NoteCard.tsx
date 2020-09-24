@@ -3,6 +3,7 @@ import { INote } from "../../api/NotesApi";
 import React from "react";
 import { Card, Button, Spinner } from "react-bootstrap";
 import './NoteCard.css'
+import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
 
 export interface INoteCardProps {
     note: INote,
@@ -14,6 +15,8 @@ export interface INoteCardProps {
 export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
 
     const [deleting, setDeleting] = useState<boolean>();
+    const [showDeletePopover, setShowDeletePopover] = useState<boolean>(false);
+    const [deletePopoverTarget, setDeletePopoverTarget] = useState<any>();
 
     const deleteNote = async () => {
         try {
@@ -32,10 +35,22 @@ export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
             <Card.Body><p className="preserve-whitespace">{props.note.Text}</p></Card.Body>
             {props.editable &&
                 <Card.Footer>
+                    <ConfirmPopover
+                        show={showDeletePopover}
+                        target={deletePopoverTarget}
+                        variant="danger"
+                        titleText="Delete Note"
+                        confirmationText="Are you sure you want to delete this note?"
+                        onSubmit={deleteNote}
+                        handleClose={() => setShowDeletePopover(false)}
+                    />
                     <Button
                         variant="outline-danger"
                         className="float-left"
-                        onClick={deleteNote}
+                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                            setDeletePopoverTarget(event.target);
+                            setShowDeletePopover(true);
+                        }}
                     >
                         {deleting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{"Delete"}

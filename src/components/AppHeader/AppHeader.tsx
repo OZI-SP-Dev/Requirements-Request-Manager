@@ -1,6 +1,6 @@
 import { Persona, PersonaSize } from 'office-ui-fabric-react/lib/Persona';
 import React, { useContext } from "react";
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
@@ -21,28 +21,9 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
                     <LinkContainer isActive={m => m !== null && m?.isExact} to="/">
                         <Nav.Link>Home</Nav.Link>
                     </LinkContainer>
-                    <NavDropdown title="Reports" id="basic-nav-dropdown">
-                        <LinkContainer to="/Requests">
-                            <NavDropdown.Item>Requests</NavDropdown.Item>
-                        </LinkContainer>
-                        <NavDropdown.Divider />
-                        <LinkContainer to="/Not Implemented Yet">
-                            <NavDropdown.Item>Not Implemented Yet</NavDropdown.Item>
-                        </LinkContainer>
-                    </NavDropdown>
-                    {/*<OverlayTrigger
-                        placement="bottom"
-                        delay={{ show: 500, hide: 0 }}
-                        overlay={
-                            <Tooltip id="ContactUsNavTooltip">
-                                Submit feedback, bug reports, or just say hello!
-							</Tooltip>
-                        }
-                    >
-                        <Button className="nav-link link-button">
-                            Contact Us
-						</Button>
-                    </OverlayTrigger>*/}
+                    <LinkContainer to="/Requests">
+                        <Nav.Link>Requests</Nav.Link>
+                    </LinkContainer>
                     {RoleDefinitions.userCanAccessAdminPage(userContext.roles) &&
                         <LinkContainer to="/RoleManagement">
                             <Nav.Link>Admin</Nav.Link>
