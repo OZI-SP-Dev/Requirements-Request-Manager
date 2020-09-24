@@ -57,40 +57,45 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
     }
 
     return (
-        <Row>
-            {props.size === "lg" ?
-                <RequestViewLarge
-                    request={request}
-                    notes={notes}
-                    notesEditable={RoleDefinitions.userCanEditNotes(roles)}
-                    editNoteOnClick={editNoteOnClick}
-                /> :
-                <RequestViewSmall
-                    request={request}
-                    notes={notes}
-                    notesEditable={RoleDefinitions.userCanEditNotes(roles)}
-                    editNoteOnClick={editNoteOnClick}
-                />}
-            <NoteModal
-                note={editNote}
-                show={showNoteModal && RoleDefinitions.userCanEditNotes(roles)}
-                error={notes.error}
-                clearError={notes.clearError}
-                handleClose={() => {
-                    setEditNote(undefined);
-                    setShowNoteModal(false);
-                    notes.clearError();
-                }}
-                submitNote={submitNote}
-            />
-            <RequestSpinner show={notes.loading} displayText="Loading Notes..." />
-            <DismissableErrorAlert
-                show={notes.error !== undefined && notes.error !== "" && !showNoteModal}
-                header="Error!"
-                message={notes.error}
-                onClose={notes.clearError}
-            />
-        </Row>
+        props.request ?
+            <Row>
+                {
+                    props.size === "lg" ?
+                        <RequestViewLarge
+                            request={request}
+                            notes={notes}
+                            notesEditable={RoleDefinitions.userCanEditNotes(roles)}
+                            editNoteOnClick={editNoteOnClick}
+                        /> :
+                        <RequestViewSmall
+                            request={request}
+                            notes={notes}
+                            notesEditable={RoleDefinitions.userCanEditNotes(roles)}
+                            editNoteOnClick={editNoteOnClick}
+                        />
+                }
+                < NoteModal
+                    note={editNote}
+                    show={showNoteModal && RoleDefinitions.userCanEditNotes(roles)
+                    }
+                    error={notes.error}
+                    clearError={notes.clearError}
+                    handleClose={() => {
+                        setEditNote(undefined);
+                        setShowNoteModal(false);
+                        notes.clearError();
+                    }}
+                    submitNote={submitNote}
+                />
+                <RequestSpinner show={notes.loading} displayText="Loading Notes..." />
+                <DismissableErrorAlert
+                    show={notes.error !== undefined && notes.error !== "" && !showNoteModal}
+                    header="Error!"
+                    message={notes.error}
+                    onClose={notes.clearError}
+                />
+            </Row>
+            : <h5 className="text-center">No information was found for this Request</h5>
     )
 
 }
