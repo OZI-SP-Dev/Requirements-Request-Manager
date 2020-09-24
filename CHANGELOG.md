@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.16] 2020-09-24
+### Added
+- Confirmation popovers for deleting requests and notes
+- IsDeleted field on RequirementsRequests SP list
+
+### Changed
+- Deleting a request now just makes the IsDeleted field flip to true
+- Filter out requests in queries that have IsDeleted set to true
+
 ## [0.1.15] 2020-09-21
 ### Changed
 - The builds are now location agnostic, so they can run in any SP site with the proper lists
