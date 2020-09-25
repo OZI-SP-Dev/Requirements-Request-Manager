@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.17] 2020-09-??
+### Changed
+- For RequirementsRequests SP list split RequirementType into NoveltyRequirementType and FuncRequirementType so the user can select two options 
+- For RequestApprovals SP list split RequirementType into NoveltyRequirementType and FuncRequirementType to match the RequeirementsRequests change
+
 ## [0.1.16] 2020-09-24
 ### Added
 - Confirmation popovers for deleting requests and notes

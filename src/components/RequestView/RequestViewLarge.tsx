@@ -88,7 +88,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Requirement Type: </strong>
-                        {props.request.RequirementType}
+                        {props.request.NoveltyRequirementType}, {props.request.FuncRequirementType}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Funding Org: </strong>

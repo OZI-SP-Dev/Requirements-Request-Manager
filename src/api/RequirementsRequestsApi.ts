@@ -1,4 +1,4 @@
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementTypes, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
@@ -24,7 +24,8 @@ interface ISubmitRequirementsRequest {
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
-    RequirementType: RequirementTypes,
+    NoveltyRequirementType: NoveltyRequirementTypes,
+    FuncRequirementType: FuncRequirementTypes,
     FundingOrgOrPEO: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
@@ -65,7 +66,8 @@ interface SPRequirementsRequest {
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
-    RequirementType: RequirementTypes,
+    NoveltyRequirementType: NoveltyRequirementTypes,
+    FuncRequirementType: FuncRequirementTypes,
     FundingOrgOrPEO: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
@@ -138,7 +140,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
-            RequirementType: request.RequirementType,
+            NoveltyRequirementType: request.NoveltyRequirementType,
+            FuncRequirementType: request.FuncRequirementType,
             FundingOrgOrPEO: request.FundingOrgOrPEO,
             ApplicationNeeded: request.ApplicationNeeded,
             OtherApplicationNeeded: request.OtherApplicationNeeded,
@@ -176,7 +179,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             PEOOrgSymbol: request.PEOOrgSymbol,
             PEO_DSNPhone: request.PEO_DSNPhone,
             PEO_CommPhone: request.PEO_CommPhone,
-            RequirementType: request.RequirementType,
+            NoveltyRequirementType: request.NoveltyRequirementType,
+            FuncRequirementType: request.FuncRequirementType,
             FundingOrgOrPEO: request.FundingOrgOrPEO,
             ApplicationNeeded: request.ApplicationNeeded,
             OtherApplicationNeeded: request.OtherApplicationNeeded,
@@ -198,7 +202,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         try {
-            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "ApprovingPEO").get();
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "NoveltyRequirementType", "FuncRequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "ApprovingPEO").get();
             if (!request.IsDeleted) {
                 let approval = await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request));
                 // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
@@ -223,7 +227,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
-            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "RequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "ApprovingPEO");
+            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "NoveltyRequirementType", "FuncRequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "ApprovingPEO");
 
             let queryString = "IsDeleted ne 1";
 

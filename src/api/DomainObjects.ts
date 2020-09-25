@@ -4,9 +4,12 @@ import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from './Requir
 import { RoleType } from './RolesApi';
 import { IPerson, Person } from './UserApi';
 
-export enum RequirementTypes {
+export enum NoveltyRequirementTypes {
     NEW_CAP = "New Capability",
-    MOD_EXISTING_CAP = "Modification to existing capability",
+    MOD_EXISTING_CAP = "Modification to existing capability"
+}
+
+export enum FuncRequirementTypes {
     FUNCTIONAL = "Functional",
     NON_FUNCTIONAL = "Non - Functional"
 }
@@ -55,7 +58,8 @@ export interface IRequirementsRequest {
     PEOOrgSymbol: string,
     PEO_DSNPhone: string,
     PEO_CommPhone: string,
-    RequirementType: RequirementTypes,
+    NoveltyRequirementType: NoveltyRequirementTypes,
+    FuncRequirementType: FuncRequirementTypes,
     FundingOrgOrPEO: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
@@ -125,7 +129,8 @@ const blankRequest: IRequirementsRequest = {
     PEOOrgSymbol: "",
     PEO_DSNPhone: "",
     PEO_CommPhone: "",
-    RequirementType: RequirementTypes.NEW_CAP,
+    NoveltyRequirementType: NoveltyRequirementTypes.NEW_CAP,
+    FuncRequirementType: FuncRequirementTypes.FUNCTIONAL,
     FundingOrgOrPEO: "",
     ApplicationNeeded: ApplicationTypes.CCaR,
     OtherApplicationNeeded: "",
@@ -168,7 +173,8 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     PEOOrgSymbol: string;
     PEO_DSNPhone: string;
     PEO_CommPhone: string;
-    RequirementType: RequirementTypes;
+    NoveltyRequirementType: NoveltyRequirementTypes;
+    FuncRequirementType: FuncRequirementTypes;
     FundingOrgOrPEO: string;
     ApplicationNeeded: ApplicationTypes;
     OtherApplicationNeeded: string;
@@ -204,7 +210,8 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this.PEOOrgSymbol = request.PEOOrgSymbol;
         this.PEO_DSNPhone = request.PEO_DSNPhone;
         this.PEO_CommPhone = request.PEO_CommPhone;
-        this.RequirementType = request.RequirementType;
+        this.NoveltyRequirementType = request.NoveltyRequirementType;
+        this.FuncRequirementType = request.FuncRequirementType;
         this.FundingOrgOrPEO = request.FundingOrgOrPEO;
         this.ApplicationNeeded = request.ApplicationNeeded;
         this.OtherApplicationNeeded = request.OtherApplicationNeeded;
