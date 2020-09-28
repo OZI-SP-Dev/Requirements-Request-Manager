@@ -66,7 +66,7 @@ export interface IRequirementsRequest {
     IsProjectedOrgsEnterprise: boolean,
     ProjectedOrgsImpactedCenter: Centers,
     ProjectedOrgsImpactedOrg: string,
-    ProjectedImpactedUsers: number,
+    ProjectedImpactedUsers: number | null,
     OperationalNeedDate: Moment,
     OrgPriority: OrgPriorities,
     PriorityExplanation: string,
@@ -137,7 +137,7 @@ const blankRequest: IRequirementsRequest = {
     IsProjectedOrgsEnterprise: false,
     ProjectedOrgsImpactedCenter: Centers.AFIMSC,
     ProjectedOrgsImpactedOrg: "",
-    ProjectedImpactedUsers: 0,
+    ProjectedImpactedUsers: null,
     OperationalNeedDate: moment(),
     OrgPriority: OrgPriorities.LOW,
     PriorityExplanation: "",
@@ -181,7 +181,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     IsProjectedOrgsEnterprise: boolean;
     ProjectedOrgsImpactedCenter: Centers;
     ProjectedOrgsImpactedOrg: string;
-    ProjectedImpactedUsers: number;
+    ProjectedImpactedUsers: number | null;
     OperationalNeedDate: Moment;
     OrgPriority: OrgPriorities;
     PriorityExplanation: string;

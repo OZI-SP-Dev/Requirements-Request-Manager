@@ -77,7 +77,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                         <strong>Projected Organizations Impacted: </strong>
                     </Col>
                     <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
-                        <strong>Is Enterprise?: </strong>
+                        <strong>Enterprise: </strong>
                         {props.request.IsProjectedOrgsEnterprise ? "Yes" : "No"}
                     </Col>
                     <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
@@ -90,7 +90,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                         <strong>Projected Number of Impacted Users: </strong>
-                        {props.request.ProjectedImpactedUsers}
+                        {props.request.ProjectedImpactedUsers === null ? "Unknown" : props.request.ProjectedImpactedUsers}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                         <strong>Organization's' Priority: </strong>

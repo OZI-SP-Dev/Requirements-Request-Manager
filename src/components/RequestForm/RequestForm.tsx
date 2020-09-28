@@ -434,14 +434,9 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Number of Users Impacted by the Requested Application"
                             readOnly={readOnly}
-                            value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : ''}
+                            value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : undefined}
                             onChange={e => updateRequest("ProjectedImpactedUsers", parseInt(getNumbersOnly(e.target.value)))}
-                            isValid={validation && !validation.ProjectedImpactedUsersError}
-                            isInvalid={validation && validation.ProjectedImpactedUsersError !== ""}
                         />
-                        <Form.Control.Feedback type="invalid">
-                            {validation ? validation.ProjectedImpactedUsersError : ""}
-                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">
                         <CustomInputeDatePicker

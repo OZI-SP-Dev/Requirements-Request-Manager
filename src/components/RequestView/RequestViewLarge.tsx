@@ -86,6 +86,9 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         <strong>PEO DSN #: </strong>
                         {props.request.PEO_DSNPhone}
                     </Col>
+                </Row>
+                <hr className="m-3" />
+                <Row className="ml-2 mr-2 mb-2 view-form">
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Requirement Type: </strong>
                         {props.request.NoveltyRequirementType}, {props.request.FuncRequirementType}
@@ -105,7 +108,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         <strong>Projected Organizations Impacted: </strong>
                     </Col>
                     <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
-                        <strong>Is Enterprise?: </strong>
+                        <strong>Enterprise: </strong>
                         {props.request.IsProjectedOrgsEnterprise ? "Yes" : "No"}
                     </Col>
                     <Col className="mt-2" xl={2} lg={2} md={6} sm={6} xs={12}>
@@ -118,7 +121,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                         <strong>Projected Number of Impacted Users: </strong>
-                        {props.request.ProjectedImpactedUsers}
+                        {props.request.ProjectedImpactedUsers === null ? "Unknown" : props.request.ProjectedImpactedUsers}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                         <strong>Operational Need Date: </strong>
@@ -128,6 +131,9 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         <strong>Organization's' Priority: </strong>
                         {props.request.OrgPriority}
                     </Col>
+                </Row>
+                <hr className="m-3" />
+                <Row className="ml-2 mr-2 mb-2 view-form">
                     <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                         <strong>Priority Explanation: </strong>
                         <p className="preserve-whitespace">{props.request.PriorityExplanation}</p>
