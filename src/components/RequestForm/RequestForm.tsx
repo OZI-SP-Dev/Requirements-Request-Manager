@@ -2,7 +2,7 @@ import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
@@ -161,7 +161,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>Requester:</Form.Label>
+                        <Form.Label>Requester (Last Name, First Name):</Form.Label>
                         <Form.Control
                             as={PeoplePicker}
                             defaultValue={request.Requester.Title ? [request.Requester] : undefined}
@@ -232,7 +232,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 {!peoSameAsRequester && <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>2 Ltr/PEO to Approve:</Form.Label>
+                        <Form.Label>2 Ltr/PEO to Approve (Last Name, First Name):</Form.Label>
                         <Form.Control
                             as={PeoplePicker}
                             defaultValue={request.ApprovingPEO.Title ? [request.ApprovingPEO] : undefined}
@@ -310,18 +310,28 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             {validation ? validation.TitleError : ""}
                         </Form.Control.Feedback>
                     </Col>
-                    <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label className="mr-3 mb-0">Requirement Type:</Form.Label>
-                        {Object.values(RequirementTypes).map(type =>
+                    <Col className="mt-4 mb-1" xl="12" lg="12" md="12" sm="12" xs="12">
+                        <Form.Label className="mr-3 mb-0">Requirement Type New or Existing:</Form.Label>
+                        {Object.values(NoveltyRequirementTypes).map(type =>
                             <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
                                 disabled={readOnly}
-                                checked={request.RequirementType === type}
-                                onChange={() => updateRequest("RequirementType", type)}
+                                checked={request.NoveltyRequirementType === type}
+                                onChange={() => updateRequest("NoveltyRequirementType", type)}
+                            />)
+                        }
+                    </Col>
+                    <Col className="mb-2" xl="12" lg="12" md="12" sm="12" xs="12">
+                        <Form.Label className="mr-3 mb-0">Requirement Type Functional:</Form.Label>
+                        {Object.values(FuncRequirementTypes).map(type =>
+                            <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
+                                disabled={readOnly}
+                                checked={request.FuncRequirementType === type}
+                                onChange={() => updateRequest("FuncRequirementType", type)}
                             />)
                         }
                     </Col>
                     <Col className="mt-4 mb-4" xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Check inline label="Is Requirement Funded?" type="checkbox" id="funded-checkbox"
+                        <Form.Check inline label="Requirement is Funded" type="checkbox" id="funded-checkbox"
                             disabled={readOnly}
                             checked={showFundingField}
                             onChange={flipShowFundingField}
@@ -384,7 +394,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>Projected Organizations Impacted:</Form.Label>
                     </Col>
                     <Col className="request-vertical-center" xl="2" lg="3" md="6" sm="6" xs="12">
-                        <Form.Check inline label="Is Enterprise?" type="checkbox" id="enterprise-checkbox"
+                        <Form.Check inline label="Enterprise" type="checkbox" id="enterprise-checkbox"
                             disabled={readOnly}
                             checked={request.IsProjectedOrgsEnterprise}
                             onChange={() => updateRequest('IsProjectedOrgsEnterprise', !request.IsProjectedOrgsEnterprise)}
@@ -424,14 +434,9 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Number of Users Impacted by the Requested Application"
                             readOnly={readOnly}
-                            value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : ''}
+                            value={request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers : undefined}
                             onChange={e => updateRequest("ProjectedImpactedUsers", parseInt(getNumbersOnly(e.target.value)))}
-                            isValid={validation && !validation.ProjectedImpactedUsersError}
-                            isInvalid={validation && validation.ProjectedImpactedUsersError !== ""}
                         />
-                        <Form.Control.Feedback type="invalid">
-                            {validation ? validation.ProjectedImpactedUsersError : ""}
-                        </Form.Control.Feedback>
                     </Col>
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">
                         <CustomInputeDatePicker

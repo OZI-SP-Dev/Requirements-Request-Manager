@@ -1,5 +1,5 @@
 import moment from "moment";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, OrgPriorities, RequirementsRequest, RequirementTypes } from "./DomainObjects";
+import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { Person, UserApiConfig } from "./UserApi";
@@ -41,7 +41,8 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 PEOOrgSymbol: "OZI",
                 PEO_DSNPhone: "1234567890",
                 PEO_CommPhone: "1234567890",
-                RequirementType: RequirementTypes.NEW_CAP,
+                NoveltyRequirementType: NoveltyRequirementTypes.NEW_CAP,
+                FuncRequirementType: FuncRequirementTypes.FUNCTIONAL,
                 FundingOrgOrPEO: "OZI",
                 ApplicationNeeded: ApplicationTypes.CCaR,
                 OtherApplicationNeeded: "",
@@ -87,7 +88,8 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 PEOOrgSymbol: "OZI",
                 PEO_DSNPhone: "1234567890",
                 PEO_CommPhone: "1234567890",
-                RequirementType: RequirementTypes.MOD_EXISTING_CAP,
+                NoveltyRequirementType: NoveltyRequirementTypes.MOD_EXISTING_CAP,
+                FuncRequirementType: FuncRequirementTypes.NON_FUNCTIONAL,
                 FundingOrgOrPEO: "",
                 ApplicationNeeded: ApplicationTypes.OTHER,
                 OtherApplicationNeeded: "Super App",
