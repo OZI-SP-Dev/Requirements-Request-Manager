@@ -394,7 +394,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         <Form.Label>Projected Organizations Impacted:</Form.Label>
                     </Col>
                     <Col className="request-vertical-center" xl="2" lg="3" md="6" sm="6" xs="12">
-                        <Form.Check inline label="Is Enterprise?" type="checkbox" id="enterprise-checkbox"
+                        <Form.Check inline label="Enterprise" type="checkbox" id="enterprise-checkbox"
                             disabled={readOnly}
                             checked={request.IsProjectedOrgsEnterprise}
                             onChange={() => updateRequest('IsProjectedOrgsEnterprise', !request.IsProjectedOrgsEnterprise)}
