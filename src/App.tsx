@@ -5,6 +5,7 @@ import { HashRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
 import { Administration } from './components/Administration/Administration';
 import { AppHeader } from './components/AppHeader/AppHeader';
+import { Home } from './components/Home/Home';
 import { RequestRoutes } from './components/RequestRoutes/RequestRoutes';
 import { UserContext } from './providers/UserProvider';
 import { RoleDefinitions } from './utils/RoleDefinitions';
@@ -21,6 +22,7 @@ function App() {
         <AppHeader />
         <Switch>
           <Route exact path="/(home)?">
+            <Home />
           </Route>
           <Route path="/Requests">
             <RequestRoutes />
