@@ -1,0 +1,8 @@
+.card-text {
+    text-align: left;
+    margin: 1rem!important;
+}
+
+li strong i {
+    color: red;
+}
