@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
 import { IRequirementsRequest, IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
+import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
-import "./RequestReview.css";
 import { RequestView } from "../RequestView/RequestView";
+import "./RequestReview.css";
 
 
 export interface IRequestReviewProps {
@@ -25,7 +25,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [userCanReview, setUserCanReview] = useState<boolean>(false);
 
-    const history = useHistory();
+    const { redirect, pushRoute } = useRedirect();
 
     useScrollToTop();
 
@@ -36,7 +36,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                 setRequest(newRequest);
                 setUserCanReview(checkIfUserCanReview(newRequest));
             } else {
-                history.push("/Requests");
+                redirect("/Requests");
             }
         }
     }
@@ -64,18 +64,13 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             if (request && props.submitApproval) {
                 await props.submitApproval(request, comment);
             }
-            redirect(e, "/Requests");
+            pushRoute("/Requests", e);
         } catch (e) {
             console.error("Error while approving Request on Review page");
             console.error(e);
         } finally {
             setSubmitting(false);
         }
-    }
-
-    const redirect = (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, route: string) => {
-        e.preventDefault();
-        history.push(route);
     }
 
     return (
@@ -108,14 +103,10 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         </Button>
                     }
                     {request && !request.isReadOnly(user, roles) &&
-                        <Button className="float-right mr-2" variant="warning"
-                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, `/Requests/Edit/${request.Id}`)}
-                        >
+                        <Button className="float-right mr-2" variant="warning" href={`#/Requests/Edit/${request.Id}`}>
                             Edit Request
                         </Button>}
-                    <Button className="float-right mr-2" variant="secondary"
-                        onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(e, "/Requests")}
-                    >
+                    <Button className="float-right mr-2" variant="secondary" href="#/Requests">
                         {userCanReview ? "Cancel" : "Close"}
                     </Button>
                 </Col>

@@ -1,9 +1,10 @@
 import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
+import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
@@ -32,7 +33,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [error, setError] = useState<string>("");
 
     const userContext = useContext(UserContext);
-    const history = useHistory();
+    const { redirect, pushRoute } = useRedirect();
 
     useScrollToTop();
 
@@ -48,7 +49,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     // copy that doesn't get changed to pass to the validator
                     setOldRequest(newRequest);
                 } else {
-                    history.push("/Requests");
+                    redirect("/Requests");
                 }
             }
         } catch (e) {
@@ -117,7 +118,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             let requestValidation = RequestValidation.getValidation(req, showFundingField, oldRequest);
             if (!requestValidation.IsErrored) {
                 let newRequest = await props.submitRequest(req);
-                history.push(`/Requests/Review/${newRequest.Id}`);
+                pushRoute(`/Requests/Review/${newRequest.Id}`, e);
             } else {
                 setValidation(requestValidation);
                 setError("Please fix the errored fields!");
