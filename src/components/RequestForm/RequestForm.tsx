@@ -33,7 +33,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [error, setError] = useState<string>("");
 
     const userContext = useContext(UserContext);
-    const { redirect } = useRedirect();
+    const { redirect, pushRoute } = useRedirect();
 
     useScrollToTop();
 
@@ -118,7 +118,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             let requestValidation = RequestValidation.getValidation(req, showFundingField, oldRequest);
             if (!requestValidation.IsErrored) {
                 let newRequest = await props.submitRequest(req);
-                redirect(`/Requests/Review/${newRequest.Id}`);
+                pushRoute(`/Requests/Review/${newRequest.Id}`, e);
             } else {
                 setValidation(requestValidation);
                 setError("Please fix the errored fields!");

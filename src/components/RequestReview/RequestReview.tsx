@@ -25,7 +25,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [userCanReview, setUserCanReview] = useState<boolean>(false);
 
-    const { redirect } = useRedirect();
+    const { redirect, pushRoute } = useRedirect();
 
     useScrollToTop();
 
@@ -64,7 +64,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             if (request && props.submitApproval) {
                 await props.submitApproval(request, comment);
             }
-            redirect("/Requests", e);
+            pushRoute("/Requests", e);
         } catch (e) {
             console.error("Error while approving Request on Review page");
             console.error(e);
@@ -103,14 +103,10 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         </Button>
                     }
                     {request && !request.isReadOnly(user, roles) &&
-                        <Button className="float-right mr-2" variant="warning"
-                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect(`/Requests/Edit/${request.Id}`, e)}
-                        >
+                        <Button className="float-right mr-2" variant="warning" href={`#/Requests/Edit/${request.Id}`}>
                             Edit Request
                         </Button>}
-                    <Button className="float-right mr-2" variant="secondary"
-                        onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect("/Requests", e)}
-                    >
+                    <Button className="float-right mr-2" variant="secondary" href="#/Requests">
                         {userCanReview ? "Cancel" : "Close"}
                     </Button>
                 </Col>

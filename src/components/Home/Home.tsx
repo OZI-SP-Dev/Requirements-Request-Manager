@@ -1,13 +1,9 @@
-import React from "react";
-import { FunctionComponent } from "react";
+import React, { FunctionComponent } from "react";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { useRedirect } from "../../hooks/useRedirect";
-import './Home.css'
+import './Home.css';
 
 
 export const Home: FunctionComponent = () => {
-
-    const { redirect } = useRedirect();
 
     return (
         <Container fluid="md" className="pb-5 pt-3">
@@ -15,14 +11,10 @@ export const Home: FunctionComponent = () => {
             <Row className="m-3">
                 <Col className="m-auto p-0" lg='9' sm='10' xs='12'>
                     <Row className="mt-3 mb-3 mr-0">
-                        <Button className="mr-2 ml-auto" variant="primary"
-                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect("/Requests", e)}
-                        >
+                        <Button className="mr-2 ml-auto" variant="primary" href="#/Requests">
                             My Requests
                         </Button>
-                        <Button className="ml-2" variant="primary"
-                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => redirect("/Requests/New", e)}
-                        >
+                        <Button className="ml-2" variant="primary" href="#/Requests/New">
                             New Request
                         </Button>
                     </Row>

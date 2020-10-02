@@ -215,6 +215,9 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             console.error(e);
             if (e instanceof InternalError) {
                 throw e;
+            } else if (e.status === 404) {
+                // return undefined when SP cannot find the request
+                return undefined;
             } else if (e instanceof Error) {
                 throw new ApiError(e, `Error occurred while trying to fetch Request with ID ${Id}: ${e.message}`);
             } else if (typeof (e) === "string") {
