@@ -64,7 +64,7 @@ export const Home: FunctionComponent = () => {
                         <ul>
                             <li>Requirements Manager Receives/Reviews Form</li>
                             <ul><li>Requirements Manager sets up conversation time with requestor and POC to discuss requirement</li></ul>
-                            <li>Requirement is presented to the IRM Board, chaired by AFLCMC CV and consists of Dep Directors and Execution Directorates  – <i>every 3 months</i></li>
+                            <li>Requirement is presented to the IRM Board, chaired by AFLCMC CV and consists of Dep Directors and Execution Directorates  – <i>every 2 months</i></li>
                             <li>AFLCMC/OZI Chief Information Technology Officer presents to Functional Management Group, chaired by SAF/AQX – <i>every 6 months</i></li>
                             <li>One month later – Requirements Review Board, this board will tell us which requirements have funding to proceed to be placed on contract for development and implementation</li>
                             <ul><li>Requestor and POC will be informed of the status of their requirement</li></ul>

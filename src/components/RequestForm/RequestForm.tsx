@@ -72,6 +72,20 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }, [userContext]);
 
     useEffect(() => {
+        let userOrgIndex = request.Requester.Title.search(new RegExp("\\w+/\\w+$"));
+        if (userOrgIndex >= 0) {
+            updateRequest('RequesterOrgSymbol', request.Requester.Title.substr(userOrgIndex));
+        } // eslint-disable-next-line
+    }, [request.Requester.Title]);
+
+    useEffect(() => {
+        let userOrgIndex = request.ApprovingPEO.Title.search(new RegExp("\\w+/\\w+$"));
+        if (userOrgIndex >= 0) {
+            updateRequest('PEOOrgSymbol', request.ApprovingPEO.Title.substr(userOrgIndex));
+        } // eslint-disable-next-line
+    }, [request.ApprovingPEO.Title]);
+
+    useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
         if (validation) {
             setValidation(RequestValidation.getValidation(request, showFundingField, oldRequest));
@@ -331,8 +345,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             />)
                         }
                     </Col>
-                    <Col className="mt-4 mb-4" xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Check inline label="Requirement is Funded" type="checkbox" id="funded-checkbox"
+                    <Col className="mt-4 mb-4" xl="6" lg="6" md="6" sm="6" xs="12">
+                        <Form.Check inline label="Requirement Funded? Yes or No box, if yes, Funding Org will appear" type="checkbox" id="funded-checkbox"
                             disabled={readOnly}
                             checked={showFundingField}
                             onChange={flipShowFundingField}

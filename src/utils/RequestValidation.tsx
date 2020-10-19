@@ -35,10 +35,10 @@ export class RequestValidation {
         }
     }
 
-    private static getPhoneNumberValidation(field: string): string {
+    private static getPhoneNumberValidation(field: string, required: boolean): string {
         if (new RegExp("[^0-9]").exec(field)) {
             return "Only numeric values should be used!";
-        } else if (field.length < 10) {
+        } else if ((field.length < 10 && required) || (field.length > 0 && field.length < 10)) {
             return "Please enter the full phone number, including area code!";
         } else if (field.length > 10) {
             return "Too many numbers given, please use a 10 digit phone number!";
@@ -65,12 +65,12 @@ export class RequestValidation {
             RequestDateError: this.getDateValidation(request.RequestDate, undefined, moment()),
             RequesterError: request.Requester && request.Requester.EMail ? "" : "Please provide a Requester!",
             RequesterOrgSymbolError: this.getSingleLineValidation(request.RequesterOrgSymbol, 15),
-            RequesterDSNPhoneError: this.getPhoneNumberValidation(request.RequesterDSNPhone),
-            RequesterCommPhoneError: this.getPhoneNumberValidation(request.RequesterCommPhone),
+            RequesterDSNPhoneError: this.getPhoneNumberValidation(request.RequesterDSNPhone, false),
+            RequesterCommPhoneError: this.getPhoneNumberValidation(request.RequesterCommPhone, true),
             ApprovingPEOError: request.ApprovingPEO && request.ApprovingPEO.EMail ? "" : "Please provide a 2 Ltr/PEO to approve this request!",
             PEOOrgSymbolError: this.getSingleLineValidation(request.PEOOrgSymbol, 15),
-            PEO_DSNPhoneError: this.getPhoneNumberValidation(request.PEO_DSNPhone),
-            PEO_CommPhoneError: this.getPhoneNumberValidation(request.PEO_CommPhone),
+            PEO_DSNPhoneError: this.getPhoneNumberValidation(request.PEO_DSNPhone, false),
+            PEO_CommPhoneError: this.getPhoneNumberValidation(request.PEO_CommPhone, true),
             FundingOrgOrPEOError: isFunded ? this.getSingleLineValidation(request.FundingOrgOrPEO, 255) : "",
             OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded, 255) : "",
             ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg, 15),

@@ -13,7 +13,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                 <strong>Email:</strong> {props.request.Requester.EMail}<br />
                 <strong>Org:</strong> {props.request.RequesterOrgSymbol}<br />
                 <strong>Comm #:</strong> {props.request.RequesterCommPhone}<br />
-                <strong>DSN #:</strong> {props.request.RequesterDSNPhone}
+                <strong>DSN #:</strong> {props.request.RequesterDSNPhone ? props.request.RequesterDSNPhone : "None"}
             </Popover.Content>
         </Popover>;
 
@@ -24,7 +24,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                 <strong>Email:</strong> {props.request.ApprovingPEO.EMail}<br />
                 <strong>Org:</strong> {props.request.PEOOrgSymbol}<br />
                 <strong>Comm #:</strong> {props.request.PEO_CommPhone}<br />
-                <strong>DSN #:</strong> {props.request.PEO_DSNPhone}
+                <strong>DSN #:</strong> {props.request.PEO_DSNPhone ? props.request.PEO_DSNPhone : "None"}
             </Popover.Content>
         </Popover>;
 
