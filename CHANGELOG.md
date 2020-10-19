@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.19] 2020-10-19
+### Changed
+- IRM dates on home page now says every two months
+- DSN fields on Request forms are no longer required
+
+### Added
+- When a person is searched on the Request form, the corresponding org field will attempt to auto-populate by searching for the org in the person's title
+
 ## [0.1.18] 2020-10-01
 ### Added
 - Home page with overview and helpful information for users

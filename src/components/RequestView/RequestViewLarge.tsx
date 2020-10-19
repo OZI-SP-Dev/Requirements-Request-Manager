@@ -56,7 +56,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Requester DSN #: </strong>
-                        {props.request.RequesterDSNPhone}
+                        {props.request.RequesterDSNPhone ? props.request.RequesterDSNPhone : "None"}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Approval Date: </strong>
@@ -84,7 +84,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>PEO DSN #: </strong>
-                        {props.request.PEO_DSNPhone}
+                        {props.request.PEO_DSNPhone ? props.request.PEO_DSNPhone : "None"}
                     </Col>
                 </Row>
                 <hr className="m-3" />
