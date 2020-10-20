@@ -26,7 +26,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
     const [oldRequest, setOldRequest] = useState<IRequirementsRequest>();
     const [validation, setValidation] = useState<IRequestValidation | undefined>();
-    const [showFundingField, setShowFundingField] = useState<boolean>(false);
+    const [showFundingField, setShowFundingField] = useState<boolean>();
     const [peoSameAsRequester, setPeoSameAsRequester] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [readOnly, setReadOnly] = useState<boolean>(false);
@@ -105,10 +105,6 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         if (phoneNumber.length <= 10) {
             updateRequest(fieldUpdating, phoneNumber);
         }
-    }
-
-    const flipShowFundingField = (): void => {
-        setShowFundingField(!showFundingField);
     }
 
     const flipPeoSameAsRequester = (): void => {
@@ -346,10 +342,20 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         }
                     </Col>
                     <Col className="mt-4 mb-4" xl="6" lg="6" md="6" sm="6" xs="12">
-                        <Form.Check inline label="Requirement Funded? Yes or No box, if yes, Funding Org will appear" type="checkbox" id="funded-checkbox"
+                        <Form.Label className="mr-3">Requirement Funded? If yes, Funding Org will appear: </Form.Label>
+                        <Form.Check inline label="Yes" type="radio" id="funded-radio-yes" className="mr-3"
                             disabled={readOnly}
                             checked={showFundingField}
-                            onChange={flipShowFundingField}
+                            onChange={() => setShowFundingField(true)}
+                            isValid={validation && !validation.IsFundedCheckError}
+                            isInvalid={validation && validation.IsFundedCheckError !== ""}
+                        />
+                        <Form.Check inline label="No" type="radio" id="funded-radio-no" className="mr-3"
+                            disabled={readOnly}
+                            checked={showFundingField !== undefined && !showFundingField}
+                            onChange={() => setShowFundingField(false)}
+                            isValid={validation && !validation.IsFundedCheckError}
+                            isInvalid={validation && validation.IsFundedCheckError !== ""}
                         />
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">

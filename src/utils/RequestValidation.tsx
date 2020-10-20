@@ -14,6 +14,7 @@ export interface IRequestValidation {
     PEOOrgSymbolError: string,
     PEO_DSNPhoneError: string,
     PEO_CommPhoneError: string,
+    IsFundedCheckError: string,
     FundingOrgOrPEOError: string,
     OtherApplicationNeededError: string,
     ProjectedOrgsImpactedOrgError: string,
@@ -59,7 +60,7 @@ export class RequestValidation {
         }
     }
 
-    static getValidation(request: IRequirementsRequest, isFunded: boolean, oldRequest?: IRequirementsRequest): IRequestValidation {
+    static getValidation(request: IRequirementsRequest, isFunded?: boolean, oldRequest?: IRequirementsRequest): IRequestValidation {
         let validation: IRequestValidation = {
             TitleError: this.getSingleLineValidation(request.Title, 255),
             RequestDateError: this.getDateValidation(request.RequestDate, undefined, moment()),
@@ -71,6 +72,7 @@ export class RequestValidation {
             PEOOrgSymbolError: this.getSingleLineValidation(request.PEOOrgSymbol, 15),
             PEO_DSNPhoneError: this.getPhoneNumberValidation(request.PEO_DSNPhone, false),
             PEO_CommPhoneError: this.getPhoneNumberValidation(request.PEO_CommPhone, true),
+            IsFundedCheckError: isFunded === undefined ? "Choose whether funded or not!" : "",
             FundingOrgOrPEOError: isFunded ? this.getSingleLineValidation(request.FundingOrgOrPEO, 255) : "",
             OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded, 255) : "",
             ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg, 15),
