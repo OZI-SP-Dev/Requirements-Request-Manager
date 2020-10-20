@@ -343,31 +343,31 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     </Col>
                     <Col className="mt-4 mb-4" xl="6" lg="6" md="6" sm="6" xs="12">
                         <Form.Label className="mr-3">Requirement Funded? If yes, Funding Org will appear: </Form.Label>
-                        <Form.Group>
-                            <Form.Check inline type="radio" id="funded-radio-yes" disabled={readOnly} >
+                        <Form.Check inline type="radio" disabled={readOnly} >
+                            <Form.Group controlId="funded-radio">
                                 <Form.Check.Input type="radio"
+                                    id="funded-radio-yes"
                                     disabled={readOnly}
                                     checked={showFundingField}
                                     onChange={() => setShowFundingField(true)}
                                     isValid={validation && !validation.IsFundedCheckError}
                                     isInvalid={validation && validation.IsFundedCheckError !== ""}
                                 />
-                                <Form.Check.Label className="mr-1">Yes</Form.Check.Label>
-                            </Form.Check>
-                            <Form.Check inline type="radio" id="funded-radio-no" disabled={readOnly} >
+                                <Form.Check.Label htmlFor="funded-radio-yes" className="mr-3">Yes</Form.Check.Label>
                                 <Form.Check.Input type="radio"
+                                    id="funded-radio-no"
                                     disabled={readOnly}
                                     checked={showFundingField !== undefined && !showFundingField}
                                     onChange={() => setShowFundingField(false)}
                                     isValid={validation && !validation.IsFundedCheckError}
                                     isInvalid={validation && validation.IsFundedCheckError !== ""}
                                 />
-                                <Form.Check.Label className="mr-3">No</Form.Check.Label>
+                                <Form.Check.Label htmlFor="funded-radio-no" className="mr-3">No</Form.Check.Label>
                                 <Form.Control.Feedback type="invalid" className="mr-3">
                                     {validation ? validation.IsFundedCheckError : ""}
                                 </Form.Control.Feedback>
-                            </Form.Check>
-                        </Form.Group>
+                            </Form.Group>
+                        </Form.Check>
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         {showFundingField &&
