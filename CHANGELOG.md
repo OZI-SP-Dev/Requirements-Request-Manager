@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.20] 2020-10-20
+### Changed
+- IsFunded field changed from a checkbox to Yes/No radio buttons so that users must choose an option
+
 ## [0.1.19] 2020-10-19
 ### Changed
 - IRM dates on home page now says every two months
