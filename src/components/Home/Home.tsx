@@ -22,9 +22,9 @@ export const Home: FunctionComponent = () => {
                         <Card.Header><Card.Title>Site Introduction</Card.Title></Card.Header>
                         <Card.Text>
                             <p>
-                                Welcome to AFLCMC/OZI’s Requirements Request Form site. This online form will begin the process for your requirement request. Please read the instructions below to complete the form. <br /><br />
-                                You will need to work with your 2 Ltr/Execution Directorate or an assigned POC on the Requirements Form for signature prior to submission. Please <strong>DO NOT</strong> have your 2 Ltr/Execution Directorate sign the form until it is fully complete. Once form is signed – all fields will be locked and content cannot be revised.<br /><br />
-                                Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams</u></a>
+                                Welcome to AFLCMC/OZI’s Requirements Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form. <br /><br />
+                                You will need to work with your 2 Ltr/Execution Directorate or an assigned POC on the Requirements Form for signature prior to submission. Please <strong>DO NOT</strong> have your 2 Ltr/Execution Directorate sign the Form until it is fully complete. Once Form is signed – all fields will be locked and content cannot be revised.<br /><br />
+                                Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams AFLCMC/OZI</u></a>
                             </p>
                         </Card.Text>
                     </Card>
@@ -34,7 +34,7 @@ export const Home: FunctionComponent = () => {
                 <Card className="m-auto p-0" as={Col} lg='9' sm='10' xs='12'>
                     <Card.Header><Card.Title>Form Instructions</Card.Title></Card.Header>
                     <Card.Text>
-                        <p>Work with your 2 Ltr/Execution Directorate on the Requirements Form – DO NOT have your 2 Ltr/Execution Directorate sign until form is complete. Once this form is signed – all fields will be locked and content cannot be revised.<br /></p>
+                        <p>Work with your 2 Ltr/Execution Directorate on the Requirements Form – DO NOT have your 2 Ltr/Execution Directorate sign until Form is complete. Once this Form is signed – all fields will be locked and content cannot be revised.<br /></p>
                         <ul>
                             <li>Complete names, org symbols, email addresses and phone numbers</li>
                             <li>Requirement Name</li>
@@ -64,7 +64,7 @@ export const Home: FunctionComponent = () => {
                         <ul>
                             <li>Requirements Manager Receives/Reviews Form</li>
                             <ul><li>Requirements Manager sets up conversation time with requestor and POC to discuss requirement</li></ul>
-                            <li>Requirement is presented to the IRM Board, chaired by AFLCMC CV and consists of Dep Directors and Execution Directorates  – <i>every 8 weeks</i></li>
+                            <li>Requirement is presented to the IRM Group, chaired by AFLCMC CV and consists of Dep Directors and Execution Directorates  – <i>every 8 weeks</i></li>
                             <li>AFLCMC/OZI Chief Information Technology Officer presents to Functional Management Group, chaired by SAF/AQX – <i>every 6 months</i></li>
                             <li>One month later – Requirements Review Board, this board will tell us which requirements have funding to proceed to be placed on contract for development and implementation</li>
                             <ul><li>Requestor and POC will be informed of the status of their requirement</li></ul>
