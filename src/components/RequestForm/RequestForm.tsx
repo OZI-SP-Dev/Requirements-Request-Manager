@@ -209,7 +209,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Your DSN Phone Number"
                             readOnly={readOnly}
-                            value={request.RequesterDSNPhone}
+                            value={request.RequesterDSNPhone ? request.RequesterDSNPhone : ''}
                             onChange={e => updatePhoneField('RequesterDSNPhone', getNumbersOnly(e.target.value))}
                             isValid={validation && !validation.RequesterDSNPhoneError}
                             isInvalid={validation && validation.RequesterDSNPhoneError !== ""}
@@ -280,7 +280,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             type="text"
                             placeholder="Approving PEO's DSN Phone Number"
                             readOnly={readOnly}
-                            value={request.PEO_DSNPhone}
+                            value={request.PEO_DSNPhone ? request.PEO_DSNPhone : ''}
                             onChange={e => updatePhoneField('PEO_DSNPhone', getNumbersOnly(e.target.value))}
                             isValid={validation && !validation.PEO_DSNPhoneError}
                             isInvalid={validation && validation.PEO_DSNPhoneError !== ""}
