@@ -36,13 +36,19 @@ export class RequestValidation {
         }
     }
 
-    private static getPhoneNumberValidation(field: string, required: boolean): string {
-        if (new RegExp("[^0-9]").exec(field)) {
-            return "Only numeric values should be used!";
-        } else if ((field.length < 10 && required) || (field.length > 0 && field.length < 10)) {
-            return "Please enter the full phone number, including area code!";
-        } else if (field.length > 10) {
-            return "Too many numbers given, please use a 10 digit phone number!";
+    private static getPhoneNumberValidation(field: string | null, required: boolean): string {
+        if (field) {
+            if (new RegExp("[^0-9]").exec(field)) {
+                return "Only numeric values should be used!";
+            } else if ((field.length < 10 && required) || (field.length > 0 && field.length < 10)) {
+                return "Please enter the full phone number, including area code!";
+            } else if (field.length > 10) {
+                return "Too many numbers given, please use a 10 digit phone number!";
+            } else {
+                return "";
+            }
+        } else if (required) {
+            return "Please enter this phone number."
         } else {
             return "";
         }

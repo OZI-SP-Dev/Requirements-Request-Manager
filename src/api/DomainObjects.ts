@@ -50,13 +50,13 @@ export interface IRequirementsRequest {
     Author: IPerson,
     Requester: IPerson,
     RequesterOrgSymbol: string,
-    RequesterDSNPhone: string,
+    RequesterDSNPhone: string | null,
     RequesterCommPhone: string,
     ApprovingPEO: IPerson,
     PEOApprovedDateTime: Moment | null,
     PEOApprovedComment: string | null,
     PEOOrgSymbol: string,
-    PEO_DSNPhone: string,
+    PEO_DSNPhone: string | null,
     PEO_CommPhone: string,
     NoveltyRequirementType: NoveltyRequirementTypes,
     FuncRequirementType: FuncRequirementTypes,
@@ -165,13 +165,13 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Author: IPerson;
     Requester: IPerson;
     RequesterOrgSymbol: string;
-    RequesterDSNPhone: string;
+    RequesterDSNPhone: string | null;
     RequesterCommPhone: string;
     ApprovingPEO: IPerson;
     PEOApprovedDateTime: Moment | null;
     PEOApprovedComment: string | null;
     PEOOrgSymbol: string;
-    PEO_DSNPhone: string;
+    PEO_DSNPhone: string | null;
     PEO_CommPhone: string;
     NoveltyRequirementType: NoveltyRequirementTypes;
     FuncRequirementType: FuncRequirementTypes;
