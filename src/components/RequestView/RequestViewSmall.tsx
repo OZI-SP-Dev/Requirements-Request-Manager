@@ -18,13 +18,13 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
         </Popover>;
 
     let approverPopover =
-        <Popover id={`popover-${props.request.ApprovingPEO.EMail}`}>
-            <Popover.Title as="h3">{props.request.ApprovingPEO.Title}</Popover.Title>
+        <Popover id={`popover-${props.request.Approver.EMail}`}>
+            <Popover.Title as="h3">{props.request.Approver.Title}</Popover.Title>
             <Popover.Content>
-                <strong>Email:</strong> {props.request.ApprovingPEO.EMail}<br />
-                <strong>Org:</strong> {props.request.PEOOrgSymbol}<br />
-                <strong>Comm #:</strong> {props.request.PEO_CommPhone}<br />
-                <strong>DSN #:</strong> {props.request.PEO_DSNPhone ? props.request.PEO_DSNPhone : "None"}
+                <strong>Email:</strong> {props.request.Approver.EMail}<br />
+                <strong>Org:</strong> {props.request.ApproverOrgSymbol}<br />
+                <strong>Comm #:</strong> {props.request.ApproverCommPhone}<br />
+                <strong>DSN #:</strong> {props.request.ApproverDSNPhone ? props.request.ApproverDSNPhone : "None"}
             </Popover.Content>
         </Popover>;
 
@@ -44,32 +44,32 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                         {props.request.Requester.Title}
                     </Col>
                     <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                        <strong>Approving PEO/2 Ltr: </strong>
+                        <strong>Approving 2 Ltr Deputy: </strong>
                         <OverlayTrigger trigger="click" placement="right" overlay={approverPopover}>
                             <Persona
                                 className="clickable mr-2 d-none d-inline-block"
-                                {...props.request.ApprovingPEO}
+                                {...props.request.Approver}
                                 hidePersonaDetails
                                 size={PersonaSize.size32}
                             />
                         </OverlayTrigger>
-                        {props.request.ApprovingPEO.Title}
+                        {props.request.Approver.Title}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Approval Date: </strong>
-                        {props.request.PEOApprovedDateTime ? props.request.PEOApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
+                        {props.request.ApprovedDateTime ? props.request.ApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
                     </Col>
                     <Col className="mt-2" xl={8} lg={8} md={8} sm={6} xs={12}>
                         <strong>Comment on Approval: </strong>
-                        {props.request.PEOApprovedComment ? props.request.PEOApprovedComment : "None"}
+                        {props.request.ApprovedComment ? props.request.ApprovedComment : "None"}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Requirement Type: </strong>
-                        {props.request.NoveltyRequirementType}, {props.request.FuncRequirementType}
+                        {props.request.NoveltyRequirementType}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Funding Org: </strong>
-                        {props.request.FundingOrgOrPEO ? props.request.FundingOrgOrPEO : "Not Funded"}
+                        {props.request.FundingOrgOrDeputy ? props.request.FundingOrgOrDeputy : "Not Funded"}
                     </Col>
                 </Row>
                 <Row className="ml-2 mr-2 mb-2 view-form">

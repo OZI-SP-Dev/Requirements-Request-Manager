@@ -79,7 +79,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
                                 <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
-                                <td>{request.PEOApprovedDateTime ? request.PEOApprovedDateTime.format("DD MMM YYYY") : "None"}</td>
+                                <td>{request.ApprovedDateTime ? request.ApprovedDateTime.format("DD MMM YYYY") : "None"}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
                                 <td colSpan={8} className="p-0">
@@ -114,7 +114,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                         <Link to={`/Requests/Edit/${request.Id}`}>
                                                             <Button className="float-left ml-2" variant="warning">Edit Request</Button>
                                                         </Link>}
-                                                    {request.PEOApprovedDateTime || user?.Id !== request.ApprovingPEO.Id ?
+                                                    {request.ApprovedDateTime || user?.Id !== request.Approver.Id ?
                                                         <Link to={`/Requests/View/${request.Id}`}>
                                                             <Button className="float-right" variant="primary">View Request</Button>
                                                         </Link>

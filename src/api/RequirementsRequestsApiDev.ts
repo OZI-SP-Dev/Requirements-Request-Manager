@@ -1,5 +1,5 @@
 import moment from "moment";
-import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { Person, UserApiConfig } from "./UserApi";
@@ -31,19 +31,18 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 RequesterOrgSymbol: "OZIC",
                 RequesterDSNPhone: "1234567890",
                 RequesterCommPhone: "1234567890",
-                ApprovingPEO: new Person({
+                Approver: new Person({
                     Id: 2,
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
                     EMail: "robertporterfield@superemail.com"
                 }),
-                PEOApprovedDateTime: null,
-                PEOApprovedComment: null,
-                PEOOrgSymbol: "OZI",
-                PEO_DSNPhone: "1234567890",
-                PEO_CommPhone: "1234567890",
+                ApprovedDateTime: null,
+                ApprovedComment: null,
+                ApproverOrgSymbol: "OZI",
+                ApproverDSNPhone: "1234567890",
+                ApproverCommPhone: "1234567890",
                 NoveltyRequirementType: NoveltyRequirementTypes.NEW_CAP,
-                FuncRequirementType: FuncRequirementTypes.FUNCTIONAL,
-                FundingOrgOrPEO: "OZI",
+                FundingOrgOrDeputy: "OZI",
                 ApplicationNeeded: ApplicationTypes.CCaR,
                 OtherApplicationNeeded: "",
                 IsProjectedOrgsEnterprise: false,
@@ -78,19 +77,18 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 RequesterOrgSymbol: "OZIC",
                 RequesterDSNPhone: "1234567890",
                 RequesterCommPhone: "1234567890",
-                ApprovingPEO: new Person({
+                Approver: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
                     EMail: "jeremyclark@superemail.com"
                 }),
-                PEOApprovedDateTime: null,
-                PEOApprovedComment: null,
-                PEOOrgSymbol: "OZI",
-                PEO_DSNPhone: "1234567890",
-                PEO_CommPhone: "1234567890",
+                ApprovedDateTime: null,
+                ApprovedComment: null,
+                ApproverOrgSymbol: "OZI",
+                ApproverDSNPhone: "1234567890",
+                ApproverCommPhone: "1234567890",
                 NoveltyRequirementType: NoveltyRequirementTypes.MOD_EXISTING_CAP,
-                FuncRequirementType: FuncRequirementTypes.NON_FUNCTIONAL,
-                FundingOrgOrPEO: "",
+                FundingOrgOrDeputy: "",
                 ApplicationNeeded: ApplicationTypes.OTHER,
                 OtherApplicationNeeded: "Super App",
                 IsProjectedOrgsEnterprise: true,
@@ -130,7 +128,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         await this.sleep();
         let approvals = await this.approvalsApi.getRequestApprovals(this.requests);
         let requests = this.requests.map(req => {
-            let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.ApprovingPEO.Id);
+            let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.Approver.Id);
             return new RequirementsRequest(approval ? approval.Request : req);
         });
         if (userId !== undefined) {

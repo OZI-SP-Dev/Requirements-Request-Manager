@@ -60,42 +60,42 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Approval Date: </strong>
-                        {props.request.PEOApprovedDateTime ? props.request.PEOApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
+                        {props.request.ApprovedDateTime ? props.request.ApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
                     </Col>
                     <Col className="mt-2" xl={8} lg={8} md={8} sm={6} xs={12}>
                         <strong>Comment on Approval: </strong>
-                        {props.request.PEOApprovedComment ? props.request.PEOApprovedComment : "None"}
+                        {props.request.ApprovedComment ? props.request.ApprovedComment : "None"}
                     </Col>
                     <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
-                        <strong>Approving PEO: </strong>
-                        {props.request.ApprovingPEO.Title}
+                        <strong>Approving 2 Ltr Deputy: </strong>
+                        {props.request.Approver.Title}
                     </Col>
                     <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
-                        <strong>PEO Email: </strong>
-                        {props.request.ApprovingPEO.EMail}
+                        <strong>Approver Email: </strong>
+                        {props.request.Approver.EMail}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
-                        <strong>PEO Org: </strong>
-                        {props.request.PEOOrgSymbol}
+                        <strong>Approver Org: </strong>
+                        {props.request.ApproverOrgSymbol}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                        <strong>PEO Comm #: </strong>
-                        {props.request.PEO_CommPhone}
+                        <strong>Approver Comm #: </strong>
+                        {props.request.ApproverCommPhone}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                        <strong>PEO DSN #: </strong>
-                        {props.request.PEO_DSNPhone ? props.request.PEO_DSNPhone : "None"}
+                        <strong>Approver DSN #: </strong>
+                        {props.request.ApproverDSNPhone ? props.request.ApproverDSNPhone : "None"}
                     </Col>
                 </Row>
                 <hr className="m-3" />
                 <Row className="ml-2 mr-2 mb-2 view-form">
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Requirement Type: </strong>
-                        {props.request.NoveltyRequirementType}, {props.request.FuncRequirementType}
+                        {props.request.NoveltyRequirementType}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Funding Org: </strong>
-                        {props.request.FundingOrgOrPEO ? props.request.FundingOrgOrPEO : "Not Funded"}
+                        {props.request.FundingOrgOrDeputy ? props.request.FundingOrgOrDeputy : "Not Funded"}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Application Needed: </strong>
