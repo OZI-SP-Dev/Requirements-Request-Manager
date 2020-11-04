@@ -1,6 +1,7 @@
+import { Icon } from "@fluentui/react";
 import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Form, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
@@ -243,7 +244,17 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 {!approverSameAsRequester && <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>2 Ltr Deputy to Approve (Last Name, First Name):</Form.Label>
+                        <Form.Label>2 Ltr Deputy to Approve (Last Name, First Name):
+                            <OverlayTrigger
+                                delay={{ show: 500, hide: 0 }}
+                                overlay={
+                                    <Tooltip id="approverTooltip">
+                                        This will be the 2 Ltr Deputy for your organization unless they have delegated this authority
+							        </Tooltip>
+                                }>
+                                <Icon iconName='Info' ariaLabel="Info" className="ml-1 align-middle approver-info-icon" />
+                            </OverlayTrigger>
+                        </Form.Label>
                         <Form.Control
                             as={PeoplePicker}
                             defaultValue={request.Approver.Title ? [request.Approver] : undefined}
@@ -321,7 +332,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             {validation ? validation.TitleError : ""}
                         </Form.Control.Feedback>
                     </Col>
-                    <Col className="mt-4 mb-1" xl="12" lg="12" md="12" sm="12" xs="12">
+                    <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
                         <Form.Label className="mr-3 mb-0">Requirement Type New or Existing:</Form.Label>
                         {Object.values(NoveltyRequirementTypes).map(type =>
                             <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
@@ -331,7 +342,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             />)
                         }
                     </Col>
-                    <Col className="mt-4 mb-4" xl="6" lg="6" md="6" sm="6" xs="12">
+                    <Col className="mt-4 mb-1" xl="6" lg="6" md="6" sm="6" xs="12">
                         <Form.Label className="mr-3">Requirement Funded? If yes, Funding Org will appear: </Form.Label>
                         <Form.Check inline type="radio" disabled={readOnly} >
                             <Form.Group controlId="funded-radio">

@@ -33,7 +33,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
             <Col xl={12} lg={12} md={12} sm={12} xs={12}>
                 <Row className="ml-2 mr-2 mt-2 view-form">
                     <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                        <strong>Recieved Date: </strong>
+                        <strong>Received Date: </strong>
                         {props.request.ReceivedDate ? props.request.ReceivedDate.format("DD MMM YYYY") : "None"}
                     </Col>
                     <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
@@ -93,7 +93,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                         {props.request.ProjectedImpactedUsers === null ? "Unknown" : props.request.ProjectedImpactedUsers}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                        <strong>Organization's' Priority: </strong>
+                        <strong>Organization's Priority: </strong>
                         {props.request.OrgPriority}
                     </Col>
                 </Row>

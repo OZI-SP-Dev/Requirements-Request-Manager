@@ -35,7 +35,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         {props.request.RequestDate.format("DD MMM YYYY")}
                     </Col>
                     <Col className="mt-2" xl={4} lg={8} md={6} sm={6} xs={12}>
-                        <strong>Recieved Date: </strong>
+                        <strong>Received Date: </strong>
                         {props.request.ReceivedDate ? props.request.ReceivedDate.format("DD MMM YYYY") : "None"}
                     </Col>
                     <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
@@ -128,7 +128,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         {props.request.OperationalNeedDate.format("DD MMM YYYY")}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
-                        <strong>Organization's' Priority: </strong>
+                        <strong>Organization's Priority: </strong>
                         {props.request.OrgPriority}
                     </Col>
                 </Row>
