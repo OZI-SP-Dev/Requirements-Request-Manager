@@ -13,3 +13,8 @@
 .subtext {
     font-size: small;
 }
+
+.approver-info-icon {
+    color: gray;
+    cursor: pointer;
+}

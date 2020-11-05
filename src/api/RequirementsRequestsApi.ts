@@ -1,4 +1,4 @@
-import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
@@ -20,13 +20,12 @@ interface ISubmitRequirementsRequest {
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string | null,
     RequesterCommPhone: string,
-    ApprovingPEOId: number,
-    PEOOrgSymbol: string,
-    PEO_DSNPhone: string | null,
-    PEO_CommPhone: string,
+    ApproverId: number,
+    ApproverOrgSymbol: string,
+    ApproverDSNPhone: string | null,
+    ApproverCommPhone: string,
     NoveltyRequirementType: NoveltyRequirementTypes,
-    FuncRequirementType: FuncRequirementTypes,
-    FundingOrgOrPEO: string,
+    FundingOrgOrDeputy: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
     IsProjectedOrgsEnterprise: boolean,
@@ -62,13 +61,12 @@ interface SPRequirementsRequest {
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string | null,
     RequesterCommPhone: string,
-    ApprovingPEO: IPerson,
-    PEOOrgSymbol: string,
-    PEO_DSNPhone: string | null,
-    PEO_CommPhone: string,
+    Approver: IPerson,
+    ApproverOrgSymbol: string,
+    ApproverDSNPhone: string | null,
+    ApproverCommPhone: string,
     NoveltyRequirementType: NoveltyRequirementTypes,
-    FuncRequirementType: FuncRequirementTypes,
-    FundingOrgOrPEO: string,
+    FundingOrgOrDeputy: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
     IsProjectedOrgsEnterprise: boolean,
@@ -135,14 +133,13 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
-            // If the ApprovingPEOId is not known then "ensureUser" to add the user to the SP site and get their Id
-            ApprovingPEOId: request.ApprovingPEO.Id > -1 ? request.ApprovingPEO.Id : await this.userApi.getUserId(request.ApprovingPEO.EMail),
-            PEOOrgSymbol: request.PEOOrgSymbol,
-            PEO_DSNPhone: request.PEO_DSNPhone,
-            PEO_CommPhone: request.PEO_CommPhone,
+            // If the ApproverId is not known then "ensureUser" to add the user to the SP site and get their Id
+            ApproverId: request.Approver.Id > -1 ? request.Approver.Id : await this.userApi.getUserId(request.Approver.EMail),
+            ApproverOrgSymbol: request.ApproverOrgSymbol,
+            ApproverDSNPhone: request.ApproverDSNPhone,
+            ApproverCommPhone: request.ApproverCommPhone,
             NoveltyRequirementType: request.NoveltyRequirementType,
-            FuncRequirementType: request.FuncRequirementType,
-            FundingOrgOrPEO: request.FundingOrgOrPEO,
+            FundingOrgOrDeputy: request.FundingOrgOrDeputy,
             ApplicationNeeded: request.ApplicationNeeded,
             OtherApplicationNeeded: request.OtherApplicationNeeded,
             IsProjectedOrgsEnterprise: request.IsProjectedOrgsEnterprise,
@@ -173,15 +170,14 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
-            ApprovingPEO: new Person(request.ApprovingPEO),
-            PEOApprovedDateTime: null,
-            PEOApprovedComment: null,
-            PEOOrgSymbol: request.PEOOrgSymbol,
-            PEO_DSNPhone: request.PEO_DSNPhone,
-            PEO_CommPhone: request.PEO_CommPhone,
+            Approver: new Person(request.Approver),
+            ApprovedDateTime: null,
+            ApprovedComment: null,
+            ApproverOrgSymbol: request.ApproverOrgSymbol,
+            ApproverDSNPhone: request.ApproverDSNPhone,
+            ApproverCommPhone: request.ApproverCommPhone,
             NoveltyRequirementType: request.NoveltyRequirementType,
-            FuncRequirementType: request.FuncRequirementType,
-            FundingOrgOrPEO: request.FundingOrgOrPEO,
+            FundingOrgOrDeputy: request.FundingOrgOrDeputy,
             ApplicationNeeded: request.ApplicationNeeded,
             OtherApplicationNeeded: request.OtherApplicationNeeded,
             IsProjectedOrgsEnterprise: request.IsProjectedOrgsEnterprise,
@@ -202,7 +198,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         try {
-            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "NoveltyRequirementType", "FuncRequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "ApprovingPEO").get();
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver").get();
             if (!request.IsDeleted) {
                 let approval = await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request));
                 // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
@@ -230,12 +226,12 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
-            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "NoveltyRequirementType", "FuncRequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "ApprovingPEO");
+            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver");
 
             let queryString = "IsDeleted ne 1";
 
             if (userId !== undefined) {
-                queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or ApprovingPEO/Id eq ${userId})`;
+                queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or Approver/Id eq ${userId})`;
             }
 
             let pagedRequests = await query.filter(queryString).getPaged();
@@ -249,7 +245,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                 requirementRequestCRUDs.push(new RequirementsRequest(
                     this.getIRequirementsRequest(request,
                         approvals.find(approval =>
-                            approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id))
+                            approval.Request.Id === request.Id && approval.AuthorId === request.Approver.Id))
                     , this));
             }
             return requirementRequestCRUDs;
@@ -335,7 +331,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             let returnedSubmitRequest: ISubmitRequirementsRequest = (await this.requirementsRequestList.items.add(submitRequest)).data;
             returnedRequest.Id = returnedSubmitRequest.Id ? returnedSubmitRequest.Id : -1;
             returnedRequest.Requester.Id = returnedSubmitRequest.RequesterId;
-            returnedRequest.ApprovingPEO.Id = returnedSubmitRequest.ApprovingPEOId;
+            returnedRequest.Approver.Id = returnedSubmitRequest.ApproverId;
             returnedRequest["odata.etag"] = returnedSubmitRequest.__metadata ? returnedSubmitRequest.__metadata.etag : "";
             return new RequirementsRequest(returnedRequest, this);
         } catch (e) {

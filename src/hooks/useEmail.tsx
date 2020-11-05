@@ -69,7 +69,7 @@ export function useEmail(): IEmailSender {
     }
 
     const sendSubmitEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
-        let to = [request.ApprovingPEO];
+        let to = [request.Approver];
         let subject = `Request ${request.getFormattedId()} Submitted`;
         let body = `Hello, a requirements request has been submitted for which you are the approving official by ${request.Requester.Title}.
             
@@ -81,12 +81,12 @@ export function useEmail(): IEmailSender {
 
     const sendApprovalEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
         let to = getManagers();
-        if (request.ApprovingPEO.Id !== request.Requester.Id) {
+        if (request.Approver.Id !== request.Requester.Id) {
             to.push(request.Requester);
         }
         let subject = `Request ${request.getFormattedId()} Approved`;
-        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.ApprovingPEO.Title}.
-        ${request.PEOApprovedComment ? `The approver left a comment saying "${request.PEOApprovedComment}"` : ''}
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}.
+        ${request.ApprovedComment ? `The approver left a comment saying "${request.ApprovedComment}"` : ''}
         
         To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
@@ -94,7 +94,7 @@ export function useEmail(): IEmailSender {
     }
 
     const sendNoteEmail = async (request: IRequirementsRequestCRUD, note: INote): Promise<void> => {
-        let to = [request.ApprovingPEO, request.Requester];
+        let to = [request.Approver, request.Requester];
         let subject = `Note Added for Request ${request.getFormattedId()}`;
         let body = `Hello, a note has been added to your requirements request ${request.Title}
 

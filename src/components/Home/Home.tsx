@@ -7,7 +7,7 @@ export const Home: FunctionComponent = () => {
 
     return (
         <Container fluid="md" className="pb-5 pt-3">
-            <h1>Requirements Request Form</h1>
+            <h1>AFLCMC Requirements Request Form</h1>
             <Row className="m-3">
                 <Col className="m-auto p-0" lg='9' sm='10' xs='12'>
                     <Row className="mt-3 mb-3 mr-0">
@@ -22,9 +22,9 @@ export const Home: FunctionComponent = () => {
                         <Card.Header><Card.Title>Site Introduction</Card.Title></Card.Header>
                         <Card.Text>
                             <p>
-                                Welcome to AFLCMC/OZI’s Requirements Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form. <br /><br />
+                                Welcome to AFLCMC/XP-OZ/OZI’s Requirements Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form. <br /><br />
                                 You will need to work with your 2 Ltr/Execution Directorate or an assigned POC on the Requirements Form for signature prior to submission. Please <strong>DO NOT</strong> have your 2 Ltr/Execution Directorate sign the Form until it is fully complete. Once Form is signed – all fields will be locked and content cannot be revised.<br /><br />
-                                Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams AFLCMC/OZI</u></a>
+                                Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams AFLCMC/XP-OZ/OZI</u></a>
                             </p>
                         </Card.Text>
                     </Card>
@@ -65,7 +65,7 @@ export const Home: FunctionComponent = () => {
                             <li>Requirements Manager Receives/Reviews Form</li>
                             <ul><li>Requirements Manager sets up conversation time with requestor and POC to discuss requirement</li></ul>
                             <li>Requirement is presented to the IRM Group, chaired by AFLCMC/XP-OZ and consists of 2Ltr & Executive Center Deputies, Directorates, 66th and 88th ABWx, and SMEs as required – <i>every 8 weeks</i></li>
-                            <li>AFLCMC/OZI Chief Information Technology Officer presents to Functional Management Group, chaired by SAF/AQX – <i>every 6 months</i></li>
+                            <li>AFLCMC/XP-OZ/OZI Chief Information Technology Officer presents to Functional Management Group, chaired by SAF/AQX – <i>every 6 months</i></li>
                             <li>One month later – Requirements Review Board, this board will tell us which requirements have funding to proceed to be placed on contract for development and implementation</li>
                             <ul><li>Requestor and POC will be informed of the status of their requirement</li></ul>
                             <li>One month later – T2C meets to approve on funded requirements</li>

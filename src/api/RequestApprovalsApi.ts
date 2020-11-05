@@ -1,6 +1,6 @@
 import moment, { Moment } from "moment";
 import { spWebContext } from "../providers/SPWebContext";
-import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
 import { ApiError, InternalError, NotAuthorizedError } from "./InternalErrors";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { IPerson, IUserApi, Person, UserApiConfig } from "./UserApi";
@@ -33,13 +33,12 @@ interface SPRequestApproval {
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
     RequesterCommPhone: string,
-    ApprovingPEO: IPerson,
-    PEOOrgSymbol: string,
-    PEO_DSNPhone: string,
-    PEO_CommPhone: string,
+    Approver: IPerson,
+    ApproverOrgSymbol: string,
+    ApproverDSNPhone: string,
+    ApproverCommPhone: string,
     NoveltyRequirementType: NoveltyRequirementTypes,
-    FuncRequirementType: FuncRequirementTypes,
-    FundingOrgOrPEO: string,
+    FundingOrgOrDeputy: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
     IsProjectedOrgsEnterprise: boolean,
@@ -74,13 +73,12 @@ interface ISubmitRequestApproval {
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string | null,
     RequesterCommPhone: string,
-    ApprovingPEOId: number,
-    PEOOrgSymbol: string,
-    PEO_DSNPhone: string | null,
-    PEO_CommPhone: string,
+    ApproverId: number,
+    ApproverOrgSymbol: string,
+    ApproverDSNPhone: string | null,
+    ApproverCommPhone: string,
     NoveltyRequirementType: NoveltyRequirementTypes,
-    FuncRequirementType: FuncRequirementTypes,
-    FundingOrgOrPEO: string,
+    FundingOrgOrDeputy: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
     IsProjectedOrgsEnterprise: boolean,
@@ -140,7 +138,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         try {
-            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "NoveltyRequirementType", "FuncRequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.ApprovingPEO.Id}`).expand("Request", "Requester", "ApprovingPEO").get())[0];
+            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").get())[0];
             return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request.Author) : undefined;
         } catch (e) {
             console.error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
@@ -157,14 +155,14 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         try {
-            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "ApprovingPEO/Id", "ApprovingPEO/Title", "ApprovingPEO/EMail", "PEOOrgSymbol", "PEO_DSNPhone", "PEO_CommPhone", "NoveltyRequirementType", "FuncRequirementType", "FundingOrgOrPEO", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "ApprovingPEO").getPaged();
+            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").getPaged();
             let approvals: SPRequestApproval[] = pages.results;
             while (pages.hasNext) {
                 approvals = approvals.concat((await pages.getNext()).results);
             }
             let requestApprovals: IRequestApproval[] = [];
             for (let approval of approvals) {
-                let request = requests.find(req => req.Id === approval.Request.Id && req.ApprovingPEO.Id === approval.AuthorId);
+                let request = requests.find(req => req.Id === approval.Request.Id && req.Approver.Id === approval.AuthorId);
                 if (request) {
                     requestApprovals.push(this.spApprovalToRequestApproval(approval, request.Author));
                 }
@@ -189,7 +187,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             let requestCrud = new RequirementsRequest(request);
             let currentUser = await this.userApi.getCurrentUser();
             if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles())) {
-                if (currentUser.Id === request.ApprovingPEO.Id) {
+                if (currentUser.Id === request.Approver.Id) {
                     let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
 
                     return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
@@ -225,13 +223,12 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
-            ApprovingPEOId: request.ApprovingPEO.Id,
-            PEOOrgSymbol: request.PEOOrgSymbol,
-            PEO_DSNPhone: request.PEO_DSNPhone,
-            PEO_CommPhone: request.PEO_CommPhone,
+            ApproverId: request.Approver.Id,
+            ApproverOrgSymbol: request.ApproverOrgSymbol,
+            ApproverDSNPhone: request.ApproverDSNPhone,
+            ApproverCommPhone: request.ApproverCommPhone,
             NoveltyRequirementType: request.NoveltyRequirementType,
-            FuncRequirementType: request.FuncRequirementType,
-            FundingOrgOrPEO: request.FundingOrgOrPEO,
+            FundingOrgOrDeputy: request.FundingOrgOrDeputy,
             ApplicationNeeded: request.ApplicationNeeded,
             OtherApplicationNeeded: request.OtherApplicationNeeded,
             IsProjectedOrgsEnterprise: request.IsProjectedOrgsEnterprise,
@@ -265,15 +262,14 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 RequesterOrgSymbol: spApproval.RequesterOrgSymbol,
                 RequesterDSNPhone: spApproval.RequesterDSNPhone,
                 RequesterCommPhone: spApproval.RequesterCommPhone,
-                ApprovingPEO: new Person(spApproval.ApprovingPEO),
-                PEOApprovedDateTime: moment(spApproval.Created),
-                PEOApprovedComment: spApproval.Title,
-                PEOOrgSymbol: spApproval.PEOOrgSymbol,
-                PEO_DSNPhone: spApproval.PEO_DSNPhone,
-                PEO_CommPhone: spApproval.PEO_CommPhone,
+                Approver: new Person(spApproval.Approver),
+                ApprovedDateTime: moment(spApproval.Created),
+                ApprovedComment: spApproval.Title,
+                ApproverOrgSymbol: spApproval.ApproverOrgSymbol,
+                ApproverDSNPhone: spApproval.ApproverDSNPhone,
+                ApproverCommPhone: spApproval.ApproverCommPhone,
                 NoveltyRequirementType: spApproval.NoveltyRequirementType,
-                FuncRequirementType: spApproval.FuncRequirementType,
-                FundingOrgOrPEO: spApproval.FundingOrgOrPEO,
+                FundingOrgOrDeputy: spApproval.FundingOrgOrDeputy,
                 ApplicationNeeded: spApproval.ApplicationNeeded,
                 OtherApplicationNeeded: spApproval.OtherApplicationNeeded,
                 IsProjectedOrgsEnterprise: spApproval.IsProjectedOrgsEnterprise,
@@ -309,15 +305,14 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 RequesterOrgSymbol: requestApproval.RequesterOrgSymbol,
                 RequesterDSNPhone: requestApproval.RequesterDSNPhone,
                 RequesterCommPhone: requestApproval.RequesterCommPhone,
-                ApprovingPEO: submittedRequest.ApprovingPEO,
-                PEOApprovedDateTime: moment(requestApproval.Created),
-                PEOApprovedComment: requestApproval.Title,
-                PEOOrgSymbol: requestApproval.PEOOrgSymbol,
-                PEO_DSNPhone: requestApproval.PEO_DSNPhone,
-                PEO_CommPhone: requestApproval.PEO_CommPhone,
+                Approver: submittedRequest.Approver,
+                ApprovedDateTime: moment(requestApproval.Created),
+                ApprovedComment: requestApproval.Title,
+                ApproverOrgSymbol: requestApproval.ApproverOrgSymbol,
+                ApproverDSNPhone: requestApproval.ApproverDSNPhone,
+                ApproverCommPhone: requestApproval.ApproverCommPhone,
                 NoveltyRequirementType: requestApproval.NoveltyRequirementType,
-                FuncRequirementType: requestApproval.FuncRequirementType,
-                FundingOrgOrPEO: requestApproval.FundingOrgOrPEO,
+                FundingOrgOrDeputy: requestApproval.FundingOrgOrDeputy,
                 ApplicationNeeded: requestApproval.ApplicationNeeded,
                 OtherApplicationNeeded: requestApproval.OtherApplicationNeeded,
                 IsProjectedOrgsEnterprise: requestApproval.IsProjectedOrgsEnterprise,
@@ -370,19 +365,18 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 RequesterOrgSymbol: "OZIC",
                 RequesterDSNPhone: "1234567890",
                 RequesterCommPhone: "1234567890",
-                ApprovingPEO: new Person({
+                Approver: new Person({
                     Id: 2,
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
                     EMail: "robertporterfield@superemail.com"
                 }),
-                PEOApprovedDateTime: moment(),
-                PEOApprovedComment: "Super approval",
-                PEOOrgSymbol: "OZI",
-                PEO_DSNPhone: "1234567890",
-                PEO_CommPhone: "1234567890",
+                ApprovedDateTime: moment(),
+                ApprovedComment: "Super approval",
+                ApproverOrgSymbol: "OZI",
+                ApproverDSNPhone: "1234567890",
+                ApproverCommPhone: "1234567890",
                 NoveltyRequirementType: NoveltyRequirementTypes.NEW_CAP,
-                FuncRequirementType: FuncRequirementTypes.FUNCTIONAL,
-                FundingOrgOrPEO: "OZI",
+                FundingOrgOrDeputy: "OZI",
                 ApplicationNeeded: ApplicationTypes.CCaR,
                 OtherApplicationNeeded: "",
                 IsProjectedOrgsEnterprise: false,
@@ -422,19 +416,18 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 RequesterOrgSymbol: "OZIC",
                 RequesterDSNPhone: "1234567890",
                 RequesterCommPhone: "1234567890",
-                ApprovingPEO: new Person({
+                Approver: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
                     EMail: "jeremyclark@superemail.com"
                 }),
-                PEOApprovedDateTime: null,
-                PEOApprovedComment: null,
-                PEOOrgSymbol: "OZI",
-                PEO_DSNPhone: "1234567890",
-                PEO_CommPhone: "1234567890",
+                ApprovedDateTime: null,
+                ApprovedComment: null,
+                ApproverOrgSymbol: "OZI",
+                ApproverDSNPhone: "1234567890",
+                ApproverCommPhone: "1234567890",
                 NoveltyRequirementType: NoveltyRequirementTypes.MOD_EXISTING_CAP,
-                FuncRequirementType: FuncRequirementTypes.NON_FUNCTIONAL,
-                FundingOrgOrPEO: "",
+                FundingOrgOrDeputy: "",
                 ApplicationNeeded: ApplicationTypes.OTHER,
                 OtherApplicationNeeded: "Super App",
                 IsProjectedOrgsEnterprise: true,
@@ -462,10 +455,10 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
 
     async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         await this.sleep();
-        let approval = this.approvals.find(approval => approval.Request.Id === request.Id && approval.AuthorId === request.ApprovingPEO.Id);
+        let approval = this.approvals.find(approval => approval.Request.Id === request.Id && approval.AuthorId === request.Approver.Id);
         if (approval) {
-            approval.Request.PEOApprovedDateTime = approval.Created;
-            approval.Request.PEOApprovedComment = approval.Comment;
+            approval.Request.ApprovedDateTime = approval.Created;
+            approval.Request.ApprovedComment = approval.Comment;
         }
         return approval;
     }
@@ -473,11 +466,11 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
     async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         await this.sleep();
         return this.approvals.filter(approval =>
-            requests.findIndex(request => request.Id === approval.Request.Id && request.ApprovingPEO.Id === approval.AuthorId) > -1)
+            requests.findIndex(request => request.Id === approval.Request.Id && request.Approver.Id === approval.AuthorId) > -1)
             .map(approval => {
                 return {
                     ...approval,
-                    Request: { ...approval.Request, PEOApprovedDateTime: approval.Created, PEOApprovedComment: approval.Comment }
+                    Request: { ...approval.Request, ApprovedDateTime: approval.Created, ApprovedComment: approval.Comment }
                 }
             });
     }
@@ -486,7 +479,7 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         let requestCrud = new RequirementsRequest(request);
         let currentUser = await this.userApi.getCurrentUser();
         if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles())) {
-            if (currentUser.Id === request.ApprovingPEO.Id) {
+            if (currentUser.Id === request.Approver.Id) {
                 let newApproval: IRequestApproval = {
                     Id: ++this.maxId,
                     Comment: comment,
@@ -494,8 +487,8 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                     AuthorId: (await this.userApi.getCurrentUser()).Id,
                     Request: new RequirementsRequest(request)
                 }
-                newApproval.Request.PEOApprovedComment = newApproval.Comment;
-                newApproval.Request.PEOApprovedDateTime = newApproval.Created;
+                newApproval.Request.ApprovedComment = newApproval.Comment;
+                newApproval.Request.ApprovedDateTime = newApproval.Created;
                 this.approvals.push(newApproval);
                 return newApproval;
             } else {

@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.21] 2020-11-04
+### Fixed
+- Spelling mistakes on view pages
+
+### Added
+- Tooltip to Approver field on form
+
+### Changed
+- PEOOrgSymbol to ApproverOrgSymbol on RequirementsRequest and RequestApprovals
+- FundingOrgOrPEO to FundingOrgOrDeputy on RequirementsRequest and RequestApprovals
+- ApprovingPEO to Approver on RequirementsRequest and RequestApprovals
+- PEO_DSNPhone to ApproverDSNPhone on RequirementsRequest and RequestApprovals
+- PEO_CommPhone to ApproverCommPhone on RequirementsRequest and RequestApprovals
+
+### Removed
+- FuncRequirementType field on RequirementsRequest and RequestApprovals
+
 ## [0.1.20] 2020-10-20
 ### Changed
 - IsFunded field changed from a checkbox to Yes/No radio buttons so that users must choose an option

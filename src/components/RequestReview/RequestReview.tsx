@@ -42,7 +42,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     }
 
     const checkIfUserCanReview = (request: IRequirementsRequest): boolean => {
-        return props.submitApproval !== undefined && user !== undefined && request !== undefined && !request.PEOApprovedDateTime && user.Id === request.ApprovingPEO.Id;
+        return props.submitApproval !== undefined && user !== undefined && request !== undefined && !request.ApprovedDateTime && user.Id === request.Approver.Id;
     }
 
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet

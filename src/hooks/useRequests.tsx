@@ -50,7 +50,7 @@ export function useRequests(): IRequests {
             setRequests(newRequests);
 
             // Only send the notif if the request is new (new ID returned) and the Approver is not the Requester
-            if (request.Id !== updatedRequest.Id && updatedRequest.ApprovingPEO.EMail !== updatedRequest.Requester.EMail) {
+            if (request.Id !== updatedRequest.Id && updatedRequest.Approver.EMail !== updatedRequest.Requester.EMail) {
                 await email.sendSubmitEmail(updatedRequest);
             }
 

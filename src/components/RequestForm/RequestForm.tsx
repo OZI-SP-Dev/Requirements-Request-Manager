@@ -1,8 +1,9 @@
+import { Icon } from "@fluentui/react";
 import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Form, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, Centers, FuncRequirementTypes, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
@@ -27,7 +28,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     const [oldRequest, setOldRequest] = useState<IRequirementsRequest>();
     const [validation, setValidation] = useState<IRequestValidation | undefined>();
     const [showFundingField, setShowFundingField] = useState<boolean>();
-    const [peoSameAsRequester, setPeoSameAsRequester] = useState<boolean>(false);
+    const [approverSameAsRequester, setApproverSameAsRequester] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [readOnly, setReadOnly] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
@@ -43,8 +44,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 let newRequest = await props.fetchRequestById(props.editRequestId);
                 if (newRequest) {
                     setReadOnly(newRequest.isReadOnly(userContext.user, userContext.roles));
-                    setPeoSameAsRequester(newRequest.Requester.Id === newRequest.ApprovingPEO.Id);
-                    setShowFundingField(newRequest.FundingOrgOrPEO !== "" && newRequest.FundingOrgOrPEO !== undefined && newRequest.FundingOrgOrPEO !== null);
+                    setApproverSameAsRequester(newRequest.Requester.Id === newRequest.Approver.Id);
+                    setShowFundingField(newRequest.FundingOrgOrDeputy !== "" && newRequest.FundingOrgOrDeputy !== undefined && newRequest.FundingOrgOrDeputy !== null);
                     setRequest(newRequest);
                     // copy that doesn't get changed to pass to the validator
                     setOldRequest(newRequest);
@@ -79,11 +80,11 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }, [request.Requester.Title]);
 
     useEffect(() => {
-        let userOrgIndex = request.ApprovingPEO.Title.search(new RegExp("\\w+/\\w+$"));
+        let userOrgIndex = request.Approver.Title.search(new RegExp("\\w+/\\w+$"));
         if (userOrgIndex >= 0) {
-            updateRequest('PEOOrgSymbol', request.ApprovingPEO.Title.substr(userOrgIndex));
+            updateRequest('ApproverOrgSymbol', request.Approver.Title.substr(userOrgIndex));
         } // eslint-disable-next-line
-    }, [request.ApprovingPEO.Title]);
+    }, [request.Approver.Title]);
 
     useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
@@ -108,7 +109,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }
 
     const flipPeoSameAsRequester = (): void => {
-        setPeoSameAsRequester(!peoSameAsRequester);
+        setApproverSameAsRequester(!approverSameAsRequester);
     }
 
     const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
@@ -116,14 +117,14 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             e.preventDefault();
             setSaving(true);
             let req = new RequirementsRequest(request);
-            if (peoSameAsRequester) {
-                req.ApprovingPEO = req.Requester;
-                req.PEOOrgSymbol = req.RequesterOrgSymbol;
-                req.PEO_DSNPhone = req.RequesterDSNPhone;
-                req.PEO_CommPhone = req.RequesterCommPhone;
+            if (approverSameAsRequester) {
+                req.Approver = req.Requester;
+                req.ApproverOrgSymbol = req.RequesterOrgSymbol;
+                req.ApproverDSNPhone = req.RequesterDSNPhone;
+                req.ApproverCommPhone = req.RequesterCommPhone;
             }
             if (!showFundingField) {
-                req.FundingOrgOrPEO = "";
+                req.FundingOrgOrDeputy = "";
             }
             let requestValidation = RequestValidation.getValidation(req, showFundingField, oldRequest);
             if (!requestValidation.IsErrored) {
@@ -234,74 +235,84 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col className="mt-4" xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Check inline label="2 Ltr/PEO Same as Requester?" type="checkbox" id="peo-requester-checkbox"
+                        <Form.Check inline label="2 Ltr Deputy Same as Requester?" type="checkbox" id="peo-requester-checkbox"
                             disabled={readOnly}
-                            checked={peoSameAsRequester}
+                            checked={approverSameAsRequester}
                             onChange={flipPeoSameAsRequester}
                         />
                     </Col>
                 </Form.Row>
-                {!peoSameAsRequester && <Form.Row>
+                {!approverSameAsRequester && <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>2 Ltr/PEO to Approve (Last Name, First Name):</Form.Label>
+                        <Form.Label>2 Ltr Deputy to Approve (Last Name, First Name):
+                            <OverlayTrigger
+                                delay={{ show: 500, hide: 0 }}
+                                overlay={
+                                    <Tooltip id="approverTooltip">
+                                        This will be the 2 Ltr Deputy for your organization unless they have delegated this authority
+							        </Tooltip>
+                                }>
+                                <Icon iconName='Info' ariaLabel="Info" className="ml-1 align-middle approver-info-icon" />
+                            </OverlayTrigger>
+                        </Form.Label>
                         <Form.Control
                             as={PeoplePicker}
-                            defaultValue={request.ApprovingPEO.Title ? [request.ApprovingPEO] : undefined}
+                            defaultValue={request.Approver.Title ? [request.Approver] : undefined}
                             updatePeople={(p: IPerson[]) => {
                                 let persona = p[0];
-                                updateRequest('ApprovingPEO', persona ? new Person(persona) : new Person());
+                                updateRequest('Approver', persona ? new Person(persona) : new Person());
                             }}
                             readOnly={readOnly}
                             required
-                            isInvalid={validation && validation.ApprovingPEOError !== ""}
+                            isInvalid={validation && validation.ApproverError !== ""}
                         />
                         <Form.Control.Feedback type="invalid">
-                            {validation ? validation.ApprovingPEOError : ""}
+                            {validation ? validation.ApproverError : ""}
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
-                        <Form.Label>2 Ltr/PEO Org Symbol:</Form.Label>
+                        <Form.Label>2 Ltr Deputy Org Symbol:</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Approving PEO's Org Symbol"
+                            placeholder="Approver's Org Symbol"
                             readOnly={readOnly}
-                            value={request.PEOOrgSymbol}
-                            onChange={e => updateRequest('PEOOrgSymbol', e.target.value)}
-                            isValid={validation && !validation.PEOOrgSymbolError}
-                            isInvalid={validation && validation.PEOOrgSymbolError !== ""}
+                            value={request.ApproverOrgSymbol}
+                            onChange={e => updateRequest('ApproverOrgSymbol', e.target.value)}
+                            isValid={validation && !validation.ApproverOrgSymbolError}
+                            isInvalid={validation && validation.ApproverOrgSymbolError !== ""}
                         />
                         <Form.Control.Feedback type="invalid">
-                            {validation ? validation.PEOOrgSymbolError : ""}
+                            {validation ? validation.ApproverOrgSymbolError : ""}
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label>2 Ltr/PEO DSN #:</Form.Label>
+                        <Form.Label>2 Ltr Deputy DSN #:</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Approving PEO's DSN Phone Number"
+                            placeholder="Approver's DSN Phone Number"
                             readOnly={readOnly}
-                            value={request.PEO_DSNPhone ? request.PEO_DSNPhone : ''}
-                            onChange={e => updatePhoneField('PEO_DSNPhone', getNumbersOnly(e.target.value))}
-                            isValid={validation && !validation.PEO_DSNPhoneError}
-                            isInvalid={validation && validation.PEO_DSNPhoneError !== ""}
+                            value={request.ApproverDSNPhone ? request.ApproverDSNPhone : ''}
+                            onChange={e => updatePhoneField('ApproverDSNPhone', getNumbersOnly(e.target.value))}
+                            isValid={validation && !validation.ApproverDSNPhoneError}
+                            isInvalid={validation && validation.ApproverDSNPhoneError !== ""}
                         />
                         <Form.Control.Feedback type="invalid">
-                            {validation ? validation.PEO_DSNPhoneError : ""}
+                            {validation ? validation.ApproverDSNPhoneError : ""}
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
-                        <Form.Label>2 Ltr/PEO Comm #:</Form.Label>
+                        <Form.Label>2 Ltr Deputy Comm #:</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Approving PEO's Commercial Phone Number"
+                            placeholder="Approver's Commercial Phone Number"
                             readOnly={readOnly}
-                            value={request.PEO_CommPhone}
-                            onChange={e => updatePhoneField('PEO_CommPhone', getNumbersOnly(e.target.value))}
-                            isValid={validation && !validation.PEO_CommPhoneError}
-                            isInvalid={validation && validation.PEO_CommPhoneError !== ""}
+                            value={request.ApproverCommPhone}
+                            onChange={e => updatePhoneField('ApproverCommPhone', getNumbersOnly(e.target.value))}
+                            isValid={validation && !validation.ApproverCommPhoneError}
+                            isInvalid={validation && validation.ApproverCommPhoneError !== ""}
                         />
                         <Form.Control.Feedback type="invalid">
-                            {validation ? validation.PEO_CommPhoneError : ""}
+                            {validation ? validation.ApproverCommPhoneError : ""}
                         </Form.Control.Feedback>
                     </Col>
                 </Form.Row>}
@@ -321,7 +332,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             {validation ? validation.TitleError : ""}
                         </Form.Control.Feedback>
                     </Col>
-                    <Col className="mt-4 mb-1" xl="12" lg="12" md="12" sm="12" xs="12">
+                    <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
                         <Form.Label className="mr-3 mb-0">Requirement Type New or Existing:</Form.Label>
                         {Object.values(NoveltyRequirementTypes).map(type =>
                             <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
@@ -331,17 +342,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             />)
                         }
                     </Col>
-                    <Col className="mb-2" xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label className="mr-3 mb-0">Requirement Type Functional:</Form.Label>
-                        {Object.values(FuncRequirementTypes).map(type =>
-                            <Form.Check key={type} inline label={type} type="radio" id={`${type}-radio`}
-                                disabled={readOnly}
-                                checked={request.FuncRequirementType === type}
-                                onChange={() => updateRequest("FuncRequirementType", type)}
-                            />)
-                        }
-                    </Col>
-                    <Col className="mt-4 mb-4" xl="6" lg="6" md="6" sm="6" xs="12">
+                    <Col className="mt-4 mb-1" xl="6" lg="6" md="6" sm="6" xs="12">
                         <Form.Label className="mr-3">Requirement Funded? If yes, Funding Org will appear: </Form.Label>
                         <Form.Check inline type="radio" disabled={readOnly} >
                             <Form.Group controlId="funded-radio">
@@ -372,18 +373,18 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         {showFundingField &&
                             <>
-                                <Form.Label>If Yes, Org/PEO funding it:</Form.Label>
+                                <Form.Label>If Yes, Org/2 Ltr Deputy funding it:</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Org/PEO Funding the Requirement"
+                                    placeholder="Org/Deputy Funding the Requirement"
                                     readOnly={readOnly}
-                                    value={request.FundingOrgOrPEO}
-                                    onChange={e => updateRequest('FundingOrgOrPEO', e.target.value)}
-                                    isValid={validation && !validation.FundingOrgOrPEOError}
-                                    isInvalid={validation && validation.FundingOrgOrPEOError !== ""}
+                                    value={request.FundingOrgOrDeputy}
+                                    onChange={e => updateRequest('FundingOrgOrDeputy', e.target.value)}
+                                    isValid={validation && !validation.FundingOrgOrDeputyError}
+                                    isInvalid={validation && validation.FundingOrgOrDeputyError !== ""}
                                 />
                                 <Form.Control.Feedback type="invalid">
-                                    {validation ? validation.FundingOrgOrPEOError : ""}
+                                    {validation ? validation.FundingOrgOrDeputyError : ""}
                                 </Form.Control.Feedback>
                             </>
                         }

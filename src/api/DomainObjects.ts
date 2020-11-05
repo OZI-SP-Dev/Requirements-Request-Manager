@@ -9,11 +9,6 @@ export enum NoveltyRequirementTypes {
     MOD_EXISTING_CAP = "Modification to existing capability"
 }
 
-export enum FuncRequirementTypes {
-    FUNCTIONAL = "Functional",
-    NON_FUNCTIONAL = "Non - Functional"
-}
-
 export enum ApplicationTypes {
     CCaR = "CCaR",
     CPE = "CPE",
@@ -52,15 +47,14 @@ export interface IRequirementsRequest {
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string | null,
     RequesterCommPhone: string,
-    ApprovingPEO: IPerson,
-    PEOApprovedDateTime: Moment | null,
-    PEOApprovedComment: string | null,
-    PEOOrgSymbol: string,
-    PEO_DSNPhone: string | null,
-    PEO_CommPhone: string,
-    NoveltyRequirementType: NoveltyRequirementTypes,
-    FuncRequirementType: FuncRequirementTypes,
-    FundingOrgOrPEO: string,
+    Approver: IPerson,
+    ApprovedDateTime: Moment | null,
+    ApprovedComment: string | null,
+    ApproverOrgSymbol: string,
+    ApproverDSNPhone: string | null,
+    ApproverCommPhone: string,
+    NoveltyRequirementType: NoveltyRequirementTypes
+    FundingOrgOrDeputy: string,
     ApplicationNeeded: ApplicationTypes,
     OtherApplicationNeeded: string,
     IsProjectedOrgsEnterprise: boolean,
@@ -123,15 +117,14 @@ const blankRequest: IRequirementsRequest = {
     RequesterOrgSymbol: "",
     RequesterDSNPhone: "",
     RequesterCommPhone: "",
-    ApprovingPEO: new Person(),
-    PEOApprovedDateTime: null,
-    PEOApprovedComment: null,
-    PEOOrgSymbol: "",
-    PEO_DSNPhone: "",
-    PEO_CommPhone: "",
+    Approver: new Person(),
+    ApprovedDateTime: null,
+    ApprovedComment: null,
+    ApproverOrgSymbol: "",
+    ApproverDSNPhone: "",
+    ApproverCommPhone: "",
     NoveltyRequirementType: NoveltyRequirementTypes.NEW_CAP,
-    FuncRequirementType: FuncRequirementTypes.FUNCTIONAL,
-    FundingOrgOrPEO: "",
+    FundingOrgOrDeputy: "",
     ApplicationNeeded: ApplicationTypes.CCaR,
     OtherApplicationNeeded: "",
     IsProjectedOrgsEnterprise: false,
@@ -167,15 +160,14 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     RequesterOrgSymbol: string;
     RequesterDSNPhone: string | null;
     RequesterCommPhone: string;
-    ApprovingPEO: IPerson;
-    PEOApprovedDateTime: Moment | null;
-    PEOApprovedComment: string | null;
-    PEOOrgSymbol: string;
-    PEO_DSNPhone: string | null;
-    PEO_CommPhone: string;
+    Approver: IPerson;
+    ApprovedDateTime: Moment | null;
+    ApprovedComment: string | null;
+    ApproverOrgSymbol: string;
+    ApproverDSNPhone: string | null;
+    ApproverCommPhone: string;
     NoveltyRequirementType: NoveltyRequirementTypes;
-    FuncRequirementType: FuncRequirementTypes;
-    FundingOrgOrPEO: string;
+    FundingOrgOrDeputy: string;
     ApplicationNeeded: ApplicationTypes;
     OtherApplicationNeeded: string;
     IsProjectedOrgsEnterprise: boolean;
@@ -204,15 +196,14 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this.RequesterOrgSymbol = request.RequesterOrgSymbol;
         this.RequesterDSNPhone = request.RequesterDSNPhone;
         this.RequesterCommPhone = request.RequesterCommPhone;
-        this.ApprovingPEO = request.ApprovingPEO;
-        this.PEOApprovedDateTime = request.PEOApprovedDateTime;
-        this.PEOApprovedComment = request.PEOApprovedComment;
-        this.PEOOrgSymbol = request.PEOOrgSymbol;
-        this.PEO_DSNPhone = request.PEO_DSNPhone;
-        this.PEO_CommPhone = request.PEO_CommPhone;
+        this.Approver = request.Approver;
+        this.ApprovedDateTime = request.ApprovedDateTime;
+        this.ApprovedComment = request.ApprovedComment;
+        this.ApproverOrgSymbol = request.ApproverOrgSymbol;
+        this.ApproverDSNPhone = request.ApproverDSNPhone;
+        this.ApproverCommPhone = request.ApproverCommPhone;
         this.NoveltyRequirementType = request.NoveltyRequirementType;
-        this.FuncRequirementType = request.FuncRequirementType;
-        this.FundingOrgOrPEO = request.FundingOrgOrPEO;
+        this.FundingOrgOrDeputy = request.FundingOrgOrDeputy;
         this.ApplicationNeeded = request.ApplicationNeeded;
         this.OtherApplicationNeeded = request.OtherApplicationNeeded;
         this.IsProjectedOrgsEnterprise = request.IsProjectedOrgsEnterprise;
@@ -245,11 +236,11 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     }
 
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {
-        let requestIsApproved = this.PEOApprovedDateTime !== null;
+        let requestIsApproved = this.ApprovedDateTime !== null;
         let requestIsNew = this.Id < 0;
         let userIsAuthor = user?.Id === this.Author.Id;
         let userIsRequester = user?.Id === this.Requester.Id;
-        let userIsApprover = user?.Id === this.ApprovingPEO.Id;
+        let userIsApprover = user?.Id === this.Approver.Id;
         let userHasPermissions = RoleDefinitions.userCanEditOtherUsersRequests(roles);
         return requestIsApproved || (!requestIsNew && !userIsAuthor && !userIsRequester && !userIsApprover && !userHasPermissions);
     }
