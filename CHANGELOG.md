@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.22] 2020-11-05
+### Added
+- Timestamp to NoteCards
+
 ## [0.1.21] 2020-11-04
 ### Fixed
 - Spelling mistakes on view pages
