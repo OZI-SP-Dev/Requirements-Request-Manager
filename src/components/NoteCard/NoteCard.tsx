@@ -1,7 +1,7 @@
 import { FunctionComponent, useState } from "react";
 import { INote } from "../../api/NotesApi";
 import React from "react";
-import { Card, Button, Spinner } from "react-bootstrap";
+import { Card, Button, Spinner, Row } from "react-bootstrap";
 import './NoteCard.css'
 import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
 
@@ -31,7 +31,10 @@ export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
 
     return (
         <Card className="note">
-            <Card.Header className="note-header">{props.note.Title}</Card.Header>
+            <Card.Header className="note-header">
+                <Row><span className="note-timestamp ml-auto">{props.note.Modified.fromNow()}</span></Row>
+                <h6>{props.note.Title}</h6>
+            </Card.Header>
             <Card.Body><p className="preserve-whitespace">{props.note.Text}</p></Card.Body>
             {props.editable &&
                 <Card.Footer>

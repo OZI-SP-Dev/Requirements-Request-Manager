@@ -22,3 +22,8 @@
 .preserve-whitespace {
     white-space: pre-wrap;
 }
+
+.note-timestamp {
+    color: gray;
+    font-size: x-small;
+}
