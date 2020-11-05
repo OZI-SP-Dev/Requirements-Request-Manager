@@ -51,7 +51,7 @@ export class NotesApi implements INotesApi {
 
     async fetchNotesByRequestId(requestId: number): Promise<INote[]> {
         try {
-            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text").filter(`RequestId eq ${requestId}`).expand("Request").orderBy("Modified", false).get();
+            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified").filter(`RequestId eq ${requestId}`).expand("Request").orderBy("Modified", false).get();
             return notes.map(spNote => {
                 return {
                     Id: spNote.Id,
@@ -103,7 +103,7 @@ export class NotesApi implements INotesApi {
 
     async updateNote(note: INote): Promise<INote> {
         try {
-            let returnedNote = { ...note };
+            let returnedNote = { ...note, Modified: moment() };
             returnedNote["odata.etag"] = (await this.notesList.items.getById(note.Id).update({
                 Title: note.Title,
                 Text: note.Text,
