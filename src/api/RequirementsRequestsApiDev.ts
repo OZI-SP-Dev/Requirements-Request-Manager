@@ -1,5 +1,5 @@
 import moment from "moment";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequestStatuses, RequirementsRequest } from "./DomainObjects";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { Person, UserApiConfig } from "./UserApi";
@@ -16,6 +16,8 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             new RequirementsRequest({
                 Id: 1,
                 Title: "Test1",
+                Status: RequestStatuses.APPROVED,
+                StatusDateTime: moment(),
                 RequestDate: moment(),
                 ReceivedDate: moment(),
                 Author: new Person({
@@ -62,6 +64,8 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
             new RequirementsRequest({
                 Id: 2,
                 Title: "Test2",
+                Status: RequestStatuses.SUBMITTED,
+                StatusDateTime: moment(),
                 RequestDate: moment(),
                 ReceivedDate: moment(),
                 Author: new Person({

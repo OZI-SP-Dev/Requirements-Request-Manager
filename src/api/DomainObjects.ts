@@ -37,9 +37,23 @@ export enum OrgPriorities {
     LOW = "Low"
 }
 
+export enum RequestStatuses {
+    SUBMITTED = "Submitted",
+    APPROVED = "Approved",
+    DISAPPROVED = "Disapproved",
+    ACCEPTED = "Manager Accepted",
+    DECLINED = "Manager Declined",
+    REVIEW = "Review for Contract",
+    CONTRACT = "On Contract",
+    CLOSED = "Closed",
+    CANCELLED = "Cancelled"
+}
+
 export interface IRequirementsRequest {
     Id: number,
     Title: string,
+    Status: RequestStatuses,
+    StatusDateTime: Moment,
     RequestDate: Moment,
     ReceivedDate: Moment | null,
     Author: IPerson,
@@ -110,6 +124,8 @@ export interface IRequirementsRequestCRUD extends IRequirementsRequest {
 const blankRequest: IRequirementsRequest = {
     Id: -1,
     Title: "",
+    Status: RequestStatuses.SUBMITTED,
+    StatusDateTime: moment(),
     RequestDate: moment(),
     ReceivedDate: null,
     Author: new Person(),
@@ -153,6 +169,8 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     Id: number;
     Title: string;
+    Status: RequestStatuses;
+    StatusDateTime: Moment;
     RequestDate: Moment;
     ReceivedDate: Moment | null;
     Author: IPerson;
@@ -189,6 +207,8 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
         this.Id = request.Id;
         this.Title = request.Title;
+        this.Status = request.Status;
+        this.StatusDateTime = request.StatusDateTime;
         this.RequestDate = request.RequestDate;
         this.ReceivedDate = request.ReceivedDate;
         this.Author = request.Author;

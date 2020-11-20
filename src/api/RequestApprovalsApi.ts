@@ -1,6 +1,6 @@
 import moment, { Moment } from "moment";
 import { spWebContext } from "../providers/SPWebContext";
-import { ApplicationTypes, Centers, IRequirementsRequest, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, NoveltyRequirementTypes, OrgPriorities, RequestStatuses, RequirementsRequest } from "./DomainObjects";
 import { ApiError, InternalError, NotAuthorizedError } from "./InternalErrors";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { IPerson, IUserApi, Person, UserApiConfig } from "./UserApi";
@@ -139,7 +139,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         try {
             let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").get())[0];
-            return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request.Author) : undefined;
+            return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request) : undefined;
         } catch (e) {
             console.error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
             console.error(e);
@@ -164,7 +164,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             for (let approval of approvals) {
                 let request = requests.find(req => req.Id === approval.Request.Id && req.Approver.Id === approval.AuthorId);
                 if (request) {
-                    requestApprovals.push(this.spApprovalToRequestApproval(approval, request.Author));
+                    requestApprovals.push(this.spApprovalToRequestApproval(approval, request));
                 }
             }
             return requestApprovals;
@@ -246,7 +246,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
         }
     }
 
-    private spApprovalToRequestApproval(spApproval: SPRequestApproval, requestAuthor: IPerson): IRequestApproval {
+    private spApprovalToRequestApproval(spApproval: SPRequestApproval, request: IRequirementsRequest): IRequestApproval {
         return {
             Id: spApproval.Id,
             Comment: spApproval.Title,
@@ -255,9 +255,11 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             Request: new RequirementsRequest({
                 Id: spApproval.Request.Id,
                 Title: spApproval.RequestTitle,
+                Status: request.Status,
+                StatusDateTime: request.StatusDateTime,
                 RequestDate: moment(spApproval.RequestDate),
                 ReceivedDate: spApproval.ReceivedDate ? moment(spApproval.ReceivedDate) : null,
-                Author: requestAuthor,
+                Author: request.Author,
                 Requester: new Person(spApproval.Requester),
                 RequesterOrgSymbol: spApproval.RequesterOrgSymbol,
                 RequesterDSNPhone: spApproval.RequesterDSNPhone,
@@ -298,6 +300,8 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             Request: new RequirementsRequest({
                 Id: requestApproval.RequestId,
                 Title: requestApproval.RequestTitle,
+                Status: submittedRequest.Status,
+                StatusDateTime: submittedRequest.StatusDateTime,
                 RequestDate: moment(requestApproval.RequestDate),
                 ReceivedDate: requestApproval.ReceivedDate ? moment(requestApproval.ReceivedDate) : null,
                 Author: submittedRequest.Author,
@@ -350,6 +354,8 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
             Request: new RequirementsRequest({
                 Id: 1,
                 Title: "New Title, Overwriting the Base Title",
+                Status: RequestStatuses.APPROVED,
+                StatusDateTime: moment(),
                 RequestDate: moment(),
                 ReceivedDate: moment(),
                 Author: new Person({
@@ -401,6 +407,8 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
             Request: new RequirementsRequest({
                 Id: 2,
                 Title: "Shouldn't appear",
+                Status: RequestStatuses.APPROVED,
+                StatusDateTime: moment(),
                 RequestDate: moment(),
                 ReceivedDate: moment(),
                 Author: new Person({

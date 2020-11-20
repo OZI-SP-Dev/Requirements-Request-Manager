@@ -2,6 +2,7 @@ import { spWebContext } from "../providers/SPWebContext";
 import { ApiError } from "./InternalErrors";
 import { Moment } from "moment";
 import moment from "moment";
+import { RequestStatuses } from "./DomainObjects";
 
 
 export interface INote {
@@ -10,13 +11,15 @@ export interface INote {
     Text: string,
     Modified: Moment,
     RequestId: number,
+    Status?: RequestStatuses | null,
     "odata.etag": string
 }
 
 export interface ISubmitNote {
     Title: string,
     Text: string,
-    RequestId: number
+    RequestId: number,
+    Status?: RequestStatuses | null,
 }
 
 interface INewNote extends ISubmitNote {
@@ -33,6 +36,7 @@ interface SPNote {
     Text: string,
     Modified: string,
     Request: { Id: number },
+    Status?: RequestStatuses | null,
     __metadata: {
         etag: string
     }
@@ -51,7 +55,7 @@ export class NotesApi implements INotesApi {
 
     async fetchNotesByRequestId(requestId: number): Promise<INote[]> {
         try {
-            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified").filter(`RequestId eq ${requestId}`).expand("Request").orderBy("Modified", false).get();
+            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified", "Status").filter(`RequestId eq ${requestId}`).expand("Request").orderBy("Modified", false).get();
             return notes.map(spNote => {
                 return {
                     Id: spNote.Id,
@@ -59,6 +63,7 @@ export class NotesApi implements INotesApi {
                     Text: spNote.Text,
                     Modified: moment(spNote.Modified),
                     RequestId: spNote.Request.Id,
+                    Status: spNote.Status,
                     "odata.etag": spNote.__metadata.etag
                 }
             });
@@ -85,6 +90,7 @@ export class NotesApi implements INotesApi {
                 Text: returnedNote.Text,
                 Modified: moment(returnedNote.Modified),
                 RequestId: returnedNote.RequestId,
+                Status: returnedNote.Status,
                 "odata.etag": returnedNote.__metadata.etag
             }
         } catch (e) {
@@ -107,7 +113,8 @@ export class NotesApi implements INotesApi {
             returnedNote["odata.etag"] = (await this.notesList.items.getById(note.Id).update({
                 Title: note.Title,
                 Text: note.Text,
-                RequestId: note.RequestId
+                RequestId: note.RequestId,
+                Status: note.Status
             }, note["odata.etag"])).data["odata.etag"];
             return returnedNote;
         } catch (e) {

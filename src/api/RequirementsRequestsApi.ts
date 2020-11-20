@@ -1,4 +1,4 @@
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "./DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequestStatuses, RequirementsRequest } from "./DomainObjects";
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
 import moment from "moment";
@@ -14,6 +14,8 @@ interface ISubmitRequirementsRequest {
     // can be undefined if it is an intial submission
     Id?: number,
     Title: string,
+    Status: RequestStatuses,
+    StatusDateTime: string,
     RequestDate: string,
     ReceivedDate?: string,
     RequesterId: number,
@@ -54,6 +56,8 @@ interface ISubmitRequirementsRequest {
 interface SPRequirementsRequest {
     Id: number,
     Title: string,
+    Status: RequestStatuses,
+    StatusDateTime: string,
     RequestDate: string,
     ReceivedDate: string,
     Author: IPerson,
@@ -126,6 +130,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         return {
             Id: request.Id,
             Title: request.Title,
+            Status: request.Status,
+            StatusDateTime: request.StatusDateTime.toISOString(),
             RequestDate: request.RequestDate.toISOString(),
             ReceivedDate: request.ReceivedDate ? request.ReceivedDate.toISOString() : undefined,
             // If the RequesterId is not known, then get the current user from the UserApi and use that
@@ -163,6 +169,8 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         return approval ? approval.Request : {
             Id: request.Id,
             Title: request.Title,
+            Status: request.Status,
+            StatusDateTime: moment(request.StatusDateTime),
             RequestDate: moment(request.RequestDate),
             ReceivedDate: request.ReceivedDate ? moment(request.ReceivedDate) : null,
             Author: new Person(request.Author),
@@ -198,9 +206,10 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         try {
-            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver").get();
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver").get();
             if (!request.IsDeleted) {
-                let approval = await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request));
+                // Only try to fetch the approval if the request is approved or further
+                let approval = this.isRequestApproved(request) ? await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request)) : undefined;
                 // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
                 return new RequirementsRequest(this.getIRequirementsRequest(request, approval));
             } else {
@@ -226,7 +235,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
-            let query = this.requirementsRequestList.items.select("Id", "Title", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver");
+            let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver");
 
             let queryString = "IsDeleted ne 1";
 
@@ -239,7 +248,10 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             while (pagedRequests.hasNext) {
                 requests = requests.concat((await pagedRequests.getNext()).results);
             }
-            let approvals = await this.requestApprovalsApi.getRequestApprovals(requests.map(request => this.getIRequirementsRequest(request)));
+            let approvals = await this.requestApprovalsApi.getRequestApprovals(requests
+                // only fetch approvals for requests that are approved or further
+                .filter(request => this.isRequestApproved(request))
+                .map(request => this.getIRequirementsRequest(request)));
             let requirementRequestCRUDs: IRequirementsRequestCRUD[] = [];
             for (let request of requests) {
                 requirementRequestCRUDs.push(new RequirementsRequest(
@@ -300,6 +312,17 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                 throw new ApiError(undefined, `Unknown error occurred while trying to delete Request with ID ${requirementsRequest.Id}`);
             }
         }
+    }
+
+    /**
+     * Returns true if the Request has a Statuse of Approved or further
+     * @param request The request being checked
+     */
+    private isRequestApproved(request: SPRequirementsRequest): boolean {
+        return request.Status === RequestStatuses.APPROVED
+            || request.Status === RequestStatuses.ACCEPTED
+            || request.Status === RequestStatuses.REVIEW
+            || request.Status === RequestStatuses.CONTRACT;
     }
 
     private async updateRequest(requirementsRequest: IRequirementsRequestCRUD): Promise<IRequirementsRequestCRUD> {

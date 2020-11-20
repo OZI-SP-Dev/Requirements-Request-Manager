@@ -1,6 +1,8 @@
+import moment from "moment";
 import { useEffect, useState } from "react";
-import { IRequirementsRequestCRUD, RequirementsRequest } from "../api/DomainObjects";
+import { IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "../api/DomainObjects";
 import { InternalError } from "../api/InternalErrors";
+import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
 import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
@@ -31,6 +33,7 @@ export function useRequests(): IRequests {
     const [filters, setFilters] = useState<IRequestFilters>({ showAllUsers: false });
 
     const email = useEmail();
+    const notesApi: INotesApi = NotesApiConfig.getApi();
     const requirementsRequestApi: IRequirementsRequestApi = RequirementsRequestsApiConfig.getApi();
     const requestApprovalsApi: IRequestApprovalsApi = RequestApprovalsApiConfig.getApi();
     const userApi: IUserApi = UserApiConfig.getApi();
@@ -39,6 +42,8 @@ export function useRequests(): IRequests {
 
     const submitRequest = async (request: IRequirementsRequestCRUD) => {
         try {
+            request.Status = RequestStatuses.SUBMITTED;
+            request.StatusDateTime = moment();
             let updatedRequest = new RequirementsRequest(await request.save());
             let newRequests = requests;
             let oldRequestIndex = newRequests.findIndex(req => req.Id === updatedRequest.Id);
@@ -76,7 +81,10 @@ export function useRequests(): IRequests {
 
     const submitApproval = async (request: IRequirementsRequestCRUD, comment: string) => {
         try {
-            let approval = await requestApprovalsApi.submitApproval(request, comment);
+            request.Status = RequestStatuses.APPROVED;
+            request.StatusDateTime = moment();
+            let updatedRequest = new RequirementsRequest(await request.save());
+            let approval = await requestApprovalsApi.submitApproval(updatedRequest, comment);
             let newRequest = new RequirementsRequest(approval.Request);
             let newRequests = requests;
             requests[newRequests.findIndex(req => req.Id === newRequest.Id)] = newRequest;
