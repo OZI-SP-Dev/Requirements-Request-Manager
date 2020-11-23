@@ -207,7 +207,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         try {
             let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver").get();
-            if (!request.IsDeleted) {
+            if (!this.isRequestClosed(request)) {
                 // Only try to fetch the approval if the request is approved or further
                 let approval = this.isRequestApproved(request) ? await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request)) : undefined;
                 // SP will return an SPRequirementsRequest, so we form that into an IRequirementsRequest, and create a RequirementRequest with that
@@ -237,7 +237,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         try {
             let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver");
 
-            let queryString = "IsDeleted ne 1";
+            let queryString = `Status ne ${RequestStatuses.CANCELLED} and Status ne ${RequestStatuses.CLOSED}`;
 
             if (userId !== undefined) {
                 queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or Approver/Id eq ${userId})`;
@@ -323,6 +323,15 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             || request.Status === RequestStatuses.ACCEPTED
             || request.Status === RequestStatuses.REVIEW
             || request.Status === RequestStatuses.CONTRACT;
+    }
+
+    /**
+     * Returns true if the Request is in any of the closed/cancelled states.
+     * @param request The request being checked
+     */
+    private isRequestClosed(request: SPRequirementsRequest): boolean {
+        return request.Status === RequestStatuses.CANCELLED
+            || request.Status === RequestStatuses.CLOSED
     }
 
     private async updateRequest(requirementsRequest: IRequirementsRequestCRUD): Promise<IRequirementsRequestCRUD> {

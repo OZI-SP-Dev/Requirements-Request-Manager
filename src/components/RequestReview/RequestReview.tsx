@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
-import { IRequirementsRequest, IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
+import { IRequirementsRequest, IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "../../api/DomainObjects";
 import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
@@ -13,7 +13,7 @@ export interface IRequestReviewProps {
     requestId?: number,
     fetchRequestById?: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     // if not provided, this will be treated as a read-only view
-    submitApproval?: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>
+    updateStatus?: (request: IRequirementsRequestCRUD, status: RequestStatuses, comment: string) => Promise<void>
 }
 
 export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (props) => {
@@ -42,7 +42,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     }
 
     const checkIfUserCanReview = (request: IRequirementsRequest): boolean => {
-        return props.submitApproval !== undefined && user !== undefined && request !== undefined && !request.ApprovedDateTime && user.Id === request.Approver.Id;
+        return props.updateStatus !== undefined && user !== undefined && request !== undefined && !request.ApprovedDateTime && user.Id === request.Approver.Id;
     }
 
     // We need to update the state's request whenever the props.editRequest changes because the requests may not have loaded yet
@@ -52,7 +52,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
 
     useEffect(() => {
         setUserCanReview(checkIfUserCanReview(request)); // eslint-disable-next-line
-    }, [user, props.submitApproval])
+    }, [user, props.updateStatus])
 
     const updateComment = (value: string): void => {
         setComment(value);
@@ -61,8 +61,8 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     const approveRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
         try {
             setSubmitting(true);
-            if (request && props.submitApproval) {
-                await props.submitApproval(request, comment);
+            if (request && props.updateStatus) {
+                await props.updateStatus(request, RequestStatuses.APPROVED, comment);
             }
             pushRoute("/Requests", e);
         } catch (e) {

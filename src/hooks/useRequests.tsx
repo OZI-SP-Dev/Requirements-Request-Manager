@@ -1,11 +1,12 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "../api/DomainObjects";
-import { InternalError } from "../api/InternalErrors";
+import { InternalError, NotAuthorizedError } from "../api/InternalErrors";
 import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
 import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
+import { RoleDefinitions } from "../utils/RoleDefinitions";
 import { useEmail } from "./useEmail";
 
 export interface IRequestFilters {
@@ -21,7 +22,7 @@ export interface IRequests {
     setFilters: (filters: IRequestFilters) => void,
     fetchRequestById: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequestCRUD>,
-    submitApproval: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
+    updateStatus: (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => Promise<void>,
     deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
 }
 
@@ -45,6 +46,7 @@ export function useRequests(): IRequests {
             request.Status = RequestStatuses.SUBMITTED;
             request.StatusDateTime = moment();
             let updatedRequest = new RequirementsRequest(await request.save());
+
             let newRequests = requests;
             let oldRequestIndex = newRequests.findIndex(req => req.Id === updatedRequest.Id);
             if (oldRequestIndex > -1) {
@@ -79,19 +81,34 @@ export function useRequests(): IRequests {
         }
     }
 
-    const submitApproval = async (request: IRequirementsRequestCRUD, comment: string) => {
+    const updateStatus = async (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => {
         try {
-            request.Status = RequestStatuses.APPROVED;
-            request.StatusDateTime = moment();
-            let updatedRequest = new RequirementsRequest(await request.save());
-            let approval = await requestApprovalsApi.submitApproval(updatedRequest, comment);
-            let newRequest = new RequirementsRequest(approval.Request);
-            let newRequests = requests;
-            requests[newRequests.findIndex(req => req.Id === newRequest.Id)] = newRequest;
-            setRequests(newRequests);
-            await email.sendApprovalEmail(newRequest);
+            if (RoleDefinitions.userCanChangeStatus(request, await userApi.getCurrentUser(), status, await userApi.getCurrentUsersRoles())) {
+                request.Status = status;
+                request.StatusDateTime = moment();
+                let updatedRequest = new RequirementsRequest(await request.save());
+
+                if (status === RequestStatuses.APPROVED) {
+                    let approval = await requestApprovalsApi.submitApproval(updatedRequest, comment);
+                    updatedRequest = new RequirementsRequest(approval.Request);
+                }
+
+                await notesApi.submitNewNote({
+                    Title: `Status set to ${status}`,
+                    Text: comment ? comment : '',
+                    RequestId: updatedRequest.Id,
+                    Status: status
+                });
+                await sendStatusUpdateEmail(updatedRequest, status, comment ? comment : '');
+
+                let newRequests = requests;
+                requests[newRequests.findIndex(req => req.Id === updatedRequest.Id)] = updatedRequest;
+                setRequests(newRequests);
+            } else {
+                throw new NotAuthorizedError(undefined, "You are not authorized to change the request status to " + status);
+            }
         } catch (e) {
-            console.error("Error trying to approve Request");
+            console.error(`Error trying to update Request status to ${status}`);
             console.error(e);
             if (e instanceof InternalError) {
                 setError(e.message);
@@ -103,9 +120,32 @@ export function useRequests(): IRequests {
                 setError(e);
                 throw new InternalError(new Error(e));
             } else {
-                setError("Unknown error occurred while trying to approve Request!");
-                throw new InternalError(new Error("Unknown error occurred while trying to approve Request!"));
+                setError(`Unknown error occurred while trying to update Request status to ${status}`);
+                throw new InternalError(new Error(`Unknown error occurred while trying to update Request status to ${status}`));
             }
+        }
+    }
+
+    const sendStatusUpdateEmail = async (request: IRequirementsRequestCRUD, status: RequestStatuses, comment: string) => {
+        switch (status) {
+            case RequestStatuses.SUBMITTED:
+                return email.sendSubmitEmail(request);
+            case RequestStatuses.APPROVED:
+                return email.sendApprovalEmail(request, comment);
+            case RequestStatuses.DISAPPROVED:
+                return email.sendDisapprovalEmail(request, comment);
+            case RequestStatuses.ACCEPTED:
+                return email.sendAcceptedEmail(request, comment);
+            case RequestStatuses.DECLINED:
+                return email.sendDeclinedEmail(request, comment);
+            case RequestStatuses.REVIEW:
+                return email.sendReviewEmail(request, comment);
+            case RequestStatuses.CONTRACT:
+                return email.sendContractEmail(request, comment);
+            case RequestStatuses.CLOSED:
+                return email.sendClosedEmail(request, comment);
+            case RequestStatuses.CANCELLED:
+                return email.sendCancelledEmail(request, comment);
         }
     }
 
@@ -201,7 +241,7 @@ export function useRequests(): IRequests {
         setFilters,
         fetchRequestById,
         submitRequest,
-        submitApproval,
+        updateStatus,
         deleteRequest
     });
 }

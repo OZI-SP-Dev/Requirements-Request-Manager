@@ -256,13 +256,17 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     }
 
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {
-        let requestIsApproved = this.ApprovedDateTime !== null;
+        let requestIsApproved = this.Status === RequestStatuses.APPROVED
+            || this.Status === RequestStatuses.ACCEPTED
+            || this.Status === RequestStatuses.REVIEW
+            || this.Status === RequestStatuses.CONTRACT;
+        let requestIsClosed = this.Status === RequestStatuses.CLOSED || this.Status === RequestStatuses.CANCELLED;
         let requestIsNew = this.Id < 0;
         let userIsAuthor = user?.Id === this.Author.Id;
         let userIsRequester = user?.Id === this.Requester.Id;
         let userIsApprover = user?.Id === this.Approver.Id;
         let userHasPermissions = RoleDefinitions.userCanEditOtherUsersRequests(roles);
-        return requestIsApproved || (!requestIsNew && !userIsAuthor && !userIsRequester && !userIsApprover && !userHasPermissions);
+        return requestIsApproved || requestIsClosed || (!requestIsNew && !userIsAuthor && !userIsRequester && !userIsApprover && !userHasPermissions);
     }
 
     getFormattedId = (): string => {

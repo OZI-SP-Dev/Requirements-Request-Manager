@@ -59,12 +59,12 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         {props.request.RequesterDSNPhone ? props.request.RequesterDSNPhone : "None"}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                        <strong>Approval Date: </strong>
-                        {props.request.ApprovedDateTime ? props.request.ApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
+                        <strong>Status: </strong>
+                        {props.request.Status}
                     </Col>
                     <Col className="mt-2" xl={8} lg={8} md={8} sm={6} xs={12}>
-                        <strong>Comment on Approval: </strong>
-                        {props.request.ApprovedComment ? props.request.ApprovedComment : "None"}
+                        <strong>Status Updated: </strong>
+                        {props.request.StatusDateTime.format("DD MMM YYYY [at] HH:mm")}
                     </Col>
                     <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
                         <strong>Approving 2 Ltr Deputy: </strong>

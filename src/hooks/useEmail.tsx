@@ -4,7 +4,7 @@ import { EmailApiConfig } from "../api/EmailApi";
 import { InternalError } from "../api/InternalErrors";
 import { INote } from "../api/NotesApi";
 import { RoleType } from "../api/RolesApi";
-import { IPerson } from "../api/UserApi";
+import { IPerson, IUserApi, UserApiConfig } from "../api/UserApi";
 import { useRoles } from "./useRoles";
 
 declare var _spPageContextInfo: any;
@@ -15,7 +15,14 @@ export interface IEmailSender {
     clearError: () => void,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>,
     sendSubmitEmail: (request: IRequirementsRequestCRUD) => Promise<void>,
-    sendApprovalEmail: (request: IRequirementsRequestCRUD) => Promise<void>,
+    sendApprovalEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendDisapprovalEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
+    sendAcceptedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendDeclinedEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
+    sendReviewEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendContractEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendClosedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendCancelledEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     sendNoteEmail: (request: IRequirementsRequestCRUD, note: INote) => Promise<void>
 }
 
@@ -27,6 +34,7 @@ export function useEmail(): IEmailSender {
     const roles = useRoles();
 
     const emailApi = EmailApiConfig.getApi();
+    const userApi: IUserApi = UserApiConfig.getApi();
 
     const clearError = () => setError("");
 
@@ -79,16 +87,93 @@ export function useEmail(): IEmailSender {
         return sendEmail(to, subject, body, cc);
     }
 
-    const sendApprovalEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
+    const sendApprovalEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = getManagers();
         if (request.Approver.Id !== request.Requester.Id) {
             to.push(request.Requester);
         }
         let subject = `Request ${request.getFormattedId()} Approved`;
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}.
-        ${request.ApprovedComment ? `The approver left a comment saying "${request.ApprovedComment}"` : ''}
+        ${comment ? `The approver left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendDisapprovalEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
+        let to = [request.Requester, request.Author];
+        let subject = `Request ${request.getFormattedId()} Disapproved`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title} and so will require some rework by the requester ${request.Requester.Title}.
+        The approver left a comment saying "${comment}"
+        
+        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendAcceptedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Accepted by Manager`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
+        ${comment ? `The Manager left a comment saying "${comment}"` : ''}
+        
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendDeclinedEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Declined by Manager`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been declined by the Requirements Manager ${(await userApi.getCurrentUser()).Title} and will require some rework by the requester ${request.Requester.Title} before it can be accepted.
+        The Manager left a comment saying "${comment}
+        
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendReviewEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Under Board Review`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If the boards all approve of the Request then the Requirement will be put on a contract for development.
+        ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
+        
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendContractEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} On Contract`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been put on contract and development for the Requirement will begin soon.
+        ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
+        
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendClosedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Closed`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been marked as Completed and has been Closed by the Requirements Manager ${(await userApi.getCurrentUser()).Title}.
+        ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendCancelledEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
+        let currentUser = (await userApi.getCurrentUser()).Title;
+        let to = getManagers();
+        to.push(request.Requester);
+        to.push(request.Approver);
+        to.push(request.Author);
+        let subject = `Request ${request.getFormattedId()} Cancelled`;
+        let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been cancelled by ${currentUser}.
+        ${currentUser} left a comment saying ${comment}`;
 
         return sendEmail(to, subject, body);
     }
@@ -113,6 +198,13 @@ export function useEmail(): IEmailSender {
         sendEmail,
         sendSubmitEmail,
         sendApprovalEmail,
+        sendDisapprovalEmail,
+        sendAcceptedEmail,
+        sendDeclinedEmail,
+        sendReviewEmail,
+        sendContractEmail,
+        sendClosedEmail,
+        sendCancelledEmail,
         sendNoteEmail
     }
 }

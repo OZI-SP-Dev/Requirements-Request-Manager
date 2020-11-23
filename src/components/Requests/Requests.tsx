@@ -64,7 +64,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                         <th>Application Needed</th>
                         <th>Org Priority</th>
                         <th>Operational Need Date</th>
-                        <th>Approval</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <Accordion as='tbody'>
@@ -79,7 +79,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
                                 <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
-                                <td>{request.ApprovedDateTime ? request.ApprovedDateTime.format("DD MMM YYYY") : "None"}</td>
+                                <td>{request.Status} on {request.StatusDateTime.format("DD MMM YYYY")}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
                                 <td colSpan={8} className="p-0">

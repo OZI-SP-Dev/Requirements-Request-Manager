@@ -128,7 +128,7 @@ export interface IRequestApprovalsApi {
      * 
      * @returns An IRequestApproval of the new approval submitted
      */
-    submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval>;
+    submitApproval(request: IRequirementsRequest, comment?: string): Promise<IRequestApproval>;
 }
 
 export class RequestApprovalsApi implements IRequestApprovalsApi {
@@ -138,7 +138,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         try {
-            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").get())[0];
+            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").orderBy("Created", false).get())[0];
             return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request) : undefined;
         } catch (e) {
             console.error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
@@ -155,7 +155,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         try {
-            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").getPaged();
+            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").orderBy("Created", false).getPaged();
             let approvals: SPRequestApproval[] = pages.results;
             while (pages.hasNext) {
                 approvals = approvals.concat((await pages.getNext()).results);
@@ -186,7 +186,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
         try {
             let requestCrud = new RequirementsRequest(request);
             let currentUser = await this.userApi.getCurrentUser();
-            if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles())) {
+            if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles()) && requestCrud.Status === RequestStatuses.SUBMITTED) {
                 if (currentUser.Id === request.Approver.Id) {
                     let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
 
@@ -195,7 +195,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                     throw new NotAuthorizedError(new Error("You cannot approve a Request for which you are not the approver!"));
                 }
             } else {
-                throw new NotAuthorizedError(new Error("You cannot approve a Request that has already been approved!"));
+                throw new NotAuthorizedError(new Error("You cannot approve a Request that is not in the Submitted Status!"));
             }
         } catch (e) {
             console.error(`Error occured while trying to approve Request with ID ${request.Id}`);
