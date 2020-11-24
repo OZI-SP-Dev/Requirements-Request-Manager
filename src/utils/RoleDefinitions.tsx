@@ -28,29 +28,43 @@ export class RoleDefinitions {
         return this.userIsManager(roles);
     }
 
-    static userCanChangeStatus(request: IRequirementsRequest, currentUser: IPerson, newStatus: RequestStatuses, roles?: RoleType[]): boolean {
+    static userCanChangeStatus(request: IRequirementsRequest, newStatus: RequestStatuses | null, currentUser?: IPerson, roles?: RoleType[]): boolean {
         switch (newStatus) {
             case RequestStatuses.SUBMITTED:
-                return currentUser.Id === request.Requester.Id || currentUser.Id === request.Author.Id;
+                return (request.Status === RequestStatuses.SUBMITTED
+                    || request.Status === RequestStatuses.DISAPPROVED
+                    || request.Status === RequestStatuses.DECLINED)
+                    && (currentUser?.Id === request.Requester.Id
+                        || currentUser?.Id === request.Author.Id);
             case RequestStatuses.APPROVED:
-                return currentUser.Id === request.Approver.Id;
             case RequestStatuses.DISAPPROVED:
-                return currentUser.Id === request.Approver.Id;
+                return request.Status === RequestStatuses.SUBMITTED && currentUser?.Id === request.Approver.Id;
             case RequestStatuses.ACCEPTED:
-                return this.userIsManager(roles);
             case RequestStatuses.DECLINED:
-                return this.userIsManager(roles);
+                return request.Status === RequestStatuses.APPROVED && this.userIsManager(roles);
             case RequestStatuses.REVIEW:
-                return this.userIsManager(roles);
+                return request.Status === RequestStatuses.ACCEPTED && this.userIsManager(roles);
             case RequestStatuses.CONTRACT:
-                return this.userIsManager(roles);
+                return request.Status === RequestStatuses.REVIEW && this.userIsManager(roles);
             case RequestStatuses.CLOSED:
-                return this.userIsManager(roles);
+                return request.Status === RequestStatuses.CONTRACT && this.userIsManager(roles);
             case RequestStatuses.CANCELLED:
-                return this.userIsManager(roles)
-                    || currentUser.Id === request.Requester.Id
-                    || currentUser.Id === request.Author.Id
-                    || currentUser.Id === request.Approver.Id;
+                if (request.Status === RequestStatuses.SUBMITTED
+                    || request.Status === RequestStatuses.DISAPPROVED
+                    || request.Status === RequestStatuses.DECLINED) {
+                    return this.userIsManager(roles)
+                        || currentUser?.Id === request.Requester.Id
+                        || currentUser?.Id === request.Author.Id
+                        || currentUser?.Id === request.Approver.Id;
+                } else if (request.Status === RequestStatuses.APPROVED) {
+                    return this.userIsManager(roles) || currentUser?.Id === request.Approver.Id;
+                } else if (request.Status === RequestStatuses.ACCEPTED || request.Status === RequestStatuses.REVIEW) {
+                    return this.userIsManager(roles);
+                } else {
+                    return false;
+                }
+            default:
+                return false;
         }
     }
 }

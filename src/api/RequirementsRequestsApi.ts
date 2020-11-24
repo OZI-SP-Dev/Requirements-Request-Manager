@@ -112,6 +112,13 @@ export interface IRequirementsRequestApi {
     submitRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<IRequirementsRequestCRUD>,
 
     /**
+     * Update the status of the given IRequirementsRequest.
+     * 
+     * @param requirementsRequest The IRequirementsRequest whose status is being updated.
+     */
+    updateRequestStatus(requirementsRequest: IRequirementsRequest, status: RequestStatuses): Promise<IRequirementsRequestCRUD>,
+
+    /**
      * Remove the given RequirementsRequest
      * 
      * @param requirementsRequest The RequirementsRequest to be deleted/removed
@@ -287,6 +294,31 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                 this.submitNewRequest(request);
         } else {
             throw new NotAuthorizedError();
+        }
+    }
+
+    async updateRequestStatus(requirementsRequest: IRequirementsRequest, status: RequestStatuses): Promise<IRequirementsRequestCRUD> {
+        try {
+            let submitTime = moment();
+            let submitRequest = { Status: status, StatusDateTime: submitTime.toISOString() };
+            let returnedRequest = new RequirementsRequest(requirementsRequest, this);
+            returnedRequest["odata.etag"] = (await this.requirementsRequestList.items.getById(requirementsRequest.Id)
+                .update(submitRequest, requirementsRequest["odata.etag"])).data["odata.etag"];
+            returnedRequest.Status = status;
+            returnedRequest.StatusDateTime = submitTime;
+            return returnedRequest;
+        } catch (e) {
+            console.error(`Error occurred while trying to update the status of Request with ID ${requirementsRequest.Id}`);
+            console.error(e);
+            if (e instanceof InternalError) {
+                throw e;
+            } else if (e instanceof Error) {
+                throw new ApiError(e, `Error occurred while trying to update the status of Request with ID ${requirementsRequest.Id}: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(`Error occurred while trying to update the status of Request with ID ${requirementsRequest.Id}: ${e}`));
+            } else {
+                throw new ApiError(undefined, `Unknown error occurred while trying to update the status of Request with ID ${requirementsRequest.Id}`);
+            }
         }
     }
 

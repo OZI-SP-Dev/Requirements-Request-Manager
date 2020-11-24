@@ -4,7 +4,7 @@ import { IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "
 import { InternalError, NotAuthorizedError } from "../api/InternalErrors";
 import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
-import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
+import RequirementsRequestsApi, { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
 import { RoleDefinitions } from "../utils/RoleDefinitions";
 import { useEmail } from "./useEmail";
@@ -83,10 +83,8 @@ export function useRequests(): IRequests {
 
     const updateStatus = async (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => {
         try {
-            if (RoleDefinitions.userCanChangeStatus(request, await userApi.getCurrentUser(), status, await userApi.getCurrentUsersRoles())) {
-                request.Status = status;
-                request.StatusDateTime = moment();
-                let updatedRequest = new RequirementsRequest(await request.save());
+            if (RoleDefinitions.userCanChangeStatus(request, status, await userApi.getCurrentUser(), await userApi.getCurrentUsersRoles())) {
+                let updatedRequest = await requirementsRequestApi.updateRequestStatus(request, status);
 
                 if (status === RequestStatuses.APPROVED) {
                     let approval = await requestApprovalsApi.submitApproval(updatedRequest, comment);

@@ -7,8 +7,6 @@ import { RoleType } from "../api/RolesApi";
 import { IPerson, IUserApi, UserApiConfig } from "../api/UserApi";
 import { useRoles } from "./useRoles";
 
-declare var _spPageContextInfo: any;
-
 export interface IEmailSender {
     sending: boolean,
     error: string,
@@ -81,7 +79,7 @@ export function useEmail(): IEmailSender {
         let subject = `Request ${request.getFormattedId()} Submitted`;
         let body = `Hello, a requirements request has been submitted for which you are the approving official by ${request.Requester.Title}.
             
-            To review/approve the request, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
+            To review/approve the request, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
         let cc = getManagers();
 
         return sendEmail(to, subject, body, cc);
@@ -96,7 +94,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}.
         ${comment ? `The approver left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -107,7 +105,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title} and so will require some rework by the requester ${request.Requester.Title}.
         The approver left a comment saying "${comment}"
         
-        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -118,7 +116,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -129,7 +127,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been declined by the Requirements Manager ${(await userApi.getCurrentUser()).Title} and will require some rework by the requester ${request.Requester.Title} before it can be accepted.
         The Manager left a comment saying "${comment}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -140,7 +138,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If the boards all approve of the Request then the Requirement will be put on a contract for development.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -151,7 +149,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, requirements request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been put on contract and development for the Requirement will begin soon.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -186,7 +184,7 @@ export function useEmail(): IEmailSender {
             The note is:
             <h4>${note.Title}</h4><p>"${note.Text}"</p>
             
-            To review the request/note, please copy the following link and paste it in your browser ${_spPageContextInfo.webAbsoluteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
+            To review the request/note, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }

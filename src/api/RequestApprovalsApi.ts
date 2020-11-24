@@ -467,20 +467,31 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         if (approval) {
             approval.Request.ApprovedDateTime = approval.Created;
             approval.Request.ApprovedComment = approval.Comment;
+            approval.Request.Status = request.Status;
+            approval.Request.StatusDateTime = request.StatusDateTime;
         }
         return approval;
     }
 
     async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         await this.sleep();
-        return this.approvals.filter(approval =>
-            requests.findIndex(request => request.Id === approval.Request.Id && request.Approver.Id === approval.AuthorId) > -1)
-            .map(approval => {
-                return {
+        let filteredApprovals: IRequestApproval[] = [];
+        for (let request of requests) {
+            let approval = this.approvals.find(a => a.Request.Id === request.Id && a.AuthorId === request.Approver.Id);
+            if (approval) {
+                filteredApprovals.push({
                     ...approval,
-                    Request: { ...approval.Request, ApprovedDateTime: approval.Created, ApprovedComment: approval.Comment }
-                }
-            });
+                    Request: {
+                        ...approval.Request,
+                        ApprovedDateTime: approval.Created,
+                        ApprovedComment: approval.Comment,
+                        Status: request.Status,
+                        StatusDateTime: request.StatusDateTime
+                    }
+                });
+            }
+        }
+        return filteredApprovals;
     }
 
     async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {

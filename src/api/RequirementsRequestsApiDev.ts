@@ -158,6 +158,15 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         }
     }
 
+    async updateRequestStatus(requirementsRequest: IRequirementsRequest, status: RequestStatuses): Promise<IRequirementsRequestCRUD> {
+        await this.sleep();
+        let updatedRequest = new RequirementsRequest(requirementsRequest);
+        updatedRequest.Status = status;
+        updatedRequest.StatusDateTime = moment();
+        this.requests[this.requests.findIndex(r => r.Id === updatedRequest.Id)] = updatedRequest;
+        return updatedRequest;
+    }
+
     async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
         await this.sleep();
         if (!(new RequirementsRequest(requirementsRequest).isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles()))) {

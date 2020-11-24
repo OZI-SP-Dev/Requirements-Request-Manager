@@ -49,6 +49,34 @@ export enum RequestStatuses {
     CANCELLED = "Cancelled"
 }
 
+export const getNextStatus = (request: IRequirementsRequest): RequestStatuses | null => {
+    switch (request.Status) {
+        case RequestStatuses.SUBMITTED:
+            return RequestStatuses.APPROVED;
+        case RequestStatuses.APPROVED:
+            return RequestStatuses.ACCEPTED;
+        case RequestStatuses.ACCEPTED:
+            return RequestStatuses.REVIEW;
+        case RequestStatuses.REVIEW:
+            return RequestStatuses.CONTRACT;
+        case RequestStatuses.CONTRACT:
+            return RequestStatuses.CLOSED;
+        default:
+            return null;
+    }
+}
+
+export const getRejectStatus = (request: IRequirementsRequest): RequestStatuses | null => {
+    switch (request.Status) {
+        case RequestStatuses.SUBMITTED:
+            return RequestStatuses.DISAPPROVED;
+        case RequestStatuses.APPROVED:
+            return RequestStatuses.DECLINED;
+        default:
+            return null;
+    }
+}
+
 export interface IRequirementsRequest {
     Id: number,
     Title: string,

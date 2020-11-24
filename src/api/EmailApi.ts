@@ -7,10 +7,13 @@ import "@pnp/sp/sputilities";
 declare var _spPageContextInfo: any;
 
 export interface IEmailApi {
+    readonly siteUrl: string,
     sendEmail: (to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson) => Promise<void>
 };
 
 export class EmailApi implements IEmailApi {
+
+    siteUrl: string = _spPageContextInfo.webAbsoluteUrl;
 
     constructor() {
         sp.setup({
@@ -56,6 +59,8 @@ export class EmailApi implements IEmailApi {
 }
 
 export class EmailApiDev implements IEmailApi {
+
+    siteUrl: string = "localhost";
 
     sleep() {
         return new Promise(r => setTimeout(r, 500));
