@@ -90,8 +90,6 @@ export interface IRequirementsRequest {
     RequesterDSNPhone: string | null,
     RequesterCommPhone: string,
     Approver: IPerson,
-    ApprovedDateTime: Moment | null,
-    ApprovedComment: string | null,
     ApproverOrgSymbol: string,
     ApproverDSNPhone: string | null,
     ApproverCommPhone: string,
@@ -128,12 +126,7 @@ export interface IRequirementsRequestCRUD extends IRequirementsRequest {
      * 
      * @returns the saved/persisted RequirementsRequest, it will now have an Id if it was a new request.
      */
-    save: () => Promise<IRequirementsRequestCRUD | undefined>,
-
-    /**
-     * Remove this RequirementsRequest from its persistence
-     */
-    delete: () => Promise<void>
+    save: () => Promise<IRequirementsRequestCRUD | undefined>
 
     /**
      * Returns whether or not this RequirementsRequest is read-only or not. It will
@@ -162,8 +155,6 @@ const blankRequest: IRequirementsRequest = {
     RequesterDSNPhone: "",
     RequesterCommPhone: "",
     Approver: new Person(),
-    ApprovedDateTime: null,
-    ApprovedComment: null,
     ApproverOrgSymbol: "",
     ApproverDSNPhone: "",
     ApproverCommPhone: "",
@@ -207,8 +198,6 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     RequesterDSNPhone: string | null;
     RequesterCommPhone: string;
     Approver: IPerson;
-    ApprovedDateTime: Moment | null;
-    ApprovedComment: string | null;
     ApproverOrgSymbol: string;
     ApproverDSNPhone: string | null;
     ApproverCommPhone: string;
@@ -245,8 +234,6 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this.RequesterDSNPhone = request.RequesterDSNPhone;
         this.RequesterCommPhone = request.RequesterCommPhone;
         this.Approver = request.Approver;
-        this.ApprovedDateTime = request.ApprovedDateTime;
-        this.ApprovedComment = request.ApprovedComment;
         this.ApproverOrgSymbol = request.ApproverOrgSymbol;
         this.ApproverDSNPhone = request.ApproverDSNPhone;
         this.ApproverCommPhone = request.ApproverCommPhone;
@@ -275,12 +262,6 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
 
     save = async (): Promise<IRequirementsRequestCRUD | undefined> => {
         return this.requestApi.submitRequirementsRequest(this);
-    }
-
-    delete = async (): Promise<void> => {
-        if (this.Id && this.Id > -1) {
-            return this.requestApi.deleteRequirementsRequest(this);
-        }
     }
 
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {

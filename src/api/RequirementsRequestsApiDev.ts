@@ -3,7 +3,6 @@ import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCR
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
 import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
 import { Person, UserApiConfig } from "./UserApi";
-import { NotAuthorizedError } from "./InternalErrors";
 
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
 
@@ -38,8 +37,6 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
                     EMail: "robertporterfield@superemail.com"
                 }),
-                ApprovedDateTime: null,
-                ApprovedComment: null,
                 ApproverOrgSymbol: "OZI",
                 ApproverDSNPhone: "1234567890",
                 ApproverCommPhone: "1234567890",
@@ -86,8 +83,6 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
                     EMail: "jeremyclark@superemail.com"
                 }),
-                ApprovedDateTime: null,
-                ApprovedComment: null,
                 ApproverOrgSymbol: "OZI",
                 ApproverDSNPhone: "1234567890",
                 ApproverCommPhone: "1234567890",
@@ -120,7 +115,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         await this.sleep();
-        let request = this.requests.find(request => request.Id === Id);
+        let request = this.requests.find(request => request.Id === Id && request.Status !== RequestStatuses.CANCELLED && request.Status !== RequestStatuses.CLOSED);
         if (request) {
             let approval = await this.approvalsApi.getRequestApproval(request);
             request = new RequirementsRequest(approval ? approval.Request : request);
@@ -131,10 +126,12 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         await this.sleep();
         let approvals = await this.approvalsApi.getRequestApprovals(this.requests);
-        let requests = this.requests.map(req => {
-            let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.Approver.Id);
-            return new RequirementsRequest(approval ? approval.Request : req);
-        });
+        let requests = this.requests
+            .filter(request => request.Status !== RequestStatuses.CANCELLED && request.Status !== RequestStatuses.CLOSED)
+            .map(req => {
+                let approval = approvals.find(app => app.Request.Id === req.Id && app.AuthorId === req.Approver.Id);
+                return new RequirementsRequest(approval ? approval.Request : req);
+            });
         if (userId !== undefined) {
             requests = requests.filter(request => request.Requester.Id === userId);
         }
@@ -165,16 +162,6 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         updatedRequest.StatusDateTime = moment();
         this.requests[this.requests.findIndex(r => r.Id === updatedRequest.Id)] = updatedRequest;
         return updatedRequest;
-    }
-
-    async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
-        await this.sleep();
-        if (!(new RequirementsRequest(requirementsRequest).isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles()))) {
-            this.requests.filter(request => request.Id !== requirementsRequest.Id);
-            return;
-        } else {
-            throw new NotAuthorizedError();
-        }
     }
 
 }

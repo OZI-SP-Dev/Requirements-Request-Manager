@@ -42,7 +42,6 @@ interface ISubmitRequirementsRequest {
     Benefits: string,
     Risk: string,
     AdditionalInfo: string,
-    IsDeleted?: boolean,
     // undefined when submitting but will be filled in in the response from SP
     __metadata?: {
         etag: string
@@ -85,7 +84,6 @@ interface SPRequirementsRequest {
     Benefits: string,
     Risk: string,
     AdditionalInfo: string,
-    IsDeleted: boolean,
     __metadata: {
         etag: string
     }
@@ -116,14 +114,7 @@ export interface IRequirementsRequestApi {
      * 
      * @param requirementsRequest The IRequirementsRequest whose status is being updated.
      */
-    updateRequestStatus(requirementsRequest: IRequirementsRequest, status: RequestStatuses): Promise<IRequirementsRequestCRUD>,
-
-    /**
-     * Remove the given RequirementsRequest
-     * 
-     * @param requirementsRequest The RequirementsRequest to be deleted/removed
-     */
-    deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void>
+    updateRequestStatus(requirementsRequest: IRequirementsRequest, status: RequestStatuses): Promise<IRequirementsRequestCRUD>
 }
 
 export default class RequirementsRequestsApi implements IRequirementsRequestApi {
@@ -166,8 +157,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             FunctionalRequirements: request.FunctionalRequirements,
             Benefits: request.Benefits,
             Risk: request.Risk,
-            AdditionalInfo: request.AdditionalInfo,
-            IsDeleted: false
+            AdditionalInfo: request.AdditionalInfo
         }
     }
 
@@ -186,8 +176,6 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             RequesterDSNPhone: request.RequesterDSNPhone,
             RequesterCommPhone: request.RequesterCommPhone,
             Approver: new Person(request.Approver),
-            ApprovedDateTime: null,
-            ApprovedComment: null,
             ApproverOrgSymbol: request.ApproverOrgSymbol,
             ApproverDSNPhone: request.ApproverDSNPhone,
             ApproverCommPhone: request.ApproverCommPhone,
@@ -213,7 +201,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         try {
-            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver").get();
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver").get();
             if (!this.isRequestClosed(request)) {
                 // Only try to fetch the approval if the request is approved or further
                 let approval = this.isRequestApproved(request) ? await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request)) : undefined;
@@ -242,7 +230,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
-            let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo", "IsDeleted").expand("Author", "Requester", "Approver");
+            let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver");
 
             let queryString = `Status ne ${RequestStatuses.CANCELLED} and Status ne ${RequestStatuses.CLOSED}`;
 
@@ -318,30 +306,6 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                 throw new ApiError(new Error(`Error occurred while trying to update the status of Request with ID ${requirementsRequest.Id}: ${e}`));
             } else {
                 throw new ApiError(undefined, `Unknown error occurred while trying to update the status of Request with ID ${requirementsRequest.Id}`);
-            }
-        }
-    }
-
-    async deleteRequirementsRequest(requirementsRequest: IRequirementsRequest): Promise<void> {
-        try {
-            if (!(new RequirementsRequest(requirementsRequest).isReadOnly(await this.userApi.getCurrentUser(), await this.userApi.getCurrentUsersRoles()))) {
-                let submitRequest = await this.getSubmitRequirementsRequest(requirementsRequest);
-                submitRequest.IsDeleted = true;
-                await this.requirementsRequestList.items.getById(requirementsRequest.Id).update(submitRequest);
-            } else {
-                throw new NotAuthorizedError();
-            }
-        } catch (e) {
-            console.error(`Error occurred while trying to delete Request with ID ${requirementsRequest.Id}`);
-            console.error(e);
-            if (e instanceof InternalError) {
-                throw e;
-            } else if (e instanceof Error) {
-                throw new ApiError(e, `Error occurred while trying to delete Request with ID ${requirementsRequest.Id}: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(new Error(`Error occurred while trying to delete Request with ID ${requirementsRequest.Id}: ${e}`));
-            } else {
-                throw new ApiError(undefined, `Unknown error occurred while trying to delete Request with ID ${requirementsRequest.Id}`);
             }
         }
     }

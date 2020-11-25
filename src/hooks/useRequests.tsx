@@ -4,7 +4,7 @@ import { IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "
 import { InternalError, NotAuthorizedError } from "../api/InternalErrors";
 import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
-import RequirementsRequestsApi, { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
+import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
 import { RoleDefinitions } from "../utils/RoleDefinitions";
 import { useEmail } from "./useEmail";
@@ -22,8 +22,7 @@ export interface IRequests {
     setFilters: (filters: IRequestFilters) => void,
     fetchRequestById: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequestCRUD>,
-    updateStatus: (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => Promise<void>,
-    deleteRequest: (request: IRequirementsRequestCRUD) => Promise<void>
+    updateStatus: (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => Promise<void>
 }
 
 export function useRequests(): IRequests {
@@ -83,27 +82,31 @@ export function useRequests(): IRequests {
 
     const updateStatus = async (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => {
         try {
-            if (RoleDefinitions.userCanChangeStatus(request, status, await userApi.getCurrentUser(), await userApi.getCurrentUsersRoles())) {
-                let updatedRequest = await requirementsRequestApi.updateRequestStatus(request, status);
+            if (comment || !commentMandatory(status)) {
+                if (RoleDefinitions.userCanChangeStatus(request, status, await userApi.getCurrentUser(), await userApi.getCurrentUsersRoles())) {
+                    let updatedRequest = await requirementsRequestApi.updateRequestStatus(request, status);
 
-                if (status === RequestStatuses.APPROVED) {
-                    let approval = await requestApprovalsApi.submitApproval(updatedRequest, comment);
-                    updatedRequest = new RequirementsRequest(approval.Request);
+                    if (status === RequestStatuses.APPROVED) {
+                        let approval = await requestApprovalsApi.submitApproval(updatedRequest);
+                        updatedRequest = new RequirementsRequest(approval.Request);
+                    }
+
+                    await notesApi.submitNewNote({
+                        Title: `Status set to ${status}`,
+                        Text: comment ? comment : '',
+                        RequestId: updatedRequest.Id,
+                        Status: status
+                    });
+                    await sendStatusUpdateEmail(updatedRequest, status, comment ? comment : '');
+
+                    let newRequests = requests;
+                    requests[newRequests.findIndex(req => req.Id === updatedRequest.Id)] = updatedRequest;
+                    setRequests(newRequests);
+                } else {
+                    throw new NotAuthorizedError(undefined, "You are not authorized to change the request status to " + status);
                 }
-
-                await notesApi.submitNewNote({
-                    Title: `Status set to ${status}`,
-                    Text: comment ? comment : '',
-                    RequestId: updatedRequest.Id,
-                    Status: status
-                });
-                await sendStatusUpdateEmail(updatedRequest, status, comment ? comment : '');
-
-                let newRequests = requests;
-                requests[newRequests.findIndex(req => req.Id === updatedRequest.Id)] = updatedRequest;
-                setRequests(newRequests);
             } else {
-                throw new NotAuthorizedError(undefined, "You are not authorized to change the request status to " + status);
+                throw new InternalError(undefined, "You must provide notes to change the status to " + status);
             }
         } catch (e) {
             console.error(`Error trying to update Request status to ${status}`);
@@ -122,6 +125,12 @@ export function useRequests(): IRequests {
                 throw new InternalError(new Error(`Unknown error occurred while trying to update Request status to ${status}`));
             }
         }
+    }
+
+    const commentMandatory = (status: RequestStatuses) => {
+        return status === RequestStatuses.CANCELLED
+            || status === RequestStatuses.DISAPPROVED
+            || status === RequestStatuses.DECLINED;
     }
 
     const sendStatusUpdateEmail = async (request: IRequirementsRequestCRUD, status: RequestStatuses, comment: string) => {
@@ -144,29 +153,6 @@ export function useRequests(): IRequests {
                 return email.sendClosedEmail(request, comment);
             case RequestStatuses.CANCELLED:
                 return email.sendCancelledEmail(request, comment);
-        }
-    }
-
-    const deleteRequest = async (request: IRequirementsRequestCRUD) => {
-        try {
-            await request.delete();
-            setRequests(requests.filter(req => req.Id !== request.Id));
-        } catch (e) {
-            console.error("Error trying to delete Request");
-            console.error(e);
-            if (e instanceof InternalError) {
-                setError(e.message);
-                throw e;
-            } else if (e instanceof Error) {
-                setError(e.message);
-                throw new InternalError(e);
-            } else if (typeof (e) === "string") {
-                setError(e);
-                throw new InternalError(new Error(e));
-            } else {
-                setError("Unknown error occurred while trying to delete Request!");
-                throw new InternalError(new Error("Unknown error occurred while trying to delete Request!"));
-            }
         }
     }
 
@@ -239,7 +225,6 @@ export function useRequests(): IRequests {
         setFilters,
         fetchRequestById,
         submitRequest,
-        updateStatus,
-        deleteRequest
+        updateStatus
     });
 }

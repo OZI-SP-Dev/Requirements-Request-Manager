@@ -8,7 +8,6 @@ import { IPerson, IUserApi, Person, UserApiConfig } from "./UserApi";
 
 export interface IRequestApproval {
     Id: number,
-    Comment: string,
     Created: Moment,
     AuthorId: number,
     Request: IRequirementsRequest,
@@ -16,8 +15,6 @@ export interface IRequestApproval {
 
 interface SPRequestApproval {
     Id: number,
-    // This is the approver's comment field
-    Title: string,
     // this is a date-time in ISO format
     Created: string,
     AuthorId: number,
@@ -60,7 +57,6 @@ interface SPRequestApproval {
 
 interface ISubmitRequestApproval {
     Id?: number,
-    Title: string,
     Created?: string,
     AuthorId?: number,
 
@@ -128,7 +124,7 @@ export interface IRequestApprovalsApi {
      * 
      * @returns An IRequestApproval of the new approval submitted
      */
-    submitApproval(request: IRequirementsRequest, comment?: string): Promise<IRequestApproval>;
+    submitApproval(request: IRequirementsRequest): Promise<IRequestApproval>;
 }
 
 export class RequestApprovalsApi implements IRequestApprovalsApi {
@@ -138,7 +134,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         try {
-            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").orderBy("Created", false).get())[0];
+            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").orderBy("Created", false).get())[0];
             return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request) : undefined;
         } catch (e) {
             console.error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
@@ -155,7 +151,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         try {
-            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Title", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").orderBy("Created", false).getPaged();
+            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").orderBy("Created", false).getPaged();
             let approvals: SPRequestApproval[] = pages.results;
             while (pages.hasNext) {
                 approvals = approvals.concat((await pages.getNext()).results);
@@ -182,13 +178,13 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
         }
     }
 
-    async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
+    async submitApproval(request: IRequirementsRequest): Promise<IRequestApproval> {
         try {
             let requestCrud = new RequirementsRequest(request);
             let currentUser = await this.userApi.getCurrentUser();
             if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles()) && requestCrud.Status === RequestStatuses.SUBMITTED) {
                 if (currentUser.Id === request.Approver.Id) {
-                    let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request, comment))).data;
+                    let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request))).data;
 
                     return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
                 } else {
@@ -212,9 +208,8 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
         }
     }
 
-    private requirementsRequestToSubmitApproval(request: IRequirementsRequest, comment: string): ISubmitRequestApproval {
+    private requirementsRequestToSubmitApproval(request: IRequirementsRequest): ISubmitRequestApproval {
         return {
-            Title: comment,
             RequestId: request.Id,
             RequestTitle: request.Title,
             RequestDate: request.RequestDate.toISOString(),
@@ -249,7 +244,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     private spApprovalToRequestApproval(spApproval: SPRequestApproval, request: IRequirementsRequest): IRequestApproval {
         return {
             Id: spApproval.Id,
-            Comment: spApproval.Title,
             Created: moment(spApproval.Created),
             AuthorId: spApproval.AuthorId,
             Request: new RequirementsRequest({
@@ -265,8 +259,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 RequesterDSNPhone: spApproval.RequesterDSNPhone,
                 RequesterCommPhone: spApproval.RequesterCommPhone,
                 Approver: new Person(spApproval.Approver),
-                ApprovedDateTime: moment(spApproval.Created),
-                ApprovedComment: spApproval.Title,
                 ApproverOrgSymbol: spApproval.ApproverOrgSymbol,
                 ApproverDSNPhone: spApproval.ApproverDSNPhone,
                 ApproverCommPhone: spApproval.ApproverCommPhone,
@@ -294,7 +286,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
     private submitApprovalToRequestApproval(requestApproval: ISubmitRequestApproval, submittedRequest: IRequirementsRequest): IRequestApproval {
         return {
             Id: requestApproval.Id ? requestApproval.Id : -1,
-            Comment: requestApproval.Title,
             Created: moment(requestApproval.Created),
             AuthorId: requestApproval.AuthorId ? requestApproval.AuthorId : -1,
             Request: new RequirementsRequest({
@@ -310,8 +301,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 RequesterDSNPhone: requestApproval.RequesterDSNPhone,
                 RequesterCommPhone: requestApproval.RequesterCommPhone,
                 Approver: submittedRequest.Approver,
-                ApprovedDateTime: moment(requestApproval.Created),
-                ApprovedComment: requestApproval.Title,
                 ApproverOrgSymbol: requestApproval.ApproverOrgSymbol,
                 ApproverDSNPhone: requestApproval.ApproverDSNPhone,
                 ApproverCommPhone: requestApproval.ApproverCommPhone,
@@ -348,7 +337,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
 
         this.approvals = [{
             Id: 1,
-            Comment: "Super approval",
             Created: moment(),
             AuthorId: 2,
             Request: new RequirementsRequest({
@@ -376,8 +364,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",
                     EMail: "robertporterfield@superemail.com"
                 }),
-                ApprovedDateTime: moment(),
-                ApprovedComment: "Super approval",
                 ApproverOrgSymbol: "OZI",
                 ApproverDSNPhone: "1234567890",
                 ApproverCommPhone: "1234567890",
@@ -401,7 +387,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
             }, requestsApi)
         }, {
             Id: 2,
-            Comment: "bad approval",
             Created: moment(),
             AuthorId: 3,
             Request: new RequirementsRequest({
@@ -429,8 +414,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
                     EMail: "jeremyclark@superemail.com"
                 }),
-                ApprovedDateTime: null,
-                ApprovedComment: null,
                 ApproverOrgSymbol: "OZI",
                 ApproverDSNPhone: "1234567890",
                 ApproverCommPhone: "1234567890",
@@ -465,8 +448,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         await this.sleep();
         let approval = this.approvals.find(approval => approval.Request.Id === request.Id && approval.AuthorId === request.Approver.Id);
         if (approval) {
-            approval.Request.ApprovedDateTime = approval.Created;
-            approval.Request.ApprovedComment = approval.Comment;
             approval.Request.Status = request.Status;
             approval.Request.StatusDateTime = request.StatusDateTime;
         }
@@ -483,8 +464,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                     ...approval,
                     Request: {
                         ...approval.Request,
-                        ApprovedDateTime: approval.Created,
-                        ApprovedComment: approval.Comment,
                         Status: request.Status,
                         StatusDateTime: request.StatusDateTime
                     }
@@ -494,20 +473,17 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
         return filteredApprovals;
     }
 
-    async submitApproval(request: IRequirementsRequest, comment: string): Promise<IRequestApproval> {
+    async submitApproval(request: IRequirementsRequest): Promise<IRequestApproval> {
         let requestCrud = new RequirementsRequest(request);
         let currentUser = await this.userApi.getCurrentUser();
         if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles())) {
             if (currentUser.Id === request.Approver.Id) {
                 let newApproval: IRequestApproval = {
                     Id: ++this.maxId,
-                    Comment: comment,
                     Created: moment(),
                     AuthorId: (await this.userApi.getCurrentUser()).Id,
                     Request: new RequirementsRequest(request)
                 }
-                newApproval.Request.ApprovedComment = newApproval.Comment;
-                newApproval.Request.ApprovedDateTime = newApproval.Created;
                 this.approvals.push(newApproval);
                 return newApproval;
             } else {

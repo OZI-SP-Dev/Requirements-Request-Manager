@@ -79,10 +79,14 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                         <Button variant="warning">Edit Request</Button>
                                                     </Link>}
                                                 {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request), user, roles) ?
-                                                    <Link className={request.isReadOnly(user, roles) ? "ml-auto" : ""} to={`/Requests/Review/${request.Id}`}>
+                                                    <Link
+                                                        className={request.isReadOnly(user, roles) ? "ml-auto" : ""}
+                                                        to={`/Requests/Review/${request.Id}`}>
                                                         <Button variant="primary">Review Request</Button>
                                                     </Link> :
-                                                    <Link className="ml-auto" to={`/Requests/View/${request.Id}`}>
+                                                    <Link
+                                                        className={request.isReadOnly(user, roles) ? "ml-auto" : ""}
+                                                        to={`/Requests/View/${request.Id}`}>
                                                         <Button variant="primary">View Request</Button>
                                                     </Link>
                                                 }
