@@ -182,16 +182,12 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
         try {
             let requestCrud = new RequirementsRequest(request);
             let currentUser = await this.userApi.getCurrentUser();
-            if (!requestCrud.isReadOnly(currentUser, await this.userApi.getCurrentUsersRoles()) && requestCrud.Status === RequestStatuses.SUBMITTED) {
-                if (currentUser.Id === request.Approver.Id) {
-                    let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request))).data;
+            if (currentUser.Id === request.Approver.Id) {
+                let requestApproval: ISubmitRequestApproval = (await this.requestApprovalsList.items.add(this.requirementsRequestToSubmitApproval(request))).data;
 
-                    return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
-                } else {
-                    throw new NotAuthorizedError(new Error("You cannot approve a Request for which you are not the approver!"));
-                }
+                return this.submitApprovalToRequestApproval(requestApproval, requestCrud);
             } else {
-                throw new NotAuthorizedError(new Error("You cannot approve a Request that is not in the Submitted Status!"));
+                throw new NotAuthorizedError(new Error("You cannot approve a Request for which you are not the approver!"));
             }
         } catch (e) {
             console.error(`Error occured while trying to approve Request with ID ${request.Id}`);

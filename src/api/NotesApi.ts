@@ -1,9 +1,8 @@
+import moment, { Moment } from "moment";
 import { spWebContext } from "../providers/SPWebContext";
-import { ApiError } from "./InternalErrors";
-import { Moment } from "moment";
-import moment from "moment";
 import { RequestStatuses } from "./DomainObjects";
-import { IPerson, Person, UserApi, UserApiConfig } from "./UserApi";
+import { ApiError } from "./InternalErrors";
+import { IPerson, Person, UserApiConfig } from "./UserApi";
 
 
 export interface INote {

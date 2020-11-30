@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import { FunctionComponent } from "react";
-import { IRequirementsRequest, RequestStatuses } from "../../api/DomainObjects";
+import React, { FunctionComponent, useState } from "react";
+import { RequestStatuses } from "../../api/DomainObjects";
 import { INote } from "../../api/NotesApi";
 import { InfoPopover } from "../InfoPopover/InfoPopover";
 import './StatusWorkflow.css';
@@ -47,7 +46,7 @@ export const StatusListItem: FunctionComponent<IStatusListItemProps> = (props) =
             >
                 {props.notes.map(note =>
                     <>
-                        <p className="preserve-whitespace">{note.Text}</p>
+                        <p className="preserve-whitespace">{note.Text ? note.Text : "No Notes"}</p>
                         <p><i>-{note.Author.Title} on {note.Modified.format("DD MMM YYYY [at] hh:mm")}</i></p>
                     </>
                 )}
