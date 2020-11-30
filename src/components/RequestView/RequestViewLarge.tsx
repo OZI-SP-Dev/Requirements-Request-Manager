@@ -25,7 +25,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
 
     return (
         <>
-            <StatusWorkflow request={props.request} notes={props.notes} />
+            <StatusWorkflow request={props.request} notes={props.notes.getStatusNotes()} />
             <Row>
                 <Col xl={getColSize("xl")} lg={getColSize("lg")} md={getColSize("md")} sm={getColSize("sm")} xs={getColSize("xs")}>
                     <Row className="ml-2 mr-2 mt-2 view-form">
@@ -60,14 +60,6 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                             <strong>Requester DSN #: </strong>
                             {props.request.RequesterDSNPhone ? props.request.RequesterDSNPhone : "None"}
-                        </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                            <strong>Status: </strong>
-                            {props.request.Status}
-                        </Col>
-                        <Col className="mt-2" xl={8} lg={8} md={8} sm={6} xs={12}>
-                            <strong>Status Updated: </strong>
-                            {props.request.StatusDateTime.format("DD MMM YYYY [at] HH:mm")}
                         </Col>
                         <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
                             <strong>Approving 2 Ltr Deputy: </strong>
@@ -175,7 +167,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                             </Row>
                         }
                         <Card className="notes-card">
-                            {props.notes.notes.map(note =>
+                            {props.notes.getGeneralNotes().map(note =>
                                 <Col key={note.Id} className="mt-3 mb-3">
                                     <NoteCard
                                         note={note}

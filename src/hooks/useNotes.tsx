@@ -8,6 +8,8 @@ export interface INotes {
     error: string,
     clearError: () => void,
     notes: INote[],
+    getGeneralNotes: () => INote[],
+    getStatusNotes: () => INote[],
     submitNewNote: (title: string, text: string) => Promise<INote>,
     updateNote: (note: INote) => Promise<INote>,
     deleteNote: (note: INote) => Promise<void>
@@ -152,6 +154,8 @@ export function useNotes(requestId?: number): INotes {
         error,
         clearError,
         notes,
+        getGeneralNotes: () => notes.filter(n => !n.Status),
+        getStatusNotes: () => notes.filter(n => n.Status),
         submitNewNote,
         updateNote,
         deleteNote

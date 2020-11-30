@@ -1,67 +1,57 @@
-import React from "react";
-import { FunctionComponent } from "react";
-import { Card, Col, Row } from "react-bootstrap";
+import React, { FunctionComponent } from "react";
 import { IRequirementsRequestCRUD, RequestStatuses } from "../../api/DomainObjects";
-import { INotes } from "../../hooks/useNotes";
-import './StatusWorkflow.css'
+import { INote } from "../../api/NotesApi";
+import { StatusListItem } from "./StatusListItem";
+import './StatusWorkflow.css';
 
 
 export interface IStatusWorkflowProps {
     request: IRequirementsRequestCRUD,
-    notes: INotes
+    notes: INote[]
 }
 
 export const StatusWorkflow: FunctionComponent<IStatusWorkflowProps> = (props) => {
-    let statuses = [
-        RequestStatuses.SUBMITTED,
-        RequestStatuses.DISAPPROVED,
-        RequestStatuses.APPROVED,
-        RequestStatuses.DECLINED,
-        RequestStatuses.ACCEPTED,
-        RequestStatuses.REVIEW,
-        RequestStatuses.CONTRACT,
-        RequestStatuses.CLOSED
-    ]
-
-    // This is all of the completed statuses with the active status as the last item in the array
-    let requestStatuses = statuses.slice(0, statuses.findIndex(s => s === props.request.Status));
-
-    const getClass = (status: RequestStatuses): "active-status" | "completed-status" | "inactive-status" => {
-        return props.request.Status === status ? "active-status" : requestStatuses.includes(status) ? "completed-status" : "inactive-status";
-    }
 
     return (
-        <Card className="status-workflow-card p-2 pr-4 m-3">
-            <ul className="status-workflow p-0 m-0">
-                <li className={getClass(RequestStatuses.SUBMITTED)}>
-                    <div>{RequestStatuses.SUBMITTED}</div>
-                </li>
-                {props.request.Status === RequestStatuses.DISAPPROVED &&
-                    <li className="danger-status">
-                        <div>{RequestStatuses.DISAPPROVED}</div>
-                    </li>
-                }
-                <li className={getClass(RequestStatuses.APPROVED)}>
-                    <div>{RequestStatuses.APPROVED}</div>
-                </li>
-                {props.request.Status === RequestStatuses.DECLINED &&
-                    <li className="danger-status">
-                        <div>{RequestStatuses.DECLINED}</div>
-                    </li>
-                }
-                <li className={getClass(RequestStatuses.ACCEPTED)}>
-                    <div>{RequestStatuses.ACCEPTED}</div>
-                </li>
-                <li className={getClass(RequestStatuses.REVIEW)}>
-                    <div>{RequestStatuses.REVIEW}</div>
-                </li>
-                <li className={getClass(RequestStatuses.CONTRACT)}>
-                    <div>{RequestStatuses.CONTRACT}</div>
-                </li>
-                <li className={getClass(RequestStatuses.CLOSED)}>
-                    <div>{RequestStatuses.CLOSED}</div>
-                </li>
-            </ul>
-        </Card>
+        <ul className="status-workflow p-0 ml-auto mr-auto mb-3 mt-3">
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.SUBMITTED}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.SUBMITTED)} />
+            {props.request.Status === RequestStatuses.DISAPPROVED &&
+                <StatusListItem
+                    requestStatus={props.request.Status}
+                    className="danger-status"
+                    status={RequestStatuses.DISAPPROVED}
+                    notes={props.notes.filter(n => n.Status === RequestStatuses.DISAPPROVED)} />
+            }
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.APPROVED}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.APPROVED)} />
+            {props.request.Status === RequestStatuses.DECLINED &&
+                <StatusListItem
+                    requestStatus={props.request.Status}
+                    className="danger-status"
+                    status={RequestStatuses.DECLINED}
+                    notes={props.notes.filter(n => n.Status === RequestStatuses.DECLINED)} />
+            }
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.ACCEPTED}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.ACCEPTED)} />
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.REVIEW}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.REVIEW)} />
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.CONTRACT}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.CONTRACT)} />
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.CLOSED}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.CLOSED)} />
+        </ul>
     )
 }

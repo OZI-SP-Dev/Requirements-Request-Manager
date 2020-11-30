@@ -3,6 +3,7 @@ import { ApiError } from "./InternalErrors";
 import { Moment } from "moment";
 import moment from "moment";
 import { RequestStatuses } from "./DomainObjects";
+import { IPerson, Person, UserApi, UserApiConfig } from "./UserApi";
 
 
 export interface INote {
@@ -11,6 +12,7 @@ export interface INote {
     Text: string,
     Modified: Moment,
     RequestId: number,
+    Author: IPerson,
     Status?: RequestStatuses | null,
     "odata.etag": string
 }
@@ -24,6 +26,7 @@ export interface ISubmitNote {
 
 interface INewNote extends ISubmitNote {
     Id: number,
+    Author: IPerson,
     Modified: string,
     __metadata: {
         etag: string
@@ -36,6 +39,7 @@ interface SPNote {
     Text: string,
     Modified: string,
     Request: { Id: number },
+    Author: IPerson,
     Status?: RequestStatuses | null,
     __metadata: {
         etag: string
@@ -52,16 +56,18 @@ export interface INotesApi {
 export class NotesApi implements INotesApi {
 
     notesList = spWebContext.lists.getByTitle("Notes");
+    userApi = UserApiConfig.getApi();
 
     async fetchNotesByRequestId(requestId: number): Promise<INote[]> {
         try {
-            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified", "Status").filter(`RequestId eq ${requestId}`).expand("Request").orderBy("Modified", false).get();
+            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified", "Author/Id", "Author/Title", "Author/EMail", "Status").filter(`RequestId eq ${requestId}`).expand("Request", "Author").orderBy("Modified", false).get();
             return notes.map(spNote => {
                 return {
                     Id: spNote.Id,
                     Title: spNote.Title,
                     Text: spNote.Text,
                     Modified: moment(spNote.Modified),
+                    Author: new Person(spNote.Author),
                     RequestId: spNote.Request.Id,
                     Status: spNote.Status,
                     "odata.etag": spNote.__metadata.etag
@@ -89,6 +95,7 @@ export class NotesApi implements INotesApi {
                 Title: returnedNote.Title,
                 Text: returnedNote.Text,
                 Modified: moment(returnedNote.Modified),
+                Author: await this.userApi.getCurrentUser(),
                 RequestId: returnedNote.RequestId,
                 Status: returnedNote.Status,
                 "odata.etag": returnedNote.__metadata.etag
@@ -151,6 +158,8 @@ export class NotesApi implements INotesApi {
 
 export class NotesApiDev implements INotesApi {
 
+    userApi = UserApiConfig.getApi();
+
     sleep() {
         return new Promise(r => setTimeout(r, 500));
     }
@@ -160,6 +169,11 @@ export class NotesApiDev implements INotesApi {
         Title: "Super Note",
         Text: "This is a very important note, everyone must know about the ramifications of this note.",
         Modified: moment(),
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
         RequestId: 1,
         "odata.etag": "1"
     }, {
@@ -167,6 +181,11 @@ export class NotesApiDev implements INotesApi {
         Title: "Less Super Important Note",
         Text: "This is a less important note, everyone should still know about the ramifications of this note.",
         Modified: moment().subtract(1, 'day'),
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
         RequestId: 1,
         "odata.etag": "1"
     }, {
@@ -174,6 +193,11 @@ export class NotesApiDev implements INotesApi {
         Title: "Not Important Note",
         Text: "No one cares about this note.",
         Modified: moment().subtract(2, 'day'),
+        Author: new Person({
+            Id: 1,
+            Title: "Default User",
+            EMail: "me@example.com"
+        }),
         RequestId: 1,
         "odata.etag": "1"
     }];
@@ -190,6 +214,7 @@ export class NotesApiDev implements INotesApi {
         let note = {
             Id: ++this.maxId,
             Modified: moment(),
+            Author: await this.userApi.getCurrentUser(),
             ...newNote,
             "odata.etag": "1"
         }
