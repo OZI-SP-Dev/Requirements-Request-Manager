@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.23] 2020-12-02
+### Added
+- Status and StatusDateTime fields on RequirementsRequests SP List
+- Status field on Notes SP List
+- Workflow timeline for Request statuses on large RequestView page
+- Many new statuses and the ability to transition between them
+
+### Changed
+- How the approval API code works and how the RequirementsRequestApi will fetch Approvals
+
+### Removed
+- ApprovedComment and ApprovedDateTime fields, since those can be fetched by looking at the notes
+
 ## [0.1.22] 2020-11-05
 ### Added
 - Timestamp to NoteCards

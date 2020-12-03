@@ -1,11 +1,10 @@
 import React, { useContext, useState } from "react";
-import { Accordion, Button, Col, Container, FormCheck, Row, Spinner, Table } from "react-bootstrap";
+import { Accordion, Button, Col, Container, FormCheck, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, IRequirementsRequestCRUD } from "../../api/DomainObjects";
+import { ApplicationTypes, getNextStatus } from "../../api/DomainObjects";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
-import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
-import RequestSpinner from "../RequestSpinner/RequestSpinner";
+import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { RequestView } from "../RequestView/RequestView";
 
 export interface IRequestsProps {
@@ -14,24 +13,12 @@ export interface IRequestsProps {
 
 export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
-    const [deleting, setDeleting] = useState<boolean>(false);
     const [requestIdShown, setRequestIdShown] = useState<number>(-1);
-    const [showDeletePopover, setShowDeletePopover] = useState<boolean>(false);
-    const [deletePopoverTarget, setDeletePopoverTarget] = useState<any>();
 
     const { user, roles } = useContext(UserContext);
 
     const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
         props.requests.setFilters({ ...props.requests.filters, showAllUsers: !e.target.checked });
-    }
-
-    const deleteRequest = async (request: IRequirementsRequestCRUD) => {
-        try {
-            setDeleting(true);
-            await props.requests.deleteRequest(request);
-        } finally {
-            setDeleting(false);
-        }
     }
 
     return (
@@ -64,7 +51,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                         <th>Application Needed</th>
                         <th>Org Priority</th>
                         <th>Operational Need Date</th>
-                        <th>Approval</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <Accordion as='tbody'>
@@ -79,7 +66,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
                                 <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
-                                <td>{request.ApprovedDateTime ? request.ApprovedDateTime.format("DD MMM YYYY") : "None"}</td>
+                                <td>{request.Status} on {request.StatusDateTime.format("DD MMM YYYY")}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
                                 <td colSpan={8} className="p-0">
@@ -87,42 +74,22 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                         <div className="p-1">
                                             <RequestView request={request} loadNotes={requestIdShown === request.Id} size="sm" />
                                             <Row className="ml-2 mr-2">
-                                                <Col xl={12} lg={12} md={12} sm={12} xs={12}>
-                                                    {!request.isReadOnly(user, roles) &&
-                                                        <>
-                                                            <ConfirmPopover
-                                                                show={showDeletePopover}
-                                                                target={deletePopoverTarget}
-                                                                variant="danger"
-                                                                titleText="Delete Request"
-                                                                confirmationText="Are you sure you want to delete this request?"
-                                                                onSubmit={async () => deleteRequest(request)}
-                                                                handleClose={() => setShowDeletePopover(false)}
-                                                            />
-                                                            <Button className="float-left" variant="danger"
-                                                                onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                                                    setDeletePopoverTarget(event.target);
-                                                                    setShowDeletePopover(true);
-                                                                }}
-                                                            >
-                                                                {deleting &&
-                                                                    <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                                                                {' '}{"Delete Request"}
-                                                            </Button>
-                                                        </>}
-                                                    {!request.isReadOnly(user, roles) &&
-                                                        <Link to={`/Requests/Edit/${request.Id}`}>
-                                                            <Button className="float-left ml-2" variant="warning">Edit Request</Button>
-                                                        </Link>}
-                                                    {request.ApprovedDateTime || user?.Id !== request.Approver.Id ?
-                                                        <Link to={`/Requests/View/${request.Id}`}>
-                                                            <Button className="float-right" variant="primary">View Request</Button>
-                                                        </Link>
-                                                        : <Link to={`/Requests/Review/${request.Id}`}>
-                                                            <Button className="float-right" variant="primary">Review Request</Button>
-                                                        </Link>
-                                                    }
-                                                </Col>
+                                                {!request.isReadOnly(user, roles) &&
+                                                    <Link className="ml-auto mr-2" to={`/Requests/Edit/${request.Id}`}>
+                                                        <Button variant="warning">Edit Request</Button>
+                                                    </Link>}
+                                                {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request), user, roles) ?
+                                                    <Link
+                                                        className={request.isReadOnly(user, roles) ? "ml-auto" : ""}
+                                                        to={`/Requests/Review/${request.Id}`}>
+                                                        <Button variant="primary">Review Request</Button>
+                                                    </Link> :
+                                                    <Link
+                                                        className={request.isReadOnly(user, roles) ? "ml-auto" : ""}
+                                                        to={`/Requests/View/${request.Id}`}>
+                                                        <Button variant="primary">View Request</Button>
+                                                    </Link>
+                                                }
                                             </Row>
                                         </div>
                                     </Accordion.Collapse>
@@ -133,7 +100,6 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 </Accordion>
             </Table>
             {!props.requests.loading && props.requests.requestsList.length === 0 && <h5 className="text-center">There were no Requests found</h5>}
-            <RequestSpinner show={deleting} displayText="Deleting Request..." />
         </Container>
     );
 }

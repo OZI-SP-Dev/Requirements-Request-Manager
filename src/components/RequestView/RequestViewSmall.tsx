@@ -56,14 +56,6 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                         {props.request.Approver.Title}
                     </Col>
                     <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
-                        <strong>Approval Date: </strong>
-                        {props.request.ApprovedDateTime ? props.request.ApprovedDateTime.format("DD MMM YYYY [at] HH:mm") : "Not Yet approved"}
-                    </Col>
-                    <Col className="mt-2" xl={8} lg={8} md={8} sm={6} xs={12}>
-                        <strong>Comment on Approval: </strong>
-                        {props.request.ApprovedComment ? props.request.ApprovedComment : "None"}
-                    </Col>
-                    <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
                         <strong>Requirement Type: </strong>
                         {props.request.NoveltyRequirementType}
                     </Col>
@@ -99,7 +91,7 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                 </Row>
             </Col>
             <Row className="m-3 notes-row">
-                {props.notes.notes.map(note =>
+                {props.notes.getGeneralNotes().map(note =>
                     <Col key={note.Id} className="mt-3 mb-3" xl="4" lg="6" md="12" sm="12" xs="12">
                         <NoteCard
                             note={note}

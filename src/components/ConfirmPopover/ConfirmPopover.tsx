@@ -8,7 +8,7 @@ export interface ConfirmPopoverProps {
     variant: "primary" | "danger",
     titleText: string,
     confirmationText: string,
-    onSubmit: () => Promise<any>,
+    onSubmit: (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => Promise<any>,
     handleClose: () => void
 }
 
@@ -18,9 +18,9 @@ export const ConfirmPopover: FunctionComponent<ConfirmPopoverProps> = (props) =>
     const wrapperRef = useRef(null);
     useOutsideClickDetect(wrapperRef, props.handleClose);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
         setSubmitting(true);
-        await props.onSubmit();
+        await props.onSubmit(e);
         setSubmitting(false);
         props.handleClose();
     }
@@ -47,7 +47,7 @@ export const ConfirmPopover: FunctionComponent<ConfirmPopoverProps> = (props) =>
                             className="float-right mb-2"
                             disabled={submitting}
                             variant={props.variant}
-                            onClick={handleSubmit}
+                            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => handleSubmit(e)}
                         >
                             {submitting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                             {' '}Confirm
