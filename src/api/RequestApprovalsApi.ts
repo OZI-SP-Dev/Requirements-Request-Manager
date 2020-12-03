@@ -274,7 +274,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 Benefits: spApproval.Benefits,
                 Risk: spApproval.Risk,
                 AdditionalInfo: spApproval.AdditionalInfo,
-                "odata.etag": spApproval.__metadata.etag
+                "odata.etag": request["odata.etag"]
             })
         }
     }
@@ -316,7 +316,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 Benefits: requestApproval.Benefits,
                 Risk: requestApproval.Risk,
                 AdditionalInfo: requestApproval.AdditionalInfo,
-                "odata.etag": requestApproval.__metadata ? requestApproval.__metadata.etag : ""
+                "odata.etag": submittedRequest["odata.etag"]
             })
         }
     }
