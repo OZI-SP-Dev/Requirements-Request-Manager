@@ -30,7 +30,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         if (requestViewHeight) {
             setCardsHeight(requestViewHeight);
         }
-    }, [props.request])
+    }, [props.request, props.notesEditable])
 
     return (
         <>
