@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { ApplicationTypes } from "../../api/DomainObjects";
 import { NoteCard } from "../NoteCard/NoteCard";
@@ -6,6 +6,8 @@ import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 import { IRequestViewChildProps } from "./RequestView";
 
 export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (props) => {
+
+    const [cardsHeight, setCardsHeight] = useState<number>();
 
     const notesEmpty = props.notes.notes.length === 0;
 
@@ -23,11 +25,18 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         }
     }
 
+    useEffect(() => {
+        const requestViewHeight = document.getElementById("requests-view-large-col")?.clientHeight;
+        if (requestViewHeight) {
+            setCardsHeight(requestViewHeight);
+        }
+    }, [props.request])
+
     return (
         <>
             <StatusWorkflow request={props.request} notes={props.notes.getStatusNotes()} />
             <Row>
-                <Col xl={getColSize("xl")} lg={getColSize("lg")} md={getColSize("md")} sm={getColSize("sm")} xs={getColSize("xs")}>
+                <Col id="requests-view-large-col" xl={getColSize("xl")} lg={getColSize("lg")} md={getColSize("md")} sm={getColSize("sm")} xs={getColSize("xs")}>
                     <Row className="ml-2 mr-2 mt-2 view-form">
                         <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
                             <strong>Request Title: </strong>
@@ -166,7 +175,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                                 </Col>
                             </Row>
                         }
-                        <Card className="notes-card">
+                        <Card style={{ maxHeight: cardsHeight }} className="notes-card">
                             {props.notes.getGeneralNotes().map(note =>
                                 <Col key={note.Id} className="mt-3 mb-3">
                                     <NoteCard

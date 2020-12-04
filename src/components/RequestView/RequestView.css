@@ -7,7 +7,6 @@
 }
 
 .notes-card {
-    max-height: 35em;
     overflow: auto;
     border: hidden
 }

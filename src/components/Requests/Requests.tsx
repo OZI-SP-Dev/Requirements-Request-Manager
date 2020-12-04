@@ -73,7 +73,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     <Accordion.Collapse eventKey={request.Id.toString()}>
                                         <div className="p-1">
                                             <RequestView request={request} loadNotes={requestIdShown === request.Id} size="sm" />
-                                            <Row className="ml-2 mr-2">
+                                            <Row className="m-2">
                                                 {!request.isReadOnly(user, roles) &&
                                                     <Link className="ml-auto mr-2" to={`/Requests/Edit/${request.Id}`}>
                                                         <Button variant="warning">Edit Request</Button>
