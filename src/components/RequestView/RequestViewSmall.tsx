@@ -1,7 +1,6 @@
 import { Persona, PersonaSize } from 'office-ui-fabric-react/lib/Persona';
 import React, { FunctionComponent } from "react";
 import { Col, OverlayTrigger, Popover, Row } from "react-bootstrap";
-import { NoteCard } from "../NoteCard/NoteCard";
 import { IRequestViewChildProps } from "./RequestView";
 
 export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (props) => {
@@ -90,18 +89,6 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
                     </Col>
                 </Row>
             </Col>
-            <Row className="m-3 notes-row">
-                {props.notes.getGeneralNotes().map(note =>
-                    <Col key={note.Id} className="mt-3 mb-3" xl="4" lg="6" md="12" sm="12" xs="12">
-                        <NoteCard
-                            note={note}
-                            editable={props.notesEditable}
-                            editOnClick={() => props.editNoteOnClick(note)}
-                            deleteNote={props.notes.deleteNote}
-                        />
-                    </Col>
-                )}
-            </Row>
         </Row>
     )
 
