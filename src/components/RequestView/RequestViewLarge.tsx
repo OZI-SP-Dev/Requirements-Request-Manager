@@ -9,7 +9,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
 
     const [cardsHeight, setCardsHeight] = useState<number>();
 
-    const notesEmpty = props.notes.notes.length === 0;
+    const notesEmpty = props.notes.getGeneralNotes().length === 0;
 
     const getColSize = (displaySize: "xl" | "lg" | "md" | "sm" | "xs") => {
         if (displaySize === "xl" || displaySize === "lg") {
