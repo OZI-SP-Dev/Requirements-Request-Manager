@@ -77,7 +77,7 @@ export function useEmail(): IEmailSender {
     const sendSubmitEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
         let to = [request.Approver];
         let subject = `Request ${request.getFormattedId()} Submitted`;
-        let body = `Hello, a requirement request, ${request.Title}, has been submitted for which you are the approving official by ${request.Requester.Title}.
+        let body = `Hello, a Requirement Request, ${request.Title}, has been submitted for which you are the approving official by ${request.Requester.Title}.
             
             To review/approve the request, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
         let cc = getManagers();
@@ -91,7 +91,7 @@ export function useEmail(): IEmailSender {
             to.push(request.Requester);
         }
         let subject = `Request ${request.getFormattedId()} Approved`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}.
         ${comment ? `The approver left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -102,7 +102,7 @@ export function useEmail(): IEmailSender {
     const sendDisapprovalEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
         let to = [request.Requester, request.Author];
         let subject = `Request ${request.getFormattedId()} Disapproved`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title} and so will require some rework by the requester ${request.Requester.Title}.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title}. Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title}.
         The approver left a comment saying "${comment}"
         
         To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -113,7 +113,7 @@ export function useEmail(): IEmailSender {
     const sendAcceptedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Accepted by Manager`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -124,7 +124,7 @@ export function useEmail(): IEmailSender {
     const sendDeclinedEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Declined by Manager`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been declined by the Requirements Manager ${(await userApi.getCurrentUser()).Title} and will require some rework by the requester ${request.Requester.Title} before it can be accepted.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been declined by the Requirements Manager ${(await userApi.getCurrentUser()).Title} Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be accepted.
         The Manager left a comment saying "${comment}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -135,7 +135,7 @@ export function useEmail(): IEmailSender {
     const sendReviewEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Under Board Review`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If all Boards approve the Request, the Requirement will be prioritized for available funding. When funds are available, it will be put on a contract for development. You will be notified once your Requirement goes on contract.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If all Boards approve the Request, the Requirement will be prioritized for available funding. When funds are available, it will be put on a contract for development. You will be notified once your Requirement goes on contract.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -146,7 +146,7 @@ export function useEmail(): IEmailSender {
     const sendContractEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} On Contract`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been put on contract and development for the Requirement will begin soon.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been put on contract and development for the Requirement will begin soon.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -157,7 +157,7 @@ export function useEmail(): IEmailSender {
     const sendClosedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Closed`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been marked as Completed and has been Closed by the Requirements Manager ${(await userApi.getCurrentUser()).Title}.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been marked as Completed and has been Closed by the Requirements Manager ${(await userApi.getCurrentUser()).Title}.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}`;
 
         return sendEmail(to, subject, body);
@@ -170,7 +170,7 @@ export function useEmail(): IEmailSender {
         to.push(request.Approver);
         to.push(request.Author);
         let subject = `Request ${request.getFormattedId()} Cancelled`;
-        let body = `Hello, requirement request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been cancelled by ${currentUser}.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been cancelled by ${currentUser}.
         ${currentUser} left a comment saying ${comment}`;
 
         return sendEmail(to, subject, body);
@@ -179,7 +179,7 @@ export function useEmail(): IEmailSender {
     const sendNoteEmail = async (request: IRequirementsRequestCRUD, note: INote): Promise<void> => {
         let to = [request.Approver, request.Requester];
         let subject = `Note Added for Request ${request.getFormattedId()}`;
-        let body = `Hello, a note has been added to your requirement request ${request.Title}
+        let body = `Hello, a note has been added to your Requirement Request ${request.Title}
 
             The note is:
             <h4>${note.Title}</h4><p>"${note.Text}"</p>
