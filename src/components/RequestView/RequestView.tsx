@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Row } from "react-bootstrap";
 import { IRequirementsRequestCRUD, RequirementsRequest } from "../../api/DomainObjects";
-import { INote } from '../../api/NotesApi';
 import { IEmailSender, useEmail } from "../../hooks/useEmail";
 import { INotes, useNotes } from "../../hooks/useNotes";
 import { UserContext } from "../../providers/UserProvider";
@@ -22,36 +21,34 @@ export interface IRequestViewProps {
 export interface IRequestViewChildProps {
     request: IRequirementsRequestCRUD,
     notes: INotes,
-    notesEditable: boolean,
-    editNoteOnClick: (note?: INote) => void
+    userCanAddNotes: boolean,
+    addNoteOnClick: () => void
 }
 
 export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(props.request ? props.request : new RequirementsRequest());
     const [showNoteModal, setShowNoteModal] = useState<boolean>(false);
-    const [editNote, setEditNote] = useState<INote>();
 
     const notes: INotes = useNotes(props.loadNotes ? props.request?.Id : undefined);
     const email: IEmailSender = useEmail();
 
-    const { roles } = useContext(UserContext);
+    const { user, roles } = useContext(UserContext);
 
     useEffect(() => {
         setRequest(props.request ? props.request : new RequirementsRequest());
     }, [props.request]);
 
     const submitNote = async (title: string, text: string, notifyUsers: boolean) => {
-        let newNote = editNote ? await notes.updateNote({ ...editNote, Title: title, Text: text }) : await notes.submitNewNote(title, text);
+        let newNote = await notes.submitNewNote(title, text);
         if (notifyUsers) {
             await email.sendNoteEmail(request, newNote);
         }
         return newNote;
     }
 
-    const editNoteOnClick = (note?: INote) => {
-        if (RoleDefinitions.userCanEditNotes(roles)) {
-            setEditNote(note);
+    const editNoteOnClick = () => {
+        if (RoleDefinitions.userCanAddNotes(request, roles, user)) {
             setShowNoteModal(true);
         }
     }
@@ -64,24 +61,22 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
                         <RequestViewLarge
                             request={request}
                             notes={notes}
-                            notesEditable={RoleDefinitions.userCanEditNotes(roles)}
-                            editNoteOnClick={editNoteOnClick}
+                            userCanAddNotes={RoleDefinitions.userCanAddNotes(request, roles, user)}
+                            addNoteOnClick={editNoteOnClick}
                         /> :
                         <RequestViewSmall
                             request={request}
                             notes={notes}
-                            notesEditable={RoleDefinitions.userCanEditNotes(roles)}
-                            editNoteOnClick={editNoteOnClick}
+                            userCanAddNotes={RoleDefinitions.userCanAddNotes(request, roles, user)}
+                            addNoteOnClick={editNoteOnClick}
                         />
                 }
                 < NoteModal
-                    note={editNote}
-                    show={showNoteModal && RoleDefinitions.userCanEditNotes(roles)
+                    show={showNoteModal && RoleDefinitions.userCanAddNotes(request, roles, user)
                     }
                     error={notes.error}
                     clearError={notes.clearError}
                     handleClose={() => {
-                        setEditNote(undefined);
                         setShowNoteModal(false);
                         notes.clearError();
                     }}
