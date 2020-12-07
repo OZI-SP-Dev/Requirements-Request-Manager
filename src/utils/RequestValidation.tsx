@@ -83,7 +83,7 @@ export class RequestValidation {
             OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded, 255) : "",
             ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg, 15),
             OperationalNeedDateError: this.getDateValidation(request.OperationalNeedDate, oldRequest && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()),
-            PriorityExplanationError: request.PriorityExplanation ? "" : "Please enter an explanation for why the priority of the requirements request was given!",
+            PriorityExplanationError: request.PriorityExplanation ? "" : "Please enter an explanation for why the priority of the requirement request was given!",
             BusinessObjectiveError: request.BusinessObjective ? "" : "Please enter the business objective for the requirement being requested!",
             FunctionalRequirementsError: request.FunctionalRequirements ? "" : "Please enter the functional requirements for the requirement being requested!",
             BenefitsError: request.Benefits ? "" : "Please enter the benefits to your org that the requirement being requested will provide!",

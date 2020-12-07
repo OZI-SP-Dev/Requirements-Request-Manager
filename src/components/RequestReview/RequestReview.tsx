@@ -89,6 +89,31 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
         }
     }
 
+    const getStatusButtonText = (status: RequestStatuses | null): string => {
+        switch (status) {
+            case RequestStatuses.SUBMITTED:
+                return "Submit Request";
+            case RequestStatuses.APPROVED:
+                return "Approve Request";
+            case RequestStatuses.DISAPPROVED:
+                return "Disapprove Request";
+            case RequestStatuses.ACCEPTED:
+                return "Accept Request";
+            case RequestStatuses.DECLINED:
+                return "Decline Request";
+            case RequestStatuses.REVIEW:
+                return "Under Board Review";
+            case RequestStatuses.CONTRACT:
+                return "Request On Contract";
+            case RequestStatuses.CLOSED:
+                return "Close Request";
+            case RequestStatuses.CANCELLED:
+                return "Cancel Request";
+            default:
+                return "Submit";
+        }
+    }
+
     return (
         <Container fluid="md" className="pb-5 pt-3">
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
@@ -117,7 +142,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         show={showCancelPopover}
                         target={cancelPopoverTarget}
                         variant="danger"
-                        titleText="Cancel Request"
+                        titleText={getStatusButtonText(RequestStatuses.CANCELLED)}
                         confirmationText="Are you sure you want to cancel this request?"
                         onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) =>
                             updateStatus(e, RequestStatuses.CANCELLED)}
@@ -125,21 +150,21 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     />
                     <Button className="mr-2"
                         variant="danger"
-                        disabled={!request}
+                        disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setCancelPopoverTarget(event.target);
                             setShowCancelPopover(true);
                         }}
                     >
                         {statusBeingSubmit === RequestStatuses.CANCELLED && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{"Cancel Request"}
+                        {' '}{getStatusButtonText(RequestStatuses.CANCELLED)}
                     </Button>
                 </>}
-                <Button className="mr-auto" variant="secondary" href="#/Requests">
+                <Button disabled={statusBeingSubmit !== undefined} className="mr-auto" variant="secondary" href="#/Requests">
                     {userCanReview ? "Cancel" : "Close"}
                 </Button>
                 {request && !request.isReadOnly(user, roles) &&
-                    <Button className="ml-auto" variant="warning" href={`#/Requests/Edit/${request.Id}`}>
+                    <Button disabled={statusBeingSubmit !== undefined} className="ml-auto" variant="warning" href={`#/Requests/Edit/${request.Id}`}>
                         Edit Request
                     </Button>
                 }
@@ -148,21 +173,21 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         show={showRejectPopover}
                         target={rejectPopoverTarget}
                         variant="danger"
-                        titleText="Reject Request"
+                        titleText={getStatusButtonText(getRejectStatus(request))}
                         confirmationText={`Are you sure you want to set this Request's status to ${getRejectStatus(request)}?`}
                         onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, getRejectStatus(request))}
                         handleClose={() => setShowRejectPopover(false)}
                     />
                     <Button className="ml-2"
                         variant="danger"
-                        disabled={!request}
+                        disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setRejectPopoverTarget(event.target);
                             setShowRejectPopover(true);
                         }}
                     >
                         {statusBeingSubmit === getRejectStatus(request) && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{"Set to " + getRejectStatus(request)}
+                        {' '}{getStatusButtonText(getRejectStatus(request))}
                     </Button>
                 </>}
                 {userCanReview && <>
@@ -170,20 +195,20 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         show={showAffirmPopover}
                         target={affirmPopoverTarget}
                         variant="primary"
-                        titleText="Advance Request"
+                        titleText={getStatusButtonText(getNextStatus(request))}
                         confirmationText={`Are you sure you want to set this Request's status to ${getNextStatus(request)}?`}
                         onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, getNextStatus(request))}
                         handleClose={() => setShowAffirmPopover(false)}
                     />
                     <Button className="ml-2"
-                        disabled={!request}
+                        disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setAffirmPopoverTarget(event.target);
                             setShowAffirmPopover(true);
                         }}
                     >
                         {statusBeingSubmit === getNextStatus(request) && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{"Set to " + getNextStatus(request)}
+                        {' '}{getStatusButtonText(getNextStatus(request))}
                     </Button>
                 </>}
             </Row>

@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.24] 2020-12-07
+### Fixed
+- Requests table format so that a scroll bar doesn't appear when expanding a request
+- Formatting on Large Request View so that it properly fills the available space when no notes are there
+- Buttons properly disable when a status change is happening
+
+### Changed
+- Notes container on Large Request View will now take up all of the available space of the page before adding a scrollbar
+- Buttons now use their actions as text instead of saying "Set to..."
+- Reworded some of the email text
+
+### Removed
+- Notes from small request view
+
 ## [0.1.23] 2020-12-02
 ### Added
 - Status and StatusDateTime fields on RequirementsRequests SP List

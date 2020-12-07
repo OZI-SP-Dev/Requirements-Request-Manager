@@ -7,7 +7,7 @@ export const Home: FunctionComponent = () => {
 
     return (
         <Container fluid="md" className="pb-5 pt-3">
-            <h1>AFLCMC Requirements Request Form</h1>
+            <h1>AFLCMC Requirement Request Form</h1>
             <Row className="m-3">
                 <Col className="m-auto p-0" lg='9' sm='10' xs='12'>
                     <Row className="mt-3 mb-3 mr-0">
@@ -22,7 +22,7 @@ export const Home: FunctionComponent = () => {
                         <Card.Header><Card.Title>Site Introduction</Card.Title></Card.Header>
                         <Card.Text>
                             <p>
-                                Welcome to AFLCMC/XP-OZ/OZI’s Requirements Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form. <br /><br />
+                                Welcome to AFLCMC/XP-OZ/OZI’s Requirement Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form. <br /><br />
                                 You will need to work with your 2 Ltr/Execution Directorate or an assigned POC on the Requirements Form for signature prior to submission. Please <strong>DO NOT</strong> have your 2 Ltr/Execution Directorate sign the Form until it is fully complete. Once Form is signed – all fields will be locked and content cannot be revised.<br /><br />
                                 Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams AFLCMC/XP-OZ/OZI</u></a>
                             </p>
