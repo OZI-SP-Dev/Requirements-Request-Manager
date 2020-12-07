@@ -135,7 +135,7 @@ export function useEmail(): IEmailSender {
     const sendReviewEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Under Board Review`;
-        let body = `Hello, requirement request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If the boards all approve of the Request then the Requirement will be put on a contract for development.
+        let body = `Hello, requirement request ${request.getFormattedId()} for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If all Boards approve the Request, the Requirement will be prioritized for available funding. When funds are available, it will be put on a contract for development. You will be notified once your Requirement goes on contract.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
