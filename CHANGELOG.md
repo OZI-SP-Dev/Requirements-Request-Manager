@@ -16,7 +16,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Notes look in UI to look more like post-it notes
 - Notes section of Large Request View now contains status update notes with colors associated to that statuses
 - Regular users can now add notes to their own Requests
-- Reject Review buttons disabled when no comment is provided
 
 ### Removed
 - Ability for users to edit/delete notes
