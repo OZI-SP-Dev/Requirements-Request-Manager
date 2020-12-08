@@ -150,7 +150,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     />
                     <Button className="mr-2"
                         variant="danger"
-                        disabled={!comment || !request || statusBeingSubmit !== undefined}
+                        disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setCancelPopoverTarget(event.target);
                             setShowCancelPopover(true);
@@ -180,7 +180,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     />
                     <Button className="ml-2"
                         variant="danger"
-                        disabled={!comment || !request || statusBeingSubmit !== undefined}
+                        disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setRejectPopoverTarget(event.target);
                             setShowRejectPopover(true);
