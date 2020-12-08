@@ -131,7 +131,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                             isInvalid={!comment && error !== undefined}
                         />
                         <Form.Control.Feedback type="invalid">
-                            This field is required to change the status status to Cancelled or {getStatusButtonText(getRejectStatus(request))}
+                            This field is required to change the status to Cancelled or {getRejectStatus(request)}
                         </Form.Control.Feedback>
                     </Row>
                 </Form>

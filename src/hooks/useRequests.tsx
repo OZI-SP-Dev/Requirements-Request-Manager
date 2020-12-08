@@ -106,7 +106,7 @@ export function useRequests(): IRequests {
                     throw new NotAuthorizedError(undefined, "You are not authorized to change the request status to " + status);
                 }
             } else {
-                throw new InternalError(undefined, "You must provide notes to change the status to " + status);
+                throw new InternalError(undefined, "You must provide comments in the 'Review Comments' field to change the status to " + status);
             }
         } catch (e) {
             console.error(`Error trying to update Request status to ${status}`);
