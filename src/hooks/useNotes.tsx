@@ -8,11 +8,9 @@ export interface INotes {
     error: string,
     clearError: () => void,
     notes: INote[],
-    getGeneralNotes: () => INote[],
+    getNonEmptyNotes: () => INote[],
     getStatusNotes: () => INote[],
-    submitNewNote: (title: string, text: string) => Promise<INote>,
-    updateNote: (note: INote) => Promise<INote>,
-    deleteNote: (note: INote) => Promise<void>
+    submitNewNote: (title: string, text: string) => Promise<INote>
 }
 
 export function useNotes(requestId?: number): INotes {
@@ -94,57 +92,6 @@ export function useNotes(requestId?: number): INotes {
         }
     }
 
-    const updateNote = async (note: INote) => {
-        try {
-            validateNewNote(note.Title, note.Text);
-            let updatedNote = await notesApi.updateNote(note);
-            let allNotes = notes;
-            allNotes = allNotes.filter(n => n.Id !== updatedNote.Id);
-            allNotes.unshift(updatedNote);
-            setNotes(allNotes);
-            return updatedNote;
-        } catch (e) {
-            console.error(`Error trying to update Note for Request ${requestId}`);
-            console.error(e);
-            if (e instanceof InternalError) {
-                setError(e.message);
-                throw e;
-            } else if (e instanceof Error) {
-                setError(e.message);
-                throw new InternalError(e);
-            } else if (typeof (e) === "string") {
-                setError(e);
-                throw new InternalError(new Error(e));
-            } else {
-                setError(`Unknown error occurred while trying to update Note for Request ${requestId}`);
-                throw new InternalError(new Error(`Unknown error occurred while trying to update Note for Request ${requestId}`));
-            }
-        }
-    }
-
-    const deleteNote = async (note: INote) => {
-        try {
-            await notesApi.deleteNoteById(note.Id);
-            setNotes(notes.filter(n => n.Id !== note.Id));
-        } catch (e) {
-            console.error(`Error trying to delete Note for Request ${requestId}`);
-            console.error(e);
-            if (e instanceof InternalError) {
-                setError(e.message);
-                throw e;
-            } else if (e instanceof Error) {
-                setError(e.message);
-                throw new InternalError(e);
-            } else if (typeof (e) === "string") {
-                setError(e);
-                throw new InternalError(new Error(e));
-            } else {
-                setError(`Unknown error occurred while trying to delete Note for Request ${requestId}`);
-                throw new InternalError(new Error(`Unknown error occurred while trying to delete Note for Request ${requestId}`));
-            }
-        }
-    }
-
     useEffect(() => {
         fetchNotes(); // eslint-disable-next-line
     }, [requestId])
@@ -154,11 +101,9 @@ export function useNotes(requestId?: number): INotes {
         error,
         clearError,
         notes,
-        getGeneralNotes: () => notes.filter(n => !n.Status),
+        getNonEmptyNotes: () => notes.filter(n => n.Text),
         getStatusNotes: () => notes.filter(n => n.Status),
-        submitNewNote,
-        updateNote,
-        deleteNote
+        submitNewNote
     })
 
 }

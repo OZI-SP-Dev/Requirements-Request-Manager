@@ -1,22 +1,20 @@
 .note {
-    border-color: lightblue;
-    border-top: hidden;
+    background-color: #ffffcc;
+    box-shadow: 5px 5px 5px #888888;
+    border-radius: 0;
+    border-color: transparent;
+}
+
+.good-note {
+    background-color: #3379b759;
+}
+
+.bad-note {
+    background-color: rgba(255 148 148);
 }
 
 .note p {
     text-align: left;
-}
-
-.note-header {
-    background-color: lightblue;
-    border-color: lightblue;
-}
-
-.notes-button {
-    width: fit-content;
-    align-self: flex-end;
-    background-color: lightblue;
-    border-color: lightblue;
 }
 
 .preserve-whitespace {
@@ -24,6 +22,5 @@
 }
 
 .note-timestamp {
-    color: gray;
-    font-size: x-small;
+    font-size: small;
 }

@@ -173,7 +173,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>Requester (Last Name, First Name):</Form.Label>
+                        <Form.Label className="required">Requester (Last Name, First Name):</Form.Label>
                         <Form.Control
                             as={PeoplePicker}
                             defaultValue={request.Requester.Title ? [request.Requester] : undefined}
@@ -190,7 +190,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
-                        <Form.Label lg="4" sm="6">Requester Org Symbol:</Form.Label>
+                        <Form.Label className="required" lg="4" sm="6">Requester Org Symbol:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your Org Symbol"
@@ -220,7 +220,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
-                        <Form.Label lg="4" sm="6">Requester Comm #:</Form.Label>
+                        <Form.Label className="required" lg="4" sm="6">Requester Comm #:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your Commercial Phone Number"
@@ -244,7 +244,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 {!approverSameAsRequester && <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>2 Ltr Deputy to Approve (Last Name, First Name):
+                        <Form.Label className="required">2 Ltr Deputy to Approve (Last Name, First Name):
                             <OverlayTrigger
                                 delay={{ show: 500, hide: 0 }}
                                 overlay={
@@ -271,7 +271,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
-                        <Form.Label>2 Ltr Deputy Org Symbol:</Form.Label>
+                        <Form.Label className="required">2 Ltr Deputy Org Symbol:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Approver's Org Symbol"
@@ -301,7 +301,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
-                        <Form.Label>2 Ltr Deputy Comm #:</Form.Label>
+                        <Form.Label className="required">2 Ltr Deputy Comm #:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Approver's Commercial Phone Number"
@@ -318,7 +318,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>}
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">
-                        <Form.Label>Requirement Title:</Form.Label>
+                        <Form.Label className="required">Requirement Title:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Title of the Requirement being requested"
@@ -343,7 +343,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         }
                     </Col>
                     <Col className="mt-4 mb-1" xl="6" lg="6" md="6" sm="6" xs="12">
-                        <Form.Label className="mr-3">Requirement Funded? If yes, Funding Org will appear: </Form.Label>
+                        <Form.Label className="mr-3 required">Requirement Funded? If yes, Funding Org will appear: </Form.Label>
                         <Form.Check inline type="radio" disabled={readOnly} >
                             <Form.Group controlId="funded-radio">
                                 <Form.Check.Input type="radio"
@@ -373,7 +373,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         {showFundingField &&
                             <>
-                                <Form.Label>If Yes, Org/2 Ltr Deputy funding it:</Form.Label>
+                                <Form.Label className="required">If Yes, Org/2 Ltr Deputy funding it:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Org/Deputy Funding the Requirement"
@@ -405,7 +405,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
                         {request.ApplicationNeeded === ApplicationTypes.OTHER &&
                             <>
-                                <Form.Label>If Other, please name:</Form.Label>
+                                <Form.Label className="required">If Other, please name:</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Other Application Needed"
@@ -445,7 +445,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control>
                     </Col>
                     <Col xl="4" lg="3" md="6" sm="6" xs="12">
-                        <Form.Label>Impacted Org:</Form.Label>
+                        <Form.Label className="required">Impacted Org:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Projected Org Impacted"
@@ -513,7 +513,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label>Priority Explanation:</Form.Label>
+                        <Form.Label className="required">Priority Explanation:</Form.Label>
                         <Form.Control
                             as="textarea"
                             rows={5}
@@ -531,7 +531,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label>
+                        <Form.Label className="required">
                             Business Objective: <span className="subtext">(What problem is the business trying to solve?)</span>
                         </Form.Label>
                         <Form.Control
@@ -551,7 +551,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label>
+                        <Form.Label className="required">
                             Functional Requirements: <span className="subtext">(System capabilities for users to perform job efficiently)</span>
                         </Form.Label>
                         <Form.Control
@@ -571,7 +571,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label>
+                        <Form.Label className="required">
                             Benefits: <span className="subtext">(Time savings, reduce costs, productivity efficiency, etc.)</span>
                         </Form.Label>
                         <Form.Control
@@ -591,7 +591,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label>
+                        <Form.Label className="required">
                             Risks: <span className="subtext">(What is the risk if requirement is not approved and implemented)?</span>
                         </Form.Label>
                         <Form.Control

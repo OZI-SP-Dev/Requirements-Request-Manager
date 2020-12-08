@@ -9,13 +9,13 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
 
     const [cardsHeight, setCardsHeight] = useState<number>();
 
-    const notesEmpty = props.notes.getGeneralNotes().length === 0;
+    const notesEmpty = props.notes.getNonEmptyNotes().length === 0;
 
     const getColSize = (displaySize: "xl" | "lg" | "md" | "sm" | "xs") => {
         if (displaySize === "xl" || displaySize === "lg") {
             if (!notesEmpty) {
                 return 8;
-            } else if (props.notesEditable) {
+            } else if (props.userCanAddNotes) {
                 return 10;
             } else {
                 return 12;
@@ -30,7 +30,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         if (requestViewHeight) {
             setCardsHeight(requestViewHeight);
         }
-    }, [props.request, props.notesEditable])
+    }, [props.request, props.userCanAddNotes])
 
     return (
         <>
@@ -166,23 +166,19 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         </Col>
                     </Row>
                 </Col>
-                {(!notesEmpty || props.notesEditable) && // don't have column if there's nothing to display
+                {(!notesEmpty || props.userCanAddNotes) && // don't have column if there's nothing to display
                     <Col xl={notesEmpty ? "2" : "4"} lg={notesEmpty ? "2" : "4"} md="12" sm="12" xs="12">
-                        {props.notesEditable &&
+                        {props.userCanAddNotes &&
                             <Row>
                                 <Col>
-                                    <Button className="notes-button m-3 float-right" onClick={() => props.editNoteOnClick()}>New Note</Button>
+                                    <Button className="notes-button m-3 float-right" onClick={() => props.addNoteOnClick()}>New Note</Button>
                                 </Col>
                             </Row>
                         }
                         <Card style={{ maxHeight: cardsHeight }} className="notes-card">
-                            {props.notes.getGeneralNotes().map(note =>
-                                <Col key={note.Id} className="mt-3 mb-3">
-                                    <NoteCard
-                                        note={note}
-                                        editable={props.notesEditable}
-                                        editOnClick={() => props.editNoteOnClick(note)}
-                                        deleteNote={props.notes.deleteNote} />
+                            {props.notes.getNonEmptyNotes().map(note =>
+                                <Col key={note.Id} className="mt-2 mb-2">
+                                    <NoteCard note={note}/>
                                 </Col>
                             )}
                         </Card>

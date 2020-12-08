@@ -1,68 +1,45 @@
-import { FunctionComponent, useState } from "react";
+import React, { FunctionComponent } from "react";
+import { Card, Col } from "react-bootstrap";
+import { RequestStatuses } from "../../api/DomainObjects";
 import { INote } from "../../api/NotesApi";
-import React from "react";
-import { Card, Button, Spinner, Row } from "react-bootstrap";
-import './NoteCard.css'
-import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
+import './NoteCard.css';
 
 export interface INoteCardProps {
-    note: INote,
-    editable: boolean,
-    editOnClick: () => void,
-    deleteNote: (note: INote) => Promise<void>
+    note: INote
 }
 
 export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
 
-    const [deleting, setDeleting] = useState<boolean>();
-    const [showDeletePopover, setShowDeletePopover] = useState<boolean>(false);
-    const [deletePopoverTarget, setDeletePopoverTarget] = useState<any>();
+    const authorNameRegEx = new RegExp('^(\\w+, \\w+ \\w?)').exec(props.note.Author.Title);
 
-    const deleteNote = async () => {
-        try {
-            if (props.editable) {
-                setDeleting(true);
-                await props.deleteNote(props.note);
-            }
-        } finally {
-            setDeleting(false);
+    const getNoteClass = (): string => {
+        switch (props.note.Status) {
+            case RequestStatuses.SUBMITTED:
+            case RequestStatuses.APPROVED:
+            case RequestStatuses.ACCEPTED:
+            case RequestStatuses.REVIEW:
+            case RequestStatuses.CONTRACT:
+            case RequestStatuses.CLOSED:
+                return "good-note";
+            case RequestStatuses.DISAPPROVED:
+            case RequestStatuses.DECLINED:
+                return "bad-note";
+            default:
+                return "";
         }
     }
 
     return (
-        <Card className="note">
-            <Card.Header className="note-header">
-                <Row><span className="note-timestamp ml-auto">{props.note.Modified.fromNow()}</span></Row>
-                <h6>{props.note.Title}</h6>
-            </Card.Header>
-            <Card.Body><p className="preserve-whitespace">{props.note.Text}</p></Card.Body>
-            {props.editable &&
-                <Card.Footer>
-                    <ConfirmPopover
-                        show={showDeletePopover}
-                        target={deletePopoverTarget}
-                        variant="danger"
-                        titleText="Delete Note"
-                        confirmationText="Are you sure you want to delete this note?"
-                        onSubmit={deleteNote}
-                        handleClose={() => setShowDeletePopover(false)}
-                    />
-                    <Button
-                        variant="outline-danger"
-                        className="float-left"
-                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                            setDeletePopoverTarget(event.target);
-                            setShowDeletePopover(true);
-                        }}
-                    >
-                        {deleting && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{"Delete"}
-                    </Button>
-                    <Button className="notes-button float-right" onClick={props.editOnClick}>
-                        Edit
-                </Button>
-                </Card.Footer>
-            }
+        <Card className={"note " + getNoteClass()}>
+            <Card.Body as={Col} className="p-2">
+                <p className="preserve-whitespace mb-0">
+                    <strong>{props.note.Title}</strong><br />
+                    {props.note.Text}<br />
+                </p>
+                <p className="note-timestamp float-right mb-0">
+                    -<i>{authorNameRegEx ? authorNameRegEx[0] : props.note.Author.Title} at {props.note.Modified.format("DD MMM YYYY h:mm A")}</i>
+                </p>
+            </Card.Body>
         </Card>
     );
 

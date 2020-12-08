@@ -47,9 +47,7 @@ interface SPNote {
 
 export interface INotesApi {
     fetchNotesByRequestId(requestId: number): Promise<INote[]>,
-    submitNewNote(newNote: ISubmitNote): Promise<INote>,
-    updateNote(note: INote): Promise<INote>,
-    deleteNoteById(noteId: number): Promise<void>
+    submitNewNote(newNote: ISubmitNote): Promise<INote>
 }
 
 export class NotesApi implements INotesApi {
@@ -101,47 +99,6 @@ export class NotesApi implements INotesApi {
             }
         } catch (e) {
             let message = `Error occurred while trying to submit a Note for Request with ID ${newNote.RequestId}`;
-            console.error(message);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, message + `: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(new Error(message + `: ${e}`));
-            } else {
-                throw new ApiError(undefined, message);
-            }
-        }
-    }
-
-    async updateNote(note: INote): Promise<INote> {
-        try {
-            let returnedNote = { ...note, Modified: moment() };
-            returnedNote["odata.etag"] = (await this.notesList.items.getById(note.Id).update({
-                Title: note.Title,
-                Text: note.Text,
-                RequestId: note.RequestId,
-                Status: note.Status
-            }, note["odata.etag"])).data["odata.etag"];
-            return returnedNote;
-        } catch (e) {
-            let message = `Error occurred while trying to update a Note with ID ${note.Id}`;
-            console.error(message);
-            console.error(e);
-            if (e instanceof Error) {
-                throw new ApiError(e, message + `: ${e.message}`);
-            } else if (typeof (e) === "string") {
-                throw new ApiError(new Error(message + `: ${e}`));
-            } else {
-                throw new ApiError(undefined, message);
-            }
-        }
-    }
-
-    async deleteNoteById(noteId: number): Promise<void> {
-        try {
-            return this.notesList.items.getById(noteId).delete();
-        } catch (e) {
-            let message = `Error occurred while trying to delete a Note with ID ${noteId}`;
             console.error(message);
             console.error(e);
             if (e instanceof Error) {
@@ -219,19 +176,6 @@ export class NotesApiDev implements INotesApi {
         }
         this.notesList.unshift(note);
         return note;
-    }
-
-    async updateNote(note: INote): Promise<INote> {
-        await this.sleep();
-        note.Modified = moment();
-        this.notesList = this.notesList.filter(n => n.Id !== note.Id);
-        this.notesList.unshift(note);
-        return note;
-    }
-
-    async deleteNoteById(noteId: number): Promise<void> {
-        await this.sleep();
-        this.notesList = this.notesList.filter(note => note.Id !== noteId);
     }
 }
 

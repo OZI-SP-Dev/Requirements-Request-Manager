@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.25] 2020-12-07
+### Added
+- Red asterisk to indicate required fields
+
+### Changed
+- Notes look in UI to look more like post-it notes
+- Notes section of Large Request View now contains status update notes with colors associated to that statuses
+- Regular users can now add notes to their own Requests
+
+### Removed
+- Ability for users to edit/delete notes
+
 ## [0.1.24] 2020-12-07
 ### Fixed
 - Requests table format so that a scroll bar doesn't appear when expanding a request
