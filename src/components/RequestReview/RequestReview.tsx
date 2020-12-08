@@ -122,16 +122,16 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             {userCanReview &&
                 <Form>
                     <Row className="m-2 review-form review-vertical-align">
-                        <Form.Label className="review-form"><strong>Review Notes:</strong></Form.Label>
+                        <Form.Label className="review-form required"><strong>Review Notes:</strong></Form.Label>
                         <Form.Control
                             as="textarea"
-                            placeholder="Notes for your review of the request"
+                            placeholder="Notes for your review of the request, required if you are rejecting/cancelling the Request"
                             value={comment}
                             onChange={e => updateComment(e.target.value)}
                             isInvalid={!comment && error !== undefined}
                         />
                         <Form.Control.Feedback type="invalid">
-                            {error ? error : ""}
+                            This field is required to change the status status to Cancelled or {getStatusButtonText(getRejectStatus(request))}
                         </Form.Control.Feedback>
                     </Row>
                 </Form>
@@ -150,7 +150,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     />
                     <Button className="mr-2"
                         variant="danger"
-                        disabled={!request || statusBeingSubmit !== undefined}
+                        disabled={!comment || !request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setCancelPopoverTarget(event.target);
                             setShowCancelPopover(true);
@@ -180,7 +180,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     />
                     <Button className="ml-2"
                         variant="danger"
-                        disabled={!request || statusBeingSubmit !== undefined}
+                        disabled={!comment || !request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setRejectPopoverTarget(event.target);
                             setShowRejectPopover(true);

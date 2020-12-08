@@ -5,3 +5,8 @@
 .review-form {
     text-align: left;
 }
+
+.required::after {
+    content: " *";
+    color: red;
+}
