@@ -55,7 +55,7 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
             </HashRouter>
             <RequestSpinner
                 show={requests.loading || loadingUser === undefined || loadingUser}
-                displayText={requests.loading ? "Loading Requests..." : "Loading User..."} />
+                displayText={loadingUser === undefined || loadingUser ? "Loading User..." : "Loading Requests..."} />
             <DismissableErrorAlert
                 show={requests.error !== undefined && requests.error !== ""}
                 header="Error!"
