@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.27] 2020-12-09
+### Changed
+- The Request Status text when displaying to the user
+- The Large Request View now shows the Title, previous status, and next status above the timeline
+- Status wording
+
+### Removed
+- ReceivedDate field
+
 ## [0.1.26] 2020-12-08
 ### Changed
 - The Only My Requests filter on the Requests table page will now default to false for users with the Manager role
