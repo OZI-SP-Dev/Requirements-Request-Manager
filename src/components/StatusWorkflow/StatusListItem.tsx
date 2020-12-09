@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from "react";
-import { RequestStatuses } from "../../api/DomainObjects";
+import { getNextStatus, getStatusText, RequestStatuses } from "../../api/DomainObjects";
 import { INote } from "../../api/NotesApi";
 import { InfoPopover } from "../InfoPopover/InfoPopover";
 import './StatusWorkflow.css';
@@ -18,7 +18,6 @@ export const StatusListItem: FunctionComponent<IStatusListItemProps> = (props) =
     const [popoverTarget, setPopoverTarget] = useState<any>(null);
 
     let statuses = [
-        RequestStatuses.SUBMITTED,
         RequestStatuses.DISAPPROVED,
         RequestStatuses.APPROVED,
         RequestStatuses.DECLINED,
@@ -31,9 +30,8 @@ export const StatusListItem: FunctionComponent<IStatusListItemProps> = (props) =
     // This is all of the completed statuses with the active status as the last item in the array
     let requestStatuses = statuses.slice(0, statuses.findIndex(s => s === props.requestStatus) + 1);
 
-    const getClass = (): "active-status" | "completed-status" | "inactive-status" => {
-        return props.status === props.requestStatus ? "active-status" : requestStatuses.includes(props.status) ? "completed-status" : "inactive-status";
-    }
+    const statusClass: "active-status" | "completed-status" | "inactive-status" =
+        props.status === getNextStatus(props.requestStatus) ? "active-status" : requestStatuses.includes(props.status) ? "completed-status" : "inactive-status";
 
     return (
         <>
@@ -56,8 +54,8 @@ export const StatusListItem: FunctionComponent<IStatusListItemProps> = (props) =
                     setPopoverTarget(e.target);
                     setShowPopover(true);
                 }
-            }} className={props.className ? props.className : getClass()}>
-                <div>{props.status}</div>
+            }} className={props.className ? props.className : statusClass}>
+                <div>{getStatusText(props.status)}</div>
             </li>
         </>
     );

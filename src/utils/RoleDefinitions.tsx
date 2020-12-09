@@ -16,10 +16,6 @@ export class RoleDefinitions {
         return this.userIsAdmin(roles);
     }
 
-    static userCanReceiveRequests(roles?: RoleType[]): boolean {
-        return this.userIsManager(roles);
-    }
-
     static userCanEditOtherUsersRequests(roles?: RoleType[]): boolean {
         return this.userIsManager(roles);
     }

@@ -18,7 +18,6 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Status: RequestStatuses.APPROVED,
                 StatusDateTime: moment(),
                 RequestDate: moment(),
-                ReceivedDate: moment(),
                 Author: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
@@ -64,7 +63,6 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
                 Status: RequestStatuses.SUBMITTED,
                 StatusDateTime: moment(),
                 RequestDate: moment(),
-                ReceivedDate: moment(),
                 Author: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",

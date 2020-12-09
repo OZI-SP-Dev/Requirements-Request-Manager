@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
-import { ApplicationTypes } from "../../api/DomainObjects";
+import { ApplicationTypes, getNextStatus, getStatusText, RequestStatuses } from "../../api/DomainObjects";
 import { NoteCard } from "../NoteCard/NoteCard";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 import { IRequestViewChildProps } from "./RequestView";
@@ -25,6 +25,27 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         }
     }
 
+    const getNextStatusText = () => {
+        switch (props.request.Status) {
+            case RequestStatuses.SUBMITTED:
+                return "2 Ltr Approval";
+            case RequestStatuses.APPROVED:
+                return "Requirements Manager Approval";
+            case RequestStatuses.DISAPPROVED:
+                return "Requester Resubmits Request";
+            case RequestStatuses.ACCEPTED:
+                return "Board Reviews for Requirement Funding";
+            case RequestStatuses.DECLINED:
+                return "Requester Resubmits Request";
+            case RequestStatuses.REVIEW:
+                return "Contract Awarded for Development";
+            case RequestStatuses.CONTRACT:
+                return "Development Completed";
+            default:
+                return "None";
+        }
+    }
+
     useEffect(() => {
         const requestViewHeight = document.getElementById("requests-view-large-col")?.clientHeight;
         if (requestViewHeight) {
@@ -34,23 +55,29 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
 
     return (
         <>
-            <StatusWorkflow request={props.request} notes={props.notes.getStatusNotes()} />
+            <Card className="pl-2 pr-3 m-3" as={Col} bg='light'>
+                <Col className="p-0 mt-2 view-form" xl={12} lg={12} md={12} sm={12} xs={12}>
+                    <strong>Request Title: </strong>
+                    {props.request.Title}
+                </Col>
+                <Col className="p-0 mt-2 view-form" xl={12} lg={12} md={12} sm={12} xs={12}>
+                    <strong>Last Completed Step: </strong>
+                    {getStatusText(props.request.Status)}
+                </Col>
+                <Col className="p-0 mt-2 view-form" xl={12} lg={12} md={12} sm={12} xs={12}>
+                    <strong>Next Step: </strong>
+                    {getNextStatusText()}
+                </Col>
+                <StatusWorkflow request={props.request} notes={props.notes.getStatusNotes()} />
+            </Card>
             <Row>
                 <Col id="requests-view-large-col" xl={getColSize("xl")} lg={getColSize("lg")} md={getColSize("md")} sm={getColSize("sm")} xs={getColSize("xs")}>
                     <Row className="ml-2 mr-2 mt-2 view-form">
-                        <Col className="mt-2" xl={4} lg={12} md={12} sm={12} xs={12}>
-                            <strong>Request Title: </strong>
-                            {props.request.Title}
-                        </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
+                        <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                             <strong>Request Date: </strong>
                             {props.request.RequestDate.format("DD MMM YYYY")}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={8} md={6} sm={6} xs={12}>
-                            <strong>Received Date: </strong>
-                            {props.request.ReceivedDate ? props.request.ReceivedDate.format("DD MMM YYYY") : "None"}
-                        </Col>
-                        <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
+                        <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                             <strong>Requester: </strong>
                             {props.request.Requester.Title}
                         </Col>
@@ -58,19 +85,19 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                             <strong>Requester Email: </strong>
                             {props.request.Requester.EMail}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
+                        <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
                             <strong>Requester Org: </strong>
                             {props.request.RequesterOrgSymbol}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
+                        <Col className="mt-2" xl={6} lg={6} md={6} sm={6} xs={12}>
                             <strong>Requester Comm #: </strong>
                             {props.request.RequesterCommPhone}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
+                        <Col className="mt-2" xl={6} lg={6} md={6} sm={6} xs={12}>
                             <strong>Requester DSN #: </strong>
                             {props.request.RequesterDSNPhone ? props.request.RequesterDSNPhone : "None"}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={6} md={6} sm={12} xs={12}>
+                        <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                             <strong>Approving 2 Ltr Deputy: </strong>
                             {props.request.Approver.Title}
                         </Col>
@@ -78,15 +105,15 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                             <strong>Approver Email: </strong>
                             {props.request.Approver.EMail}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={12} xs={12}>
+                        <Col className="mt-2" xl={6} lg={6} md={6} sm={12} xs={12}>
                             <strong>Approver Org: </strong>
                             {props.request.ApproverOrgSymbol}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
+                        <Col className="mt-2" xl={6} lg={6} md={6} sm={6} xs={12}>
                             <strong>Approver Comm #: </strong>
                             {props.request.ApproverCommPhone}
                         </Col>
-                        <Col className="mt-2" xl={4} lg={4} md={4} sm={6} xs={12}>
+                        <Col className="mt-2" xl={6} lg={6} md={6} sm={6} xs={12}>
                             <strong>Approver DSN #: </strong>
                             {props.request.ApproverDSNPhone ? props.request.ApproverDSNPhone : "None"}
                         </Col>
@@ -178,7 +205,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         <Card style={{ maxHeight: cardsHeight }} className="notes-card">
                             {props.notes.getNonEmptyNotes().map(note =>
                                 <Col key={note.Id} className="mt-2 mb-2">
-                                    <NoteCard note={note}/>
+                                    <NoteCard note={note} />
                                 </Col>
                             )}
                         </Card>

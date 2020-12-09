@@ -25,7 +25,6 @@ interface SPRequestApproval {
     Request: { Id: number },
     RequestTitle: string,
     RequestDate: string,
-    ReceivedDate: string,
     Requester: IPerson,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string,
@@ -64,7 +63,6 @@ interface ISubmitRequestApproval {
     RequestId: number,
     RequestTitle: string,
     RequestDate: string,
-    ReceivedDate?: string,
     RequesterId: number,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string | null,
@@ -134,7 +132,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApproval(request: IRequirementsRequest): Promise<IRequestApproval | undefined> {
         try {
-            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").orderBy("Created", false).get())[0];
+            let requestApproval: SPRequestApproval = (await this.requestApprovalsList.items.select("Id", "Request/Id", "Created", "AuthorId", "RequestTitle", "RequestDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").filter(`RequestId eq ${request.Id} and AuthorId eq ${request.Approver.Id}`).expand("Request", "Requester", "Approver").orderBy("Created", false).get())[0];
             return requestApproval ? this.spApprovalToRequestApproval(requestApproval, request) : undefined;
         } catch (e) {
             console.error(`Error occurred while trying to fetch Approval for Request with ID ${request.Id}`);
@@ -151,7 +149,7 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
 
     async getRequestApprovals(requests: IRequirementsRequest[]): Promise<IRequestApproval[]> {
         try {
-            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Created", "AuthorId", "RequestTitle", "RequestDate", "ReceivedDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").orderBy("Created", false).getPaged();
+            let pages = await this.requestApprovalsList.items.select("Id", "Request/Id", "Created", "AuthorId", "RequestTitle", "RequestDate", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Request", "Requester", "Approver").orderBy("Created", false).getPaged();
             let approvals: SPRequestApproval[] = pages.results;
             while (pages.hasNext) {
                 approvals = approvals.concat((await pages.getNext()).results);
@@ -209,7 +207,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
             RequestId: request.Id,
             RequestTitle: request.Title,
             RequestDate: request.RequestDate.toISOString(),
-            ReceivedDate: request.ReceivedDate?.toISOString(),
             RequesterId: request.Requester.Id,
             RequesterOrgSymbol: request.RequesterOrgSymbol,
             RequesterDSNPhone: request.RequesterDSNPhone,
@@ -248,7 +245,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 Status: request.Status,
                 StatusDateTime: request.StatusDateTime,
                 RequestDate: moment(spApproval.RequestDate),
-                ReceivedDate: spApproval.ReceivedDate ? moment(spApproval.ReceivedDate) : null,
                 Author: request.Author,
                 Requester: new Person(spApproval.Requester),
                 RequesterOrgSymbol: spApproval.RequesterOrgSymbol,
@@ -290,7 +286,6 @@ export class RequestApprovalsApi implements IRequestApprovalsApi {
                 Status: submittedRequest.Status,
                 StatusDateTime: submittedRequest.StatusDateTime,
                 RequestDate: moment(requestApproval.RequestDate),
-                ReceivedDate: requestApproval.ReceivedDate ? moment(requestApproval.ReceivedDate) : null,
                 Author: submittedRequest.Author,
                 Requester: submittedRequest.Requester,
                 RequesterOrgSymbol: requestApproval.RequesterOrgSymbol,
@@ -341,7 +336,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 Status: RequestStatuses.APPROVED,
                 StatusDateTime: moment(),
                 RequestDate: moment(),
-                ReceivedDate: moment(),
                 Author: new Person({
                     Id: 1,
                     Title: "Clark, Jeremy M CTR USAF AFMC AFLCMC/OZIC",
@@ -391,7 +385,6 @@ export class RequestApprovalsApiDev implements IRequestApprovalsApi {
                 Status: RequestStatuses.APPROVED,
                 StatusDateTime: moment(),
                 RequestDate: moment(),
-                ReceivedDate: moment(),
                 Author: new Person({
                     Id: 2,
                     Title: "PORTERFIELD, ROBERT D GS-13 USAF AFMC AFLCMC/OZIC",

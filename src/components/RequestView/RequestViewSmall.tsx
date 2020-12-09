@@ -32,10 +32,6 @@ export const RequestViewSmall: FunctionComponent<IRequestViewChildProps> = (prop
             <Col xl={12} lg={12} md={12} sm={12} xs={12}>
                 <Row className="ml-2 mr-2 mt-2 view-form">
                     <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
-                        <strong>Received Date: </strong>
-                        {props.request.ReceivedDate ? props.request.ReceivedDate.format("DD MMM YYYY") : "None"}
-                    </Col>
-                    <Col className="mt-2" xl={12} lg={12} md={12} sm={12} xs={12}>
                         <strong>Requester: </strong>
                         <OverlayTrigger trigger="click" placement="right" overlay={requesterPopover}>
                             <Persona className="clickable mr-2 d-none d-inline-block" {...props.request.Requester} hidePersonaDetails size={PersonaSize.size32} />

@@ -52,7 +52,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     }
 
     const checkIfUserCanReview = (request: IRequirementsRequest): boolean => {
-        let nextStatus = getNextStatus(request);
+        let nextStatus = getNextStatus(request.Status);
         return props.updateStatus !== undefined && user !== undefined && request !== undefined && nextStatus !== null && RoleDefinitions.userCanChangeStatus(request, nextStatus, user, roles);
     }
 
@@ -102,7 +102,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             case RequestStatuses.DECLINED:
                 return "Decline Request";
             case RequestStatuses.REVIEW:
-                return "Under Board Review";
+                return "Approved for Contract";
             case RequestStatuses.CONTRACT:
                 return "Request On Contract";
             case RequestStatuses.CLOSED:
@@ -114,8 +114,19 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
         }
     }
 
+    let nextStatus = getNextStatus(request.Status);
+    let rejectStatus = getRejectStatus(request);
+    let showCancelButton = RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CANCELLED, user, roles);
+    let showEditButton = request && !request.isReadOnly(user, roles);
+    let showRejectButton = userCanReview && rejectStatus;
+
     return (
         <Container fluid="md" className="pb-5 pt-3">
+            <Row>
+                <Button disabled={statusBeingSubmit !== undefined} className="mb-3 mr-auto back-button" variant="secondary" href="#/Requests">
+                    Back
+                </Button>
+            </Row>
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
             <RequestView request={request} loadNotes size="lg" />
             <hr />
@@ -131,13 +142,13 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                             isInvalid={!comment && error !== undefined}
                         />
                         <Form.Control.Feedback type="invalid">
-                            This field is required to change the status to Cancelled or {getRejectStatus(request)}
+                            This field is required to change the status to Cancelled or {rejectStatus}
                         </Form.Control.Feedback>
                     </Row>
                 </Form>
             }
             <Row className="review-vertical-align m-2">
-                {RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CANCELLED, user, roles) && <>
+                {showCancelButton && <>
                     <ConfirmPopover
                         show={showCancelPopover}
                         target={cancelPopoverTarget}
@@ -148,7 +159,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                             updateStatus(e, RequestStatuses.CANCELLED)}
                         handleClose={() => setShowCancelPopover(false)}
                     />
-                    <Button className="mr-2"
+                    <Button className="mr-auto"
                         variant="danger"
                         disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -160,22 +171,19 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         {' '}{getStatusButtonText(RequestStatuses.CANCELLED)}
                     </Button>
                 </>}
-                <Button disabled={statusBeingSubmit !== undefined} className="mr-auto" variant="secondary" href="#/Requests">
-                    {userCanReview ? "Cancel" : "Close"}
-                </Button>
-                {request && !request.isReadOnly(user, roles) &&
+                {showEditButton &&
                     <Button disabled={statusBeingSubmit !== undefined} className="ml-auto" variant="warning" href={`#/Requests/Edit/${request.Id}`}>
                         Edit Request
                     </Button>
                 }
-                {userCanReview && getRejectStatus(request) && <>
+                {showRejectButton && <>
                     <ConfirmPopover
                         show={showRejectPopover}
                         target={rejectPopoverTarget}
                         variant="danger"
-                        titleText={getStatusButtonText(getRejectStatus(request))}
-                        confirmationText={`Are you sure you want to set this Request's status to ${getRejectStatus(request)}?`}
-                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, getRejectStatus(request))}
+                        titleText={getStatusButtonText(rejectStatus)}
+                        confirmationText={`Are you sure you want to set this Request's status to ${rejectStatus}?`}
+                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, rejectStatus)}
                         handleClose={() => setShowRejectPopover(false)}
                     />
                     <Button className="ml-2"
@@ -186,8 +194,8 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                             setShowRejectPopover(true);
                         }}
                     >
-                        {statusBeingSubmit === getRejectStatus(request) && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{getStatusButtonText(getRejectStatus(request))}
+                        {statusBeingSubmit === rejectStatus && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                        {' '}{getStatusButtonText(rejectStatus)}
                     </Button>
                 </>}
                 {userCanReview && <>
@@ -195,20 +203,20 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         show={showAffirmPopover}
                         target={affirmPopoverTarget}
                         variant="primary"
-                        titleText={getStatusButtonText(getNextStatus(request))}
-                        confirmationText={`Are you sure you want to set this Request's status to ${getNextStatus(request)}?`}
-                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, getNextStatus(request))}
+                        titleText={getStatusButtonText(nextStatus)}
+                        confirmationText={`Are you sure you want to set this Request's status to ${nextStatus}?`}
+                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, nextStatus)}
                         handleClose={() => setShowAffirmPopover(false)}
                     />
-                    <Button className="ml-2"
+                    <Button className={showCancelButton || showEditButton || showRejectButton ? "ml-2" : "ml-auto"}
                         disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setAffirmPopoverTarget(event.target);
                             setShowAffirmPopover(true);
                         }}
                     >
-                        {statusBeingSubmit === getNextStatus(request) && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                        {' '}{getStatusButtonText(getNextStatus(request))}
+                        {statusBeingSubmit === nextStatus && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                        {' '}{getStatusButtonText(nextStatus)}
                     </Button>
                 </>}
             </Row>
