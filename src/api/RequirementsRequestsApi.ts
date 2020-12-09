@@ -17,7 +17,6 @@ interface ISubmitRequirementsRequest {
     Status: RequestStatuses,
     StatusDateTime: string,
     RequestDate: string,
-    ReceivedDate?: string,
     RequesterId: number,
     RequesterOrgSymbol: string,
     RequesterDSNPhone: string | null,
@@ -58,7 +57,6 @@ interface SPRequirementsRequest {
     Status: RequestStatuses,
     StatusDateTime: string,
     RequestDate: string,
-    ReceivedDate: string,
     Author: IPerson,
     Requester: IPerson,
     RequesterOrgSymbol: string,
@@ -131,7 +129,6 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Status: request.Status,
             StatusDateTime: request.StatusDateTime.toISOString(),
             RequestDate: request.RequestDate.toISOString(),
-            ReceivedDate: request.ReceivedDate ? request.ReceivedDate.toISOString() : undefined,
             // If the RequesterId is not known, then get the current user from the UserApi and use that
             RequesterId: request.Requester.Id > -1 ? request.Requester.Id : await this.userApi.getUserId(request.Requester.EMail),
             RequesterOrgSymbol: request.RequesterOrgSymbol,
@@ -169,7 +166,6 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             Status: request.Status,
             StatusDateTime: moment(request.StatusDateTime),
             RequestDate: moment(request.RequestDate),
-            ReceivedDate: request.ReceivedDate ? moment(request.ReceivedDate) : null,
             Author: new Person(request.Author),
             Requester: new Person(request.Requester),
             RequesterOrgSymbol: request.RequesterOrgSymbol,
@@ -201,7 +197,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequestById(Id: number): Promise<IRequirementsRequestCRUD | undefined> {
         try {
-            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver").get();
+            let request: SPRequirementsRequest = await this.requirementsRequestList.items.getById(Id).select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver").get();
             if (!this.isRequestClosed(request)) {
                 // Only try to fetch the approval if the request is approved or further
                 let approval = this.isRequestApproved(request) ? await this.requestApprovalsApi.getRequestApproval(this.getIRequirementsRequest(request)) : undefined;
@@ -230,7 +226,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
 
     async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
-            let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "ReceivedDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver");
+            let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver");
 
             let queryString = `Status ne '${RequestStatuses.CANCELLED}' and Status ne '${RequestStatuses.CLOSED}'`;
 

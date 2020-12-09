@@ -49,8 +49,8 @@ export enum RequestStatuses {
     CANCELLED = "Cancelled"
 }
 
-export const getNextStatus = (request: IRequirementsRequest): RequestStatuses | null => {
-    switch (request.Status) {
+export const getNextStatus = (status: RequestStatuses): RequestStatuses | null => {
+    switch (status) {
         case RequestStatuses.SUBMITTED:
             return RequestStatuses.APPROVED;
         case RequestStatuses.APPROVED:
@@ -77,13 +77,29 @@ export const getRejectStatus = (request: IRequirementsRequest): RequestStatuses 
     }
 }
 
+export const getStatusText = (status: RequestStatuses): string => {
+    switch (status) {
+        case RequestStatuses.APPROVED:
+            return "2 Ltr Review";
+        case RequestStatuses.ACCEPTED:
+            return "Req Mgr Review";
+        case RequestStatuses.REVIEW:
+            return "Board Review(s)";
+        case RequestStatuses.CONTRACT:
+            return "Contracting"
+        case RequestStatuses.CLOSED:
+            return "Development"
+        default:
+            return status;
+    }
+}
+
 export interface IRequirementsRequest {
     Id: number,
     Title: string,
     Status: RequestStatuses,
     StatusDateTime: Moment,
     RequestDate: Moment,
-    ReceivedDate: Moment | null,
     Author: IPerson,
     Requester: IPerson,
     RequesterOrgSymbol: string,
@@ -148,7 +164,6 @@ const blankRequest: IRequirementsRequest = {
     Status: RequestStatuses.SUBMITTED,
     StatusDateTime: moment(),
     RequestDate: moment(),
-    ReceivedDate: null,
     Author: new Person(),
     Requester: new Person(),
     RequesterOrgSymbol: "",
@@ -191,7 +206,6 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     Status: RequestStatuses;
     StatusDateTime: Moment;
     RequestDate: Moment;
-    ReceivedDate: Moment | null;
     Author: IPerson;
     Requester: IPerson;
     RequesterOrgSymbol: string;
@@ -227,7 +241,6 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
         this.Status = request.Status;
         this.StatusDateTime = request.StatusDateTime;
         this.RequestDate = request.RequestDate;
-        this.ReceivedDate = request.ReceivedDate;
         this.Author = request.Author;
         this.Requester = request.Requester;
         this.RequesterOrgSymbol = request.RequesterOrgSymbol;

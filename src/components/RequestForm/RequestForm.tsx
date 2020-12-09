@@ -9,7 +9,6 @@ import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
-import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
 import { DismissableErrorAlert } from "../DismissableErrorAlert/DismissableErrorAlert";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
@@ -159,17 +158,6 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             errorMessage={validation ? validation.RequestDateError : ""}
                         />
                     </Col>
-                    {RoleDefinitions.userCanReceiveRequests(userContext.roles) &&
-                        <Col xl={{ span: 3, offset: 3 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
-                            <CustomInputeDatePicker
-                                headerText="Received Date:"
-                                readOnly={readOnly}
-                                date={request.ReceivedDate}
-                                maxDate={moment()}
-                                onChange={date => updateRequest('ReceivedDate', date)}
-                                isClearable={!readOnly}
-                            />
-                        </Col>}
                 </Form.Row>
                 <Form.Row>
                     <Col xl="6" lg="6" md="8" sm="12" xs="12">

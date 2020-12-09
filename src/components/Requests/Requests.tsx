@@ -78,7 +78,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                                     <Link className="ml-auto mr-2" to={`/Requests/Edit/${request.Id}`}>
                                                         <Button variant="warning">Edit Request</Button>
                                                     </Link>}
-                                                {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request), user, roles) ?
+                                                {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request.Status), user, roles) ?
                                                     <Link
                                                         className={request.isReadOnly(user, roles) ? "ml-auto" : ""}
                                                         to={`/Requests/Review/${request.Id}`}>

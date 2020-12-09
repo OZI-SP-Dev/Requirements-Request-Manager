@@ -96,7 +96,7 @@ export function useRequests(): IRequests {
                     }
 
                     await notesApi.submitNewNote({
-                        Title: `Status set to ${status}`,
+                        Title: getStatusNoteTitle(status),
                         Text: comment ? comment : '',
                         RequestId: updatedRequest.Id,
                         Status: status
@@ -135,6 +135,29 @@ export function useRequests(): IRequests {
         return status === RequestStatuses.CANCELLED
             || status === RequestStatuses.DISAPPROVED
             || status === RequestStatuses.DECLINED;
+    }
+
+    const getStatusNoteTitle = (status: RequestStatuses): string => {
+        switch (status) {
+            case RequestStatuses.SUBMITTED:
+                return "Request Submitted";
+            case RequestStatuses.APPROVED:
+                return "Request Approved by 2 Ltr";
+            case RequestStatuses.DISAPPROVED:
+                return "Request Disapproved by 2 Ltr";
+            case RequestStatuses.ACCEPTED:
+                return "Request Accepted by Requirements Manager";
+            case RequestStatuses.DECLINED:
+                return "Request Declined by Requirements Manager";
+            case RequestStatuses.REVIEW:
+                return "Request Reviewed by Board";
+            case RequestStatuses.CONTRACT:
+                return "Request On Contract for Development"
+            case RequestStatuses.CLOSED:
+                return "Request Completed";
+            case RequestStatuses.CANCELLED:
+                return "Request Cancelled";
+        }
     }
 
     const sendStatusUpdateEmail = async (request: IRequirementsRequestCRUD, status: RequestStatuses, comment: string) => {
