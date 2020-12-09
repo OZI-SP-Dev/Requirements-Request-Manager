@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [0.1.26] 2020-12-08
+### Changed
+- The Only My Requests filter on the Requests table page will now default to false for users with the Manager role
+- The useRequests hook will now only begin loading Requests after the roles have been loaded so that the defaults can be applied
+
 ## [0.1.25] 2020-12-07
 ### Added
 - Red asterisk to indicate required fields

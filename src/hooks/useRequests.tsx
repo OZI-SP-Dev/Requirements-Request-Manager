@@ -1,11 +1,13 @@
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "../api/DomainObjects";
 import { InternalError, NotAuthorizedError } from "../api/InternalErrors";
 import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
 import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
+import { RoleType } from "../api/RolesApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
+import { UserContext } from "../providers/UserProvider";
 import { RoleDefinitions } from "../utils/RoleDefinitions";
 import { useEmail } from "./useEmail";
 
@@ -27,10 +29,12 @@ export interface IRequests {
 
 export function useRequests(): IRequests {
 
+    const { roles } = useContext(UserContext);
+
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
-    const [filters, setFilters] = useState<IRequestFilters>({ showAllUsers: false });
+    const [filters, setFilters] = useState<IRequestFilters>({ showAllUsers: roles?.includes(RoleType.MANAGER) === true });
 
     const email = useEmail();
     const notesApi: INotesApi = NotesApiConfig.getApi();
@@ -236,7 +240,15 @@ export function useRequests(): IRequests {
     }
 
     useEffect(() => {
-        fetchRequests(); // eslint-disable-next-line
+        // manager should see all requests by default
+        setFilters({ showAllUsers: roles?.includes(RoleType.MANAGER) === true });
+    }, [roles]);
+
+    useEffect(() => {
+        // only fetch Requests after roles have been loaded
+        if (roles && roles.length) {
+            fetchRequests();
+        } // eslint-disable-next-line
     }, [filters]);
 
     return ({
