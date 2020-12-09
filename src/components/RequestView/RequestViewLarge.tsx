@@ -25,6 +25,29 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         }
     }
 
+    const getCurrentStatusText = () => {
+        switch (props.request.Status) {
+            case RequestStatuses.SUBMITTED:
+                return "Request Submitted";
+            case RequestStatuses.APPROVED:
+                return "2 Ltr Deputy Approved Request";
+            case RequestStatuses.DISAPPROVED:
+                return "2 Ltr Deputy Disapproved Request";
+            case RequestStatuses.ACCEPTED:
+                return "Requirements Manager Accepted Request";
+            case RequestStatuses.DECLINED:
+                return "Requirements Manager Declined Request";
+            case RequestStatuses.REVIEW:
+                return "Request Reviewed by Board";
+            case RequestStatuses.CONTRACT:
+                return "Contract Awarded for Development";
+            case RequestStatuses.CLOSED:
+                return "Development for Requirement Completed"
+            case RequestStatuses.CANCELLED:
+                return "Requirement Request Cancelled"
+        }
+    }
+
     const getNextStatusText = () => {
         switch (props.request.Status) {
             case RequestStatuses.SUBMITTED:
@@ -62,7 +85,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                 </Col>
                 <Col className="p-0 mt-2 view-form" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Last Completed Step: </strong>
-                    {getStatusText(props.request.Status)}
+                    {getCurrentStatusText()}
                 </Col>
                 <Col className="p-0 mt-2 view-form" xl={12} lg={12} md={12} sm={12} xs={12}>
                     <strong>Next Step: </strong>
