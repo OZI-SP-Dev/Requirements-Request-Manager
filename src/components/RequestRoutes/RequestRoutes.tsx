@@ -35,6 +35,7 @@ export const RequestRoutes: React.FunctionComponent<any> = (props) => {
                         render={({ match }) =>
                             <RequestReview
                                 fetchRequestById={requests.fetchRequestById}
+                                updateStatus={requests.updateStatus}
                                 requestId={Number(match.params.requestId)} />}
                     />
                     <Route

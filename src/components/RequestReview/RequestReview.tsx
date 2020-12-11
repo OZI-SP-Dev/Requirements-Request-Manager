@@ -116,9 +116,9 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
 
     let nextStatus = getNextStatus(request.Status);
     let rejectStatus = getRejectStatus(request);
-    let showCancelButton = RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CANCELLED, user, roles);
-    let showEditButton = request && !request.isReadOnly(user, roles);
-    let showRejectButton = userCanReview && rejectStatus;
+    let userCanCancel = RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CANCELLED, user, roles);
+    let userCanEdit = request && !request.isReadOnly(user, roles);
+    let userCanReject = userCanReview && rejectStatus;
 
     return (
         <Container fluid="md" className="pb-5 pt-3">
@@ -130,7 +130,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
             <RequestView request={request} loadNotes size="lg" />
             <hr />
-            {userCanReview &&
+            {userCanReview || userCanCancel &&
                 <Form>
                     <Row className="m-2 review-form review-vertical-align">
                         <Form.Label className="review-form required"><strong>Review Comments:</strong></Form.Label>
@@ -148,7 +148,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                 </Form>
             }
             <Row className="review-vertical-align m-2">
-                {showCancelButton && <>
+                {userCanCancel && <>
                     <ConfirmPopover
                         show={showCancelPopover}
                         target={cancelPopoverTarget}
@@ -171,12 +171,12 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         {' '}{getStatusButtonText(RequestStatuses.CANCELLED)}
                     </Button>
                 </>}
-                {showEditButton &&
+                {userCanEdit &&
                     <Button disabled={statusBeingSubmit !== undefined} className="ml-auto" variant="warning" href={`#/Requests/Edit/${request.Id}`}>
                         Edit Request
                     </Button>
                 }
-                {showRejectButton && <>
+                {userCanReject && <>
                     <ConfirmPopover
                         show={showRejectPopover}
                         target={rejectPopoverTarget}
@@ -208,7 +208,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                         onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, nextStatus)}
                         handleClose={() => setShowAffirmPopover(false)}
                     />
-                    <Button className={showCancelButton || showEditButton || showRejectButton ? "ml-2" : "ml-auto"}
+                    <Button className={userCanCancel || userCanEdit || userCanReject ? "ml-2" : "ml-auto"}
                         disabled={!request || statusBeingSubmit !== undefined}
                         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                             setAffirmPopoverTarget(event.target);
