@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [1.0.0] 2020-12-11
+### Fixed
+- Regular users can now properly cancel requests that are 2 ltr approved
+- Cancel Button now works properly from View route
+- Notes no longer load from Requests table since they're not displayed anymore
+
 ## [0.1.27] 2020-12-09
 ### Changed
 - The Request Status text when displaying to the user
