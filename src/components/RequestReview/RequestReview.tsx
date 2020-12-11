@@ -130,7 +130,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
             <RequestView request={request} loadNotes size="lg" />
             <hr />
-            {userCanReview || userCanCancel &&
+            {(userCanReview || userCanCancel) &&
                 <Form>
                     <Row className="m-2 review-form review-vertical-align">
                         <Form.Label className="review-form required"><strong>Review Comments:</strong></Form.Label>
