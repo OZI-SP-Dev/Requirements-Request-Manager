@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
-import { ApplicationTypes, getNextStatus, getStatusText, RequestStatuses } from "../../api/DomainObjects";
+import { ApplicationTypes, RequestStatuses } from "../../api/DomainObjects";
 import { NoteCard } from "../NoteCard/NoteCard";
 import { StatusWorkflow } from "../StatusWorkflow/StatusWorkflow";
 import { IRequestViewChildProps } from "./RequestView";
@@ -179,7 +179,7 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                         </Col>
                         <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                             <strong>Operational Need Date: </strong>
-                            {props.request.OperationalNeedDate.format("DD MMM YYYY")}
+                            {props.request.OperationalNeedDate ? props.request.OperationalNeedDate.format("DD MMM YYYY") : "None"}
                         </Col>
                         <Col className="mt-2" xl={4} lg={4} md={6} sm={6} xs={12}>
                             <strong>Organization's Priority: </strong>

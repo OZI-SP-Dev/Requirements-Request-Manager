@@ -464,11 +464,9 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             headerText="Operational Need Date:"
                             readOnly={readOnly}
                             date={request.OperationalNeedDate}
-                            minDate={oldRequest && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
+                            minDate={oldRequest && oldRequest.OperationalNeedDate && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
-                            isValid={validation && !validation.OperationalNeedDateError}
-                            isInvalid={validation && validation.OperationalNeedDateError !== ""}
-                            errorMessage={validation ? validation.OperationalNeedDateError : ""}
+                            isClearable
                         />
                     </Col>
                     <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">

@@ -18,7 +18,6 @@ export interface IRequestValidation {
     FundingOrgOrDeputyError: string,
     OtherApplicationNeededError: string,
     ProjectedOrgsImpactedOrgError: string,
-    OperationalNeedDateError: string,
     PriorityExplanationError: string,
     BusinessObjectiveError: string,
     FunctionalRequirementsError: string,
@@ -56,7 +55,7 @@ export class RequestValidation {
 
     private static getDateValidation(field: Moment, minDate?: Moment, maxDate?: Moment): string {
         if (!field) {
-            return "Please enter a date that the requirement is needed by!";
+            return "Please enter a date that the requirement was requested!";
         } else if (minDate && field.isBefore(minDate.startOf('day'))) {
             return `Your date selected must be on or after ${minDate.format("DD MMM YYYY")}!`;
         } else if (maxDate && field.isAfter(maxDate.endOf('day'))) {
@@ -82,7 +81,6 @@ export class RequestValidation {
             FundingOrgOrDeputyError: isFunded ? this.getSingleLineValidation(request.FundingOrgOrDeputy, 255) : "",
             OtherApplicationNeededError: request.ApplicationNeeded === ApplicationTypes.OTHER ? this.getSingleLineValidation(request.OtherApplicationNeeded, 255) : "",
             ProjectedOrgsImpactedOrgError: this.getSingleLineValidation(request.ProjectedOrgsImpactedOrg, 15),
-            OperationalNeedDateError: this.getDateValidation(request.OperationalNeedDate, oldRequest && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()),
             PriorityExplanationError: request.PriorityExplanation ? "" : "Please enter an explanation for why the priority of the requirement request was given!",
             BusinessObjectiveError: request.BusinessObjective ? "" : "Please enter the business objective for the requirement being requested!",
             FunctionalRequirementsError: request.FunctionalRequirements ? "" : "Please enter the functional requirements for the requirement being requested!",
