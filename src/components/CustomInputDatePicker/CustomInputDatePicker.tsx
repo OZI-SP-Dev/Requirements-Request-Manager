@@ -36,7 +36,7 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
 
     const DatePickerCustomInput = () => (
         <>
-            <Form.Label>{props.headerText}</Form.Label>
+            <Form.Label className={`${props.isClearable ? '' : "required"}`}>{props.headerText}</Form.Label>
             <Form.Control
                 type="text"
                 readOnly={props.readOnly}
