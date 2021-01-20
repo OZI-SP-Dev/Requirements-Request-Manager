@@ -380,7 +380,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                 </Form.Row>
                 <Form.Row>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label>Application Needed:</Form.Label>
+                        <Form.Label className="required">Application Needed:</Form.Label>
                         <Form.Control
                             as="select"
                             readOnly={readOnly}
@@ -422,7 +422,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                     <Col xl="3" lg="3" md="6" sm="6" xs="12">
-                        <Form.Label>Impacted Center:</Form.Label>
+                        <Form.Label className="required">Impacted Center:</Form.Label>
                         <Form.Control
                             as="select"
                             readOnly={readOnly}
@@ -464,15 +464,13 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                             headerText="Operational Need Date:"
                             readOnly={readOnly}
                             date={request.OperationalNeedDate}
-                            minDate={oldRequest && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
+                            minDate={oldRequest && oldRequest.OperationalNeedDate && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
-                            isValid={validation && !validation.OperationalNeedDateError}
-                            isInvalid={validation && validation.OperationalNeedDateError !== ""}
-                            errorMessage={validation ? validation.OperationalNeedDateError : ""}
+                            isClearable
                         />
                     </Col>
                     <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">
-                        <Form.Label className="mr-3 mb-0">Organization's Priority:</Form.Label>
+                        <Form.Label className="mr-3 mb-0 required">Organization's Priority:</Form.Label>
                         <Form.Check inline
                             label={<>{OrgPriorities.HIGH} <span className="subtext">(Essential to Deliver)</span></>}
                             type="radio"

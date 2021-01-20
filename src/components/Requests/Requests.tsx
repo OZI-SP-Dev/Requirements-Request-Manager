@@ -65,7 +65,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 <td>{request.ApplicationNeeded === ApplicationTypes.OTHER ?
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
-                                <td>{request.OperationalNeedDate.format("DD MMM YYYY")}</td>
+                                <td>{request.OperationalNeedDate ? request.OperationalNeedDate.format("DD MMM YYYY") : "None"}</td>
                                 <td>{request.Status} on {request.StatusDateTime.format("DD MMM YYYY")}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>

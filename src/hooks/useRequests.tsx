@@ -29,7 +29,7 @@ export interface IRequests {
 
 export function useRequests(): IRequests {
 
-    const { roles } = useContext(UserContext);
+    const { roles, loadingUser } = useContext(UserContext);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
@@ -246,7 +246,7 @@ export function useRequests(): IRequests {
 
     useEffect(() => {
         // only fetch Requests after roles have been loaded
-        if (roles && roles.length) {
+        if (!loadingUser) {
             fetchRequests();
         } // eslint-disable-next-line
     }, [filters]);
