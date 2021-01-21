@@ -23,7 +23,7 @@ export const Home: FunctionComponent = () => {
                         <Card.Text>
                             <p>
                                 Welcome to AFLCMC/XP-OZ/OZI’s Requirement Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form. <br /><br />
-                                You will need to work with your 2 Ltr Deputy/POC on the Requirements Form for signature prior to submission. Please <strong>DO NOT</strong> have your 2 Ltr Deputy/POC sign the Form until it is fully complete. Once Form is signed – all fields will be locked and content cannot be revised.<br /><br />
+                                You will need to work with your 2 Ltr Deputy or an assigned POC on the Requirements Form for signature prior to submission. Please <strong>DO NOT</strong> have your 2 Ltr Deputy/POC sign the Form until it is fully complete. Once Form is signed – all fields will be locked and content cannot be revised.<br /><br />
                                 Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams AFLCMC/XP-OZ/OZI</u></a>
                             </p>
                         </Card.Text>
@@ -39,7 +39,6 @@ export const Home: FunctionComponent = () => {
                             <li>Complete names, org symbols, email addresses and phone numbers</li>
                             <li>Requirement Name</li>
                             <li>Requirement Type: new capability or modification to an existing capability within an existing application</li>
-                            <li>Is the requirement Functional or Non-functional</li>
                             <li>Please mark if funding is available – <strong><i>this is very important</i></strong></li>
                             <ul><li>If funding is available, please state org funding requirement</li></ul>
                             <li>Select the application needed, if not listed, select other and complete the field</li>
