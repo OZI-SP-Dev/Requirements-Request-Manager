@@ -41,14 +41,14 @@ export const Home: FunctionComponent = () => {
                             <li>Enter Requirement Name</li>
                             <li>Select Requirement Type - new capability or modification to an existing capability</li>
                             <li>Please mark if funding is available – <strong><i>this is very important</i></strong></li>
-                            <ul><li>If funding is available, please enter org funding your requirement</li></ul>
-                            <li>Select the application needed, if not listed, select other and complete the field</li>
+                            <ul><li>If funding is available, please enter the org funding your requirement</li></ul>
+                            <li>Select Application Needed, if not listed, select other and complete the field</li>
                             <li>Select Projected Organization(s) Impacted</li>
                             <li>Provide Projected Number of Impacted Users – if unknown leave blank</li>
                             <li>Enter Operational Need Date</li>
                             <li>Select Organization’s Priority and provide Priority Explanation</li>
-                            <li>Business Objective Field – <i>what business problem is the requirement trying to solve?</i></li>
-                            <li>Define Functional Requirements – <i>Something you need the system to do</i></li>
+                            <li>Business Objective Field – what business problem is the requirement trying to solve?</li>
+                            <li>Define Functional Requirements – Something you need the system to do</li>
                             <li>Explain Benefits the capability will bring to an organization, cost savings, efficiency, etc.</li>
                             <li>Identify Risks to the business if requirement is not implemented</li>
                             <li>Additional Information to Support Request – provide additional information as needed to support requirement approval and prioritization through the Infrastructure Resource (IRM) Group, chaired by AFLCMC/XP-OZ and consisting of Deputy Director Membership</li>
