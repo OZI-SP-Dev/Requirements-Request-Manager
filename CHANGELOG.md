@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 - (Keep your changes here until you have a release version)
 
+## [1.0.1] 2021-01-26
+### Fixed
+- Bug that prevented requests from being loaded on the Requests table for regular users
+- Verbiage on the home page
+
+### Changed 
+- OperationalNeedDate field has been made optional
+
 ## [1.0.0] 2020-12-11
 ### Fixed
 - Regular users can now properly cancel requests that are 2 ltr approved
