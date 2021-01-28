@@ -1,7 +1,7 @@
 {
   "name": "requirements-request-manager",
   "homepage": ".",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.121.5",
