@@ -18,6 +18,7 @@ export const StatusListItem: FunctionComponent<IStatusListItemProps> = (props) =
     const [popoverTarget, setPopoverTarget] = useState<any>(null);
 
     let statuses = [
+        RequestStatuses.SUBMITTED,
         RequestStatuses.DISAPPROVED,
         RequestStatuses.APPROVED,
         RequestStatuses.DECLINED,
