@@ -24,7 +24,7 @@ export class EmailApi implements IEmailApi {
     }
 
     getEmails(people: IPerson[]) {
-        return people.map(p => p.EMail);
+        return people.filter(p => p && p.EMail).map(p => p.EMail);
     }
 
     async sendEmail(to: IPerson[], subject: string, body: string, cc?: IPerson[], from?: IPerson): Promise<void> {

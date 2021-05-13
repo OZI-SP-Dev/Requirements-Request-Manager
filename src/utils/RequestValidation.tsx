@@ -4,6 +4,7 @@ import moment from "moment";
 
 export interface IRequestValidation {
     IsErrored?: boolean,
+    IsShortValidation?: boolean,
     TitleError: string,
     RequestDateError: string,
     RequesterError: string,
@@ -65,7 +66,7 @@ export class RequestValidation {
         }
     }
 
-    static getValidation(request: IRequirementsRequest, isFunded?: boolean, oldRequest?: IRequirementsRequest): IRequestValidation {
+    static getValidation(request: IRequirementsRequest, isFunded?: boolean): IRequestValidation {
         let validation: IRequestValidation = {
             TitleError: this.getSingleLineValidation(request.Title, 255),
             RequestDateError: this.getDateValidation(request.RequestDate, undefined, moment()),
@@ -88,6 +89,33 @@ export class RequestValidation {
             RiskError: request.Risk ? "" : "Please provide the risks associated to your org for the requirement being requested!"
         }
         validation.IsErrored = Object.values(validation).findIndex(value => value !== "") > -1;
+        return validation;
+    }
+
+    static getShortValidation(request: IRequirementsRequest): IRequestValidation {
+        let validation: IRequestValidation = {
+            TitleError: this.getSingleLineValidation(request.Title, 255),
+            RequestDateError: '',
+            RequesterError: '',
+            RequesterOrgSymbolError: '',
+            RequesterDSNPhoneError: '',
+            RequesterCommPhoneError: '',
+            ApproverError: '',
+            ApproverOrgSymbolError: '',
+            ApproverDSNPhoneError: '',
+            ApproverCommPhoneError: '',
+            IsFundedCheckError: '',
+            FundingOrgOrDeputyError: '',
+            OtherApplicationNeededError: '',
+            ProjectedOrgsImpactedOrgError: '',
+            PriorityExplanationError: '',
+            BusinessObjectiveError: '',
+            FunctionalRequirementsError: '',
+            BenefitsError: '',
+            RiskError: '',
+        }
+        validation.IsErrored = Object.values(validation).findIndex(value => value !== "") > -1;
+        validation.IsShortValidation = true;
         return validation;
     }
 

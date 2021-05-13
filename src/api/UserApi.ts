@@ -117,7 +117,7 @@ export class UserApi implements IUserApi {
 
     getUserId = async (email: string) => {
         try {
-            return (await spWebContext.ensureUser(email)).data.Id;
+            return email ? (await spWebContext.ensureUser(email)).data.Id : -1;
         } catch (e) {
             console.error(`Error occurred while trying to fetch user with Email ${email}`);
             console.error(e);

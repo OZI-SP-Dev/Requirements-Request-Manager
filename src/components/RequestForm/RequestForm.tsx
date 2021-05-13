@@ -88,7 +88,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
         if (validation) {
-            setValidation(RequestValidation.getValidation(request, showFundingField, oldRequest));
+            setValidation(validation.IsShortValidation ? RequestValidation.getShortValidation(request) : RequestValidation.getValidation(request, showFundingField));
         } // eslint-disable-next-line
     }, [request, showFundingField]);
 
@@ -130,8 +130,8 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             e.preventDefault();
             setSaving(true);
             let req = buildSubmittableRequest();
-            let requestValidation = RequestValidation.getValidation(req, showFundingField, oldRequest);
-            if (saveWithoutSubmitting || !requestValidation.IsErrored) {
+            let requestValidation = saveWithoutSubmitting ? RequestValidation.getShortValidation(req) : RequestValidation.getValidation(req, showFundingField);
+            if (!requestValidation.IsErrored) {
                 pushRoute(`/Requests/Review/${(await props.submitRequest(req, saveWithoutSubmitting)).Id}`, e);
             } else {
                 setValidation(requestValidation);
