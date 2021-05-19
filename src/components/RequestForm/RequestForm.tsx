@@ -145,6 +145,13 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         }
     }
 
+    const canSaveWithoutSubmitting = (): boolean => {
+        return request.Status === RequestStatuses.SAVED
+            || request.Status === RequestStatuses.DISAPPROVED
+            || request.Status === RequestStatuses.DECLINED
+            || (request.Status === RequestStatuses.SUBMITTED && request.Id < 0);
+    }
+
     return (
         <Container className="pb-5 pt-3">
             <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
@@ -624,7 +631,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{"Submit Request"}
                     </Button>
-                    <Button
+                    {canSaveWithoutSubmitting() && <Button
                         className="mb-3 ml-2 float-right"
                         variant="outline-primary"
                         onClick={(e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => submitRequest(e, true)}
@@ -632,7 +639,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                     >
                         {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{"Save Without Submitting"}
-                    </Button>
+                    </Button>}
                 </>}
                 <Link to="/Requests">
                     <Button className="mb-3 float-left" variant="secondary">
