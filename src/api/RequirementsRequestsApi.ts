@@ -228,7 +228,9 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         try {
             let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver");
 
-            let queryString = `Status ne '${RequestStatuses.CANCELLED}' and Status ne '${RequestStatuses.CLOSED}'`;
+            // Don't show cancelled/closed requests by default
+            // Only show unsubmitted/saved requests if they are the author
+            let queryString = `Status ne '${RequestStatuses.CANCELLED}' and Status ne '${RequestStatuses.CLOSED}' and (AuthorId eq ${(await this.userApi.getCurrentUser()).Id} or Status ne '${RequestStatuses.SAVED}')`;
 
             if (userId !== undefined) {
                 queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or Approver/Id eq ${userId})`;

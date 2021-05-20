@@ -25,8 +25,10 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         }
     }
 
-    const getCurrentStatusText = () => {
+    const getCurrentStatusText = (): string => {
         switch (props.request.Status) {
+            case RequestStatuses.SAVED:
+                return "Request Saved Without Submitting";
             case RequestStatuses.SUBMITTED:
                 return "Request Submitted";
             case RequestStatuses.APPROVED:
@@ -48,8 +50,10 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
         }
     }
 
-    const getNextStatusText = () => {
+    const getNextStatusText = (): string => {
         switch (props.request.Status) {
+            case RequestStatuses.SAVED:
+                return "Submit Request";
             case RequestStatuses.SUBMITTED:
                 return "2 Ltr Approval";
             case RequestStatuses.APPROVED:
@@ -64,7 +68,8 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                 return "Contract Awarded for Development";
             case RequestStatuses.CONTRACT:
                 return "Development Completed";
-            default:
+            case RequestStatuses.CLOSED:
+            case RequestStatuses.CANCELLED:
                 return "None";
         }
     }

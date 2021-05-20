@@ -44,9 +44,9 @@ export function useRequests(): IRequests {
 
     const clearError = () => setError("");
 
-    const submitRequest = async (request: IRequirementsRequestCRUD) => {
+    const submitRequest = async (request: IRequirementsRequestCRUD, saveWithoutSubmitting?: boolean) => {
         try {
-            request.Status = RequestStatuses.SUBMITTED;
+            request.Status = !saveWithoutSubmitting ? RequestStatuses.SUBMITTED : RequestStatuses.SAVED;
             request.StatusDateTime = moment();
             let updatedRequest = new RequirementsRequest(await request.save());
 
@@ -60,7 +60,7 @@ export function useRequests(): IRequests {
             setRequests(newRequests);
 
             // Only send the notif if the request is new (new ID returned) and the Approver is not the Requester
-            if (request.Id !== updatedRequest.Id && updatedRequest.Approver.EMail !== updatedRequest.Requester.EMail) {
+            if (!saveWithoutSubmitting && request.Id !== updatedRequest.Id && updatedRequest.Approver.EMail !== updatedRequest.Requester.EMail) {
                 await email.sendSubmitEmail(updatedRequest);
             }
 
@@ -139,6 +139,8 @@ export function useRequests(): IRequests {
 
     const getStatusNoteTitle = (status: RequestStatuses): string => {
         switch (status) {
+            case RequestStatuses.SAVED:
+                return "Request Saved";
             case RequestStatuses.SUBMITTED:
                 return "Request Submitted";
             case RequestStatuses.APPROVED:

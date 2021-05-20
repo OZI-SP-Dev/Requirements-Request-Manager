@@ -38,6 +38,7 @@ export enum OrgPriorities {
 }
 
 export enum RequestStatuses {
+    SAVED = "Saved",
     SUBMITTED = "Submitted",
     APPROVED = "Approved",
     DISAPPROVED = "Disapproved",
@@ -51,6 +52,8 @@ export enum RequestStatuses {
 
 export const getNextStatus = (status: RequestStatuses): RequestStatuses | null => {
     switch (status) {
+        case RequestStatuses.SAVED:
+            return RequestStatuses.SUBMITTED;
         case RequestStatuses.SUBMITTED:
             return RequestStatuses.APPROVED;
         case RequestStatuses.APPROVED:
@@ -79,6 +82,8 @@ export const getRejectStatus = (request: IRequirementsRequest): RequestStatuses 
 
 export const getStatusText = (status: RequestStatuses): string => {
     switch (status) {
+        case RequestStatuses.SUBMITTED:
+            return "Submit";
         case RequestStatuses.APPROVED:
             return "2 Ltr Review";
         case RequestStatuses.ACCEPTED:

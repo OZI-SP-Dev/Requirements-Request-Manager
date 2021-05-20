@@ -45,7 +45,8 @@ export class RoleDefinitions {
             case RequestStatuses.CLOSED:
                 return request.Status === RequestStatuses.CONTRACT && this.userIsManager(roles);
             case RequestStatuses.CANCELLED:
-                if (request.Status === RequestStatuses.SUBMITTED
+                if (request.Status === RequestStatuses.SAVED
+                    || request.Status === RequestStatuses.SUBMITTED
                     || request.Status === RequestStatuses.DISAPPROVED
                     || request.Status === RequestStatuses.DECLINED) {
                     return this.userIsManager(roles)

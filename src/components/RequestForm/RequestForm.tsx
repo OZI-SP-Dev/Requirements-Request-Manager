@@ -3,7 +3,7 @@ import moment, { Moment } from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Container, Form, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequirementsRequest } from "../../api/DomainObjects";
+import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequestStatuses, RequirementsRequest } from "../../api/DomainObjects";
 import { IPerson, Person } from "../../api/UserApi";
 import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
@@ -18,7 +18,7 @@ import './RequestForm.css';
 export interface IRequestFormProps {
     editRequestId?: number,
     fetchRequestById?: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
-    submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequest>
+    submitRequest: (request: IRequirementsRequestCRUD, saveWithoutSubmitting?: boolean) => Promise<IRequirementsRequest>
 }
 
 export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) => {
@@ -88,7 +88,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     useEffect(() => {
         // Update validation whenever a field changes after a submission attempt
         if (validation) {
-            setValidation(RequestValidation.getValidation(request, showFundingField, oldRequest));
+            setValidation(validation.IsShortValidation ? RequestValidation.getShortValidation(request) : RequestValidation.getValidation(request, showFundingField));
         } // eslint-disable-next-line
     }, [request, showFundingField]);
 
@@ -111,24 +111,28 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         setApproverSameAsRequester(!approverSameAsRequester);
     }
 
-    const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => {
+    const buildSubmittableRequest = (): RequirementsRequest => {
+        let req = new RequirementsRequest(request);
+        if (approverSameAsRequester) {
+            req.Approver = req.Requester;
+            req.ApproverOrgSymbol = req.RequesterOrgSymbol;
+            req.ApproverDSNPhone = req.RequesterDSNPhone;
+            req.ApproverCommPhone = req.RequesterCommPhone;
+        }
+        if (!showFundingField) {
+            req.FundingOrgOrDeputy = "";
+        }
+        return req;
+    }
+
+    const submitRequest = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, saveWithoutSubmitting?: boolean) => {
         try {
             e.preventDefault();
             setSaving(true);
-            let req = new RequirementsRequest(request);
-            if (approverSameAsRequester) {
-                req.Approver = req.Requester;
-                req.ApproverOrgSymbol = req.RequesterOrgSymbol;
-                req.ApproverDSNPhone = req.RequesterDSNPhone;
-                req.ApproverCommPhone = req.RequesterCommPhone;
-            }
-            if (!showFundingField) {
-                req.FundingOrgOrDeputy = "";
-            }
-            let requestValidation = RequestValidation.getValidation(req, showFundingField, oldRequest);
+            let req = buildSubmittableRequest();
+            let requestValidation = saveWithoutSubmitting ? RequestValidation.getShortValidation(req) : RequestValidation.getValidation(req, showFundingField);
             if (!requestValidation.IsErrored) {
-                let newRequest = await props.submitRequest(req);
-                pushRoute(`/Requests/Review/${newRequest.Id}`, e);
+                pushRoute(`/Requests/Review/${(await props.submitRequest(req, saveWithoutSubmitting)).Id}`, e);
             } else {
                 setValidation(requestValidation);
                 setError("Please fix the errored fields!");
@@ -139,6 +143,13 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
         } finally {
             setSaving(false);
         }
+    }
+
+    const canSaveWithoutSubmitting = (): boolean => {
+        return request.Status === RequestStatuses.SAVED
+            || request.Status === RequestStatuses.DISAPPROVED
+            || request.Status === RequestStatuses.DECLINED
+            || (request.Status === RequestStatuses.SUBMITTED && request.Id < 0);
     }
 
     return (
@@ -610,16 +621,28 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                 </Form.Row>
-                {!readOnly && <Button
-                    className="mb-3 ml-2 float-right"
-                    variant="primary"
-                    onClick={submitRequest}
-                >
-                    {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
-                    {' '}{"Submit Request"}
-                </Button>}
+                {!readOnly && <>
+                    <Button
+                        className="mb-3 ml-2 float-right"
+                        variant="primary"
+                        onClick={submitRequest}
+                        disabled={saving}
+                    >
+                        {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                        {' '}{"Submit Request"}
+                    </Button>
+                    {canSaveWithoutSubmitting() && <Button
+                        className="mb-3 ml-2 float-right"
+                        variant="outline-primary"
+                        onClick={(e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => submitRequest(e, true)}
+                        disabled={saving}
+                    >
+                        {saving && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
+                        {' '}{"Save Without Submitting"}
+                    </Button>}
+                </>}
                 <Link to="/Requests">
-                    <Button className="mb-3 float-right" variant="secondary">
+                    <Button className="mb-3 float-left" variant="secondary">
                         Cancel
                     </Button>
                 </Link>

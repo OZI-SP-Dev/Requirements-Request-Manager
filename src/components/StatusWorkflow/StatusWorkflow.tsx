@@ -14,6 +14,10 @@ export const StatusWorkflow: FunctionComponent<IStatusWorkflowProps> = (props) =
 
     return (
         <ul className="status-workflow p-0 mr-auto mb-3 mt-3">
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.SUBMITTED}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.SUBMITTED)} />
             {props.request.Status === RequestStatuses.DISAPPROVED &&
                 <StatusListItem
                     requestStatus={props.request.Status}
