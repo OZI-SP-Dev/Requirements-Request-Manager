@@ -17,6 +17,8 @@ export interface IEmailSender {
     sendDisapprovalEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     sendAcceptedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
     sendDeclinedEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
+    sendCioApprovedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendCioDisapprovedEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     sendReviewEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
     sendContractEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
     sendClosedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
@@ -77,7 +79,7 @@ export function useEmail(): IEmailSender {
     const sendSubmitEmail = async (request: IRequirementsRequestCRUD): Promise<void> => {
         let to = [request.Approver];
         let subject = `Request ${request.getFormattedId()} Submitted`;
-        let body = `Hello, a Requirement Request, ${request.Title}, has been submitted for which you are the approving official by ${request.Requester.Title}.
+        let body = `Hello, a Requirement Request, ${request.Title}, has been submitted for which you are the approving official by ${request.Requester.Title}. The next step for the Request is for it to be reviewed by the 2 Ltr specified. 
             
             To review/approve the request, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
         let cc = getManagers();
@@ -91,7 +93,7 @@ export function useEmail(): IEmailSender {
             to.push(request.Requester);
         }
         let subject = `Request ${request.getFormattedId()} Approved`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}. The next step for the Request is for it to be reviewed by the Requirements Manager. 
         ${comment ? `The approver left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -102,7 +104,7 @@ export function useEmail(): IEmailSender {
     const sendDisapprovalEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
         let to = [request.Requester, request.Author];
         let subject = `Request ${request.getFormattedId()} Disapproved`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title}. Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title}.
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title}. Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be approved.
         The approver left a comment saying "${comment}"
         
         To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -113,7 +115,7 @@ export function useEmail(): IEmailSender {
     const sendAcceptedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Accepted by Manager`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be reviewed by the CIO. 
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
@@ -128,6 +130,28 @@ export function useEmail(): IEmailSender {
         The Manager left a comment saying "${comment}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendCioApprovedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Approved by CIO`;
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the CIO ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
+        ${comment ? `The CIO left a comment saying "${comment}"` : ''}
+        
+        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+
+        return sendEmail(to, subject, body);
+    }
+
+    const sendCioDisapprovedEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
+        let to = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Disapproved by CIO`;
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the CIO ${(await userApi.getCurrentUser()).Title} Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be approved.
+        The CIO left a comment saying "${comment}
+        
+        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -199,6 +223,8 @@ export function useEmail(): IEmailSender {
         sendDisapprovalEmail,
         sendAcceptedEmail,
         sendDeclinedEmail,
+        sendCioApprovedEmail,
+        sendCioDisapprovedEmail,
         sendReviewEmail,
         sendContractEmail,
         sendClosedEmail,

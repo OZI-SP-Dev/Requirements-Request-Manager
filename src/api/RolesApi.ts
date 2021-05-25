@@ -4,7 +4,8 @@ import { IPerson } from "./UserApi";
 
 export enum RoleType {
     ADMIN = "Admin",
-    MANAGER = "Manager"
+    MANAGER = "Manager",
+    CIO = "CIO"
 }
 
 export interface IRole {

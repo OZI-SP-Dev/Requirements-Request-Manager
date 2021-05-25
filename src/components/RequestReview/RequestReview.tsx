@@ -101,6 +101,10 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                 return "Accept Request";
             case RequestStatuses.DECLINED:
                 return "Decline Request";
+            case RequestStatuses.CIO_APPROVED:
+                return "Approve Request";
+            case RequestStatuses.CIO_DISAPPROVED:
+                return "Disapprove Request";
             case RequestStatuses.REVIEW:
                 return "Approved for Contract";
             case RequestStatuses.CONTRACT:
