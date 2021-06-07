@@ -147,8 +147,6 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
 
     const canSaveWithoutSubmitting = (): boolean => {
         return request.Status === RequestStatuses.SAVED
-            || request.Status === RequestStatuses.DISAPPROVED
-            || request.Status === RequestStatuses.DECLINED
             || (request.Status === RequestStatuses.SUBMITTED && request.Id < 0);
     }
 
