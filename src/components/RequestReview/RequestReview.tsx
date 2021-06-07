@@ -137,7 +137,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             {(userCanReview || userCanCancel) &&
                 <Form>
                     <Row className="m-2 review-form review-vertical-align">
-                        <Form.Label className="review-form required"><strong>Review Comments:</strong></Form.Label>
+                        <Form.Label className="review-form required"><strong>{userCanReview ? "Review Comments" : "Cancellation Comments"}:</strong></Form.Label>
                         <Form.Control
                             as="textarea"
                             placeholder="Notes for your review of the request, required if you are rejecting/cancelling the Request"
