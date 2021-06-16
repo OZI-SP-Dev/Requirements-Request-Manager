@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Container, Form, Row, Spinner } from "react-bootstrap";
+import { Button, Container, Row, Spinner } from "react-bootstrap";
 import { getNextStatus, getRejectStatus, IRequirementsRequest, IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "../../api/DomainObjects";
 import { InternalError } from "../../api/InternalErrors";
 import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
-import { ConfirmPopover } from "../ConfirmPopover/ConfirmPopover";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import { RequestView } from "../RequestView/RequestView";
 import "./RequestReview.css";
+import { RequestReviewModal } from "./RequestReviewModal";
 
 
 export interface IRequestReviewProps {
@@ -24,16 +24,11 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     const { user, roles } = useContext(UserContext);
 
     const [request, setRequest] = useState<IRequirementsRequestCRUD>(new RequirementsRequest());
-    const [comment, setComment] = useState<string>("");
     const [statusBeingSubmit, setStatusBeingSubmit] = useState<RequestStatuses>();
     const [userCanReview, setUserCanReview] = useState<boolean>(false);
-    const [error, setError] = useState<string>();
-    const [cancelPopoverTarget, setCancelPopoverTarget] = useState<any>(null);
-    const [showCancelPopover, setShowCancelPopover] = useState<boolean>(false);
-    const [rejectPopoverTarget, setRejectPopoverTarget] = useState<any>(null);
-    const [showRejectPopover, setShowRejectPopover] = useState<boolean>(false);
-    const [affirmPopoverTarget, setAffirmPopoverTarget] = useState<any>(null);
-    const [showAffirmPopover, setShowAffirmPopover] = useState<boolean>(false);
+    const [showCancelModal, setShowCancelModal] = useState<boolean>(false);
+    const [showRejectModal, setShowRejectModal] = useState<boolean>(false);
+    const [showAffirmModal, setShowAffirmModal] = useState<boolean>(false);
 
     const { redirect, pushRoute } = useRedirect();
 
@@ -63,13 +58,9 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
 
     useEffect(() => {
         setUserCanReview(checkIfUserCanReview(request)); // eslint-disable-next-line
-    }, [user, props.updateStatus])
+    }, [user, props.updateStatus]);
 
-    const updateComment = (value: string): void => {
-        setComment(value);
-    }
-
-    const updateStatus = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, status: RequestStatuses | null) => {
+    const updateStatus = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, status: RequestStatuses | null, comment: string) => {
         try {
             if (status) {
                 setStatusBeingSubmit(status);
@@ -81,9 +72,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
         } catch (e) {
             console.error("Error while approving Request on Review page");
             console.error(e);
-            if (e instanceof InternalError) {
-                setError(e.message);
-            }
+            throw e;
         } finally {
             setStatusBeingSubmit(undefined);
         }
@@ -134,42 +123,24 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
             <h1>{userCanReview ? "Review" : "View"} Request</h1>
             <RequestView request={request} loadNotes size="lg" />
             <hr />
-            {(userCanReview || userCanCancel) &&
-                <Form>
-                    <Row className="m-2 review-form review-vertical-align">
-                        <Form.Label className="review-form required"><strong>{userCanReview ? "Review Comments" : "Cancellation Comments"}:</strong></Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            placeholder="Notes for your review of the request, required if you are rejecting/cancelling the Request"
-                            value={comment}
-                            onChange={e => updateComment(e.target.value)}
-                            isInvalid={!comment && error !== undefined}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            This field is required to change the status to Cancelled or {rejectStatus}
-                        </Form.Control.Feedback>
-                    </Row>
-                </Form>
-            }
             <Row className="review-vertical-align m-2">
                 {userCanCancel && <>
-                    <ConfirmPopover
-                        show={showCancelPopover}
-                        target={cancelPopoverTarget}
+                    <RequestReviewModal
+                        title={getStatusButtonText(RequestStatuses.CANCELLED)}
                         variant="danger"
-                        titleText={getStatusButtonText(RequestStatuses.CANCELLED)}
-                        confirmationText="Are you sure you want to cancel this request?"
-                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) =>
-                            updateStatus(e, RequestStatuses.CANCELLED)}
-                        handleClose={() => setShowCancelPopover(false)}
+                        nextStatus={RequestStatuses.CANCELLED}
+                        commentsFieldLabel={"Cancellation Comments"}
+                        commentsAreRequired
+                        show={showCancelModal}
+                        submitButtonText="Cancel Request"
+                        handleClose={() => setShowCancelModal(false)}
+                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, comment: string) =>
+                            updateStatus(e, RequestStatuses.CANCELLED, comment)}
                     />
                     <Button className="mr-auto"
                         variant="danger"
                         disabled={!request || statusBeingSubmit !== undefined}
-                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                            setCancelPopoverTarget(event.target);
-                            setShowCancelPopover(true);
-                        }}
+                        onClick={() => setShowCancelModal(true)}
                     >
                         {statusBeingSubmit === RequestStatuses.CANCELLED && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{getStatusButtonText(RequestStatuses.CANCELLED)}
@@ -181,43 +152,43 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
                     </Button>
                 }
                 {userCanReject && <>
-                    <ConfirmPopover
-                        show={showRejectPopover}
-                        target={rejectPopoverTarget}
+                    <RequestReviewModal
+                        title={getStatusButtonText(rejectStatus)}
                         variant="danger"
-                        titleText={getStatusButtonText(rejectStatus)}
-                        confirmationText={`Are you sure you want to set this Request's status to ${rejectStatus}?`}
-                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, rejectStatus)}
-                        handleClose={() => setShowRejectPopover(false)}
+                        nextStatus={rejectStatus}
+                        commentsFieldLabel={"Rejection Comments"}
+                        commentsAreRequired
+                        show={showRejectModal}
+                        submitButtonText={getStatusButtonText(rejectStatus)}
+                        handleClose={() => setShowRejectModal(false)}
+                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, comment: string) =>
+                            updateStatus(e, rejectStatus, comment)}
                     />
                     <Button className="ml-2"
                         variant="danger"
                         disabled={!request || statusBeingSubmit !== undefined}
-                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                            setRejectPopoverTarget(event.target);
-                            setShowRejectPopover(true);
-                        }}
+                        onClick={() => setShowRejectModal(true)}
                     >
                         {statusBeingSubmit === rejectStatus && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{getStatusButtonText(rejectStatus)}
                     </Button>
                 </>}
                 {userCanReview && <>
-                    <ConfirmPopover
-                        show={showAffirmPopover}
-                        target={affirmPopoverTarget}
+                    <RequestReviewModal
+                        title={getStatusButtonText(nextStatus)}
                         variant="primary"
-                        titleText={getStatusButtonText(nextStatus)}
-                        confirmationText={`Are you sure you want to set this Request's status to ${nextStatus}?`}
-                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>) => updateStatus(e, nextStatus)}
-                        handleClose={() => setShowAffirmPopover(false)}
+                        nextStatus={nextStatus}
+                        commentsFieldLabel={"Approval Comments"}
+                        commentsAreRequired={false}
+                        show={showAffirmModal}
+                        submitButtonText={getStatusButtonText(nextStatus)}
+                        handleClose={() => setShowAffirmModal(false)}
+                        onSubmit={(e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.FormEvent<HTMLFormElement>, comment: string) =>
+                            updateStatus(e, nextStatus, comment)}
                     />
                     <Button className={userCanCancel || userCanEdit || userCanReject ? "ml-2" : "ml-auto"}
                         disabled={!request || statusBeingSubmit !== undefined}
-                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                            setAffirmPopoverTarget(event.target);
-                            setShowAffirmPopover(true);
-                        }}
+                        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => setShowAffirmModal(true)}
                     >
                         {statusBeingSubmit === nextStatus && <Spinner as="span" size="sm" animation="grow" role="status" aria-hidden="true" />}
                         {' '}{getStatusButtonText(nextStatus)}

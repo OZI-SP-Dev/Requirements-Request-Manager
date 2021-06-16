@@ -194,6 +194,9 @@ export class RolesApiDev implements IRolesApi {
         }, {
             Id: 2,
             Role: RoleType.MANAGER
+        }, {
+            Id: 2,
+            Role: RoleType.CIO
         }]
     }, {
         User: {
