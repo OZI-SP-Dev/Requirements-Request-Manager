@@ -9,7 +9,11 @@ export class RoleDefinitions {
     }
 
     private static userIsManager(roles?: RoleType[]): boolean {
-        return roles !== undefined && roles.includes(RoleType.MANAGER);
+        return this.userIsCio(roles) || roles !== undefined && roles.includes(RoleType.MANAGER);
+    }
+
+    private static userIsCio(roles?: RoleType[]): boolean {
+        return roles !== undefined && roles.includes(RoleType.CIO);
     }
 
     static userCanAccessAdminPage(roles?: RoleType[]): boolean {
@@ -38,8 +42,11 @@ export class RoleDefinitions {
             case RequestStatuses.ACCEPTED:
             case RequestStatuses.DECLINED:
                 return request.Status === RequestStatuses.APPROVED && this.userIsManager(roles);
+            case RequestStatuses.CIO_APPROVED:
+            case RequestStatuses.CIO_DISAPPROVED:
+                return request.Status === RequestStatuses.ACCEPTED && this.userIsCio(roles);
             case RequestStatuses.REVIEW:
-                return request.Status === RequestStatuses.ACCEPTED && this.userIsManager(roles);
+                return request.Status === RequestStatuses.CIO_APPROVED && this.userIsManager(roles);
             case RequestStatuses.CONTRACT:
                 return request.Status === RequestStatuses.REVIEW && this.userIsManager(roles);
             case RequestStatuses.CLOSED:
@@ -48,14 +55,15 @@ export class RoleDefinitions {
                 if (request.Status === RequestStatuses.SAVED
                     || request.Status === RequestStatuses.SUBMITTED
                     || request.Status === RequestStatuses.DISAPPROVED
-                    || request.Status === RequestStatuses.DECLINED) {
+                    || request.Status === RequestStatuses.DECLINED
+                    || request.Status === RequestStatuses.CIO_DISAPPROVED) {
                     return this.userIsManager(roles)
                         || currentUser?.Id === request.Requester.Id
                         || currentUser?.Id === request.Author.Id
                         || currentUser?.Id === request.Approver.Id;
                 } else if (request.Status === RequestStatuses.APPROVED) {
                     return this.userIsManager(roles) || currentUser?.Id === request.Approver.Id;
-                } else if (request.Status === RequestStatuses.ACCEPTED || request.Status === RequestStatuses.REVIEW) {
+                } else if (request.Status === RequestStatuses.ACCEPTED || request.Status === RequestStatuses.CIO_APPROVED || request.Status === RequestStatuses.REVIEW) {
                     return this.userIsManager(roles);
                 } else {
                     return false;

@@ -23,6 +23,8 @@ export const StatusListItem: FunctionComponent<IStatusListItemProps> = (props) =
         RequestStatuses.APPROVED,
         RequestStatuses.DECLINED,
         RequestStatuses.ACCEPTED,
+        RequestStatuses.CIO_DISAPPROVED,
+        RequestStatuses.CIO_APPROVED,
         RequestStatuses.REVIEW,
         RequestStatuses.CONTRACT,
         RequestStatuses.CLOSED

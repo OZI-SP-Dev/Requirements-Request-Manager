@@ -44,6 +44,8 @@ export enum RequestStatuses {
     DISAPPROVED = "Disapproved",
     ACCEPTED = "Manager Accepted",
     DECLINED = "Manager Declined",
+    CIO_APPROVED = "CIO Approved",
+    CIO_DISAPPROVED = "CIO Disapproved",
     REVIEW = "Review for Contract",
     CONTRACT = "On Contract",
     CLOSED = "Closed",
@@ -59,6 +61,8 @@ export const getNextStatus = (status: RequestStatuses): RequestStatuses | null =
         case RequestStatuses.APPROVED:
             return RequestStatuses.ACCEPTED;
         case RequestStatuses.ACCEPTED:
+            return RequestStatuses.CIO_APPROVED;
+        case RequestStatuses.CIO_APPROVED:
             return RequestStatuses.REVIEW;
         case RequestStatuses.REVIEW:
             return RequestStatuses.CONTRACT;
@@ -75,6 +79,8 @@ export const getRejectStatus = (request: IRequirementsRequest): RequestStatuses 
             return RequestStatuses.DISAPPROVED;
         case RequestStatuses.APPROVED:
             return RequestStatuses.DECLINED;
+        case RequestStatuses.ACCEPTED:
+            return RequestStatuses.CIO_DISAPPROVED;
         default:
             return null;
     }
@@ -88,6 +94,8 @@ export const getStatusText = (status: RequestStatuses): string => {
             return "2 Ltr Review";
         case RequestStatuses.ACCEPTED:
             return "Req Mgr Review";
+        case RequestStatuses.CIO_APPROVED:
+            return "CIO Review";
         case RequestStatuses.REVIEW:
             return "Board Review(s)";
         case RequestStatuses.CONTRACT:
@@ -285,6 +293,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {
         let requestIsApproved = this.Status === RequestStatuses.APPROVED
             || this.Status === RequestStatuses.ACCEPTED
+            || this.Status === RequestStatuses.CIO_APPROVED
             || this.Status === RequestStatuses.REVIEW
             || this.Status === RequestStatuses.CONTRACT;
         let requestIsClosed = this.Status === RequestStatuses.CLOSED || this.Status === RequestStatuses.CANCELLED;

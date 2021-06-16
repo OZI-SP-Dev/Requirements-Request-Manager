@@ -40,6 +40,17 @@ export const StatusWorkflow: FunctionComponent<IStatusWorkflowProps> = (props) =
                 requestStatus={props.request.Status}
                 status={RequestStatuses.ACCEPTED}
                 notes={props.notes.filter(n => n.Status === RequestStatuses.ACCEPTED)} />
+            {props.request.Status === RequestStatuses.CIO_DISAPPROVED &&
+                <StatusListItem
+                    requestStatus={props.request.Status}
+                    className="danger-status"
+                    status={RequestStatuses.CIO_DISAPPROVED}
+                    notes={props.notes.filter(n => n.Status === RequestStatuses.CIO_DISAPPROVED)} />
+            }
+            <StatusListItem
+                requestStatus={props.request.Status}
+                status={RequestStatuses.CIO_APPROVED}
+                notes={props.notes.filter(n => n.Status === RequestStatuses.CIO_APPROVED)} />
             <StatusListItem
                 requestStatus={props.request.Status}
                 status={RequestStatuses.REVIEW}

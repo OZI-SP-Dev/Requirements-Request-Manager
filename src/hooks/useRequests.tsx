@@ -151,6 +151,10 @@ export function useRequests(): IRequests {
                 return "Request Accepted by Requirements Manager";
             case RequestStatuses.DECLINED:
                 return "Request Declined by Requirements Manager";
+            case RequestStatuses.CIO_APPROVED:
+                return "Request Approved by CIO";
+            case RequestStatuses.CIO_DISAPPROVED:
+                return "Request Disapproved by CIO";
             case RequestStatuses.REVIEW:
                 return "Request Reviewed by Board";
             case RequestStatuses.CONTRACT:
@@ -174,6 +178,10 @@ export function useRequests(): IRequests {
                 return email.sendAcceptedEmail(request, comment);
             case RequestStatuses.DECLINED:
                 return email.sendDeclinedEmail(request, comment);
+            case RequestStatuses.CIO_APPROVED:
+                return email.sendCioApprovedEmail(request, comment);
+            case RequestStatuses.CIO_DISAPPROVED:
+                return email.sendCioDisapprovedEmail(request, comment);
             case RequestStatuses.REVIEW:
                 return email.sendReviewEmail(request, comment);
             case RequestStatuses.CONTRACT:
