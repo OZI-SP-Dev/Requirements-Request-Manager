@@ -81,7 +81,7 @@ export function useEmail(): IEmailSender {
         let subject = `Request ${request.getFormattedId()} Submitted`;
         let body = `Hello, a Requirement Request, ${request.Title}, has been submitted for which you are the approving official by ${request.Requester.Title}. The next step for the Request is for it to be reviewed by the 2 Ltr specified. 
             
-            To review/approve the request, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
+            To review/approve the request, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FReview%2F${request.Id}`;
         let cc = getManagers();
 
         return sendEmail(to, subject, body, cc);
@@ -96,7 +96,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}. The next step for the Request is for it to be reviewed by the Requirements Manager. 
         ${comment ? `The approver left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -107,7 +107,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the approving official ${request.Approver.Title}. Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be approved.
         The approver left a comment saying "${comment}"
         
-        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -118,7 +118,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be reviewed by the CIO. 
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -129,7 +129,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been declined by the Requirements Manager ${(await userApi.getCurrentUser()).Title} Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be accepted.
         The Manager left a comment saying "${comment}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -140,7 +140,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the CIO ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
         ${comment ? `The CIO left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -151,7 +151,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the CIO ${(await userApi.getCurrentUser()).Title} Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be approved.
         The CIO left a comment saying "${comment}
         
-        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -162,7 +162,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has started being reviewed by the board officials. If all Boards approve the Request, the Requirement will be prioritized for available funding. When funds are available, it will be put on a contract for development. You will be notified once your Requirement goes on contract.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -173,7 +173,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been put on contract and development for the Requirement will begin soon.
         ${comment ? `The Requirements Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/View/${request.Id}`;
+        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -208,7 +208,7 @@ export function useEmail(): IEmailSender {
             The note is:
             <h4>${note.Title}</h4><p>"${note.Text}"</p>
             
-            To review the request/note, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx#/Requests/Review/${request.Id}`;
+            To review the request/note, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FReview%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }

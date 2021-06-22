@@ -7,6 +7,7 @@ import { Administration } from './components/Administration/Administration';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { Home } from './components/Home/Home';
 import { RequestRoutes } from './components/RequestRoutes/RequestRoutes';
+import { useRouteParamRedirect } from './hooks/useRouteParamRedirect';
 import { UserContext } from './providers/UserProvider';
 import { RoleDefinitions } from './utils/RoleDefinitions';
 
@@ -15,6 +16,7 @@ function App() {
   initializeIcons(/* optional base url */);
 
   const userContext = useContext(UserContext);
+  useRouteParamRedirect();
 
   return (
     <HashRouter>
