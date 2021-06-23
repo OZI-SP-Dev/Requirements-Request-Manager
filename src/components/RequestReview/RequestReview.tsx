@@ -114,7 +114,7 @@ export const RequestReview: React.FunctionComponent<IRequestReviewProps> = (prop
     let userCanReject = userCanReview && rejectStatus;
 
     return (
-        <Container fluid="md" className="pb-5 pt-3">
+        <Container fluid className="pb-5 pt-3">
             <Row>
                 <Button disabled={statusBeingSubmit !== undefined} className="mb-3 mr-auto back-button" variant="secondary" href="#/Requests">
                     Back

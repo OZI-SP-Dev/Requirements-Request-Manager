@@ -6,6 +6,7 @@ import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { RequestView } from "../RequestView/RequestView";
+import { FilterField, SortIcon } from "./SortIcon";
 
 export interface IRequestsProps {
     requests: IRequests
@@ -13,16 +14,26 @@ export interface IRequestsProps {
 
 export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
 
-    const [requestIdShown, setRequestIdShown] = useState<number>(-1);
+    const [, setRequestIdShown] = useState<number>(-1);
 
     const { user, roles } = useContext(UserContext);
+    const [sort, setSort] = useState<{ field: FilterField, ascending: boolean }>();
 
     const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
         props.requests.setFilters({ ...props.requests.filters, showAllUsers: !e.target.checked });
     }
 
+    const sortIconOnClick = (field: FilterField) => {
+        let newSort: { field: FilterField, ascending: boolean } | undefined = { field: field, ascending: true };
+        if (sort?.field === field) {
+            newSort = sort.ascending ? { field: field, ascending: false } : undefined;
+        }
+        setSort(newSort);
+        props.requests.sortBy(newSort?.field, newSort?.ascending);
+    }
+
     return (
-        <Container fluid="md" className="pb-5 pt-3">
+        <Container fluid className="pb-5 pt-3">
             <h1>Requests</h1>
             <Row className="mr-1 ml-1 mb-3">
                 <Col className="align-self-center">
@@ -41,17 +52,97 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     </Link>
                 </Col>
             </Row>
-            <Table bordered hover responsive>
+            <Table bordered hover responsive size="sm">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Requester</th>
-                        <th>Request Date</th>
-                        <th>Application Needed</th>
-                        <th>Org Priority</th>
-                        <th>Operational Need Date</th>
-                        <th>Status</th>
+                        <th className="rrm-width-sm">
+                            <Row className="m-0">
+                                <span>ID</span>
+                                <SortIcon
+                                    field="Id"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Id"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th>
+                            <Row className="m-0">
+                                <span>Title</span>
+                                <SortIcon
+                                    field="Title"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Title"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th>
+                            <Row className="m-0">
+                                <span>Requester</span>
+                                <SortIcon
+                                    field="Requester"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Requester"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th className="rrm-width-md">
+                            <Row className="m-0">
+                                <span>Request Date</span>
+                                <SortIcon
+                                    field="RequestDate"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "RequestDate"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th>
+                            <Row className="m-0">
+                                <span>Application Needed</span>
+                                <SortIcon
+                                    field="ApplicationNeeded"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "ApplicationNeeded"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th className="rrm-width-md">
+                            <Row className="m-0">
+                                <span>Org Priority</span>
+                                <SortIcon
+                                    field="OrgPriority"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "OrgPriority"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th>
+                            <Row className="m-0">
+                                <span>Operational Need Date</span>
+                                <SortIcon
+                                    field="OperationalNeedDate"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "OperationalNeedDate"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
+                        <th className="rrm-width-md">
+                            <Row className="m-0">
+                                <span>Status</span>
+                                <SortIcon
+                                    field="Status"
+                                    ascending={sort?.ascending === true}
+                                    active={sort?.field === "Status"}
+                                    onClick={sortIconOnClick}
+                                />
+                            </Row>
+                        </th>
                     </tr>
                 </thead>
                 <Accordion as='tbody'>

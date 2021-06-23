@@ -33,7 +33,7 @@ export const Administration: React.FunctionComponent = () => {
     }
 
     return (
-        <Container fluid="md" className="pb-5 pt-3">
+        <Container fluid className="pb-5 pt-3">
             <h1>Site Administration</h1>
             <Form className="role-form">
                 <Col className="float-left mt-2 mb-2" xl="4" lg="4" md="6" sm="6" xs="12">

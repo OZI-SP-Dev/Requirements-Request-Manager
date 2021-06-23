@@ -151,7 +151,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }
 
     return (
-        <Container className="pb-5 pt-3">
+        <Container fluid className="pb-5 pt-3">
             <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>

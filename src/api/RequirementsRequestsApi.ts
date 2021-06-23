@@ -5,6 +5,7 @@ import moment from "moment";
 import { UserApiConfig, Person, IPerson } from "./UserApi";
 import { RequestApprovalsApiConfig, IRequestApproval } from "./RequestApprovalsApi";
 import { ApiError, NotAuthorizedError, InternalError } from "./InternalErrors";
+import { FilterField } from "../components/Requests/SortIcon";
 
 /**
  * This interface is used to submit/update requests to SP and it also models what SP returns from those endpoints.
@@ -98,7 +99,7 @@ export interface IRequirementsRequestApi {
     /**
      * Fetch all of the RequirementsRequests
      */
-    fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]>,
+    fetchRequirementsRequests(sortBy?: FilterField, ascending?: boolean, userId?: number): Promise<IRequirementsRequestCRUD[]>,
 
     /**
      * Submit/update/persist the given RequirementsRequest
@@ -224,7 +225,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         }
     }
 
-    async fetchRequirementsRequests(userId?: number): Promise<IRequirementsRequestCRUD[]> {
+    async fetchRequirementsRequests(sortBy: FilterField = "Modified", ascending: boolean = false, userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
             let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver");
 
@@ -236,7 +237,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                 queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or Approver/Id eq ${userId})`;
             }
 
-            let pagedRequests = await query.filter(queryString).getPaged();
+            let pagedRequests = await query.filter(queryString).orderBy(sortBy, ascending).getPaged();
             let requests: SPRequirementsRequest[] = pagedRequests.results;
             while (pagedRequests.hasNext) {
                 requests = requests.concat((await pagedRequests.getNext()).results);

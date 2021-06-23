@@ -7,12 +7,17 @@ import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestA
 import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 import { RoleType } from "../api/RolesApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
+import { FilterField } from "../components/Requests/SortIcon";
 import { UserContext } from "../providers/UserProvider";
 import { RoleDefinitions } from "../utils/RoleDefinitions";
 import { useEmail } from "./useEmail";
 
 export interface IRequestFilters {
-    showAllUsers: boolean
+    showAllUsers: boolean,
+    // Name of the field that the results should be sorted by
+    sortBy?: FilterField,
+    // Whether the sortBy field is applied in ascending order or not
+    ascending?: boolean
 }
 
 export interface IRequests {
@@ -25,6 +30,7 @@ export interface IRequests {
     fetchRequestById: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequestCRUD>,
     updateStatus: (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => Promise<void>
+    sortBy(field?: FilterField, ascending?: boolean): void,
 }
 
 export function useRequests(): IRequests {
@@ -196,7 +202,7 @@ export function useRequests(): IRequests {
     const fetchRequests = async () => {
         try {
             setLoading(true);
-            setRequests(await requirementsRequestApi.fetchRequirementsRequests(
+            setRequests(await requirementsRequestApi.fetchRequirementsRequests(filters.sortBy, filters.ascending,
                 filters.showAllUsers ? undefined : (await userApi.getCurrentUser()).Id));
         } catch (e) {
             console.error("Error trying to fetch Requests");
@@ -270,6 +276,9 @@ export function useRequests(): IRequests {
         setFilters,
         fetchRequestById,
         submitRequest,
-        updateStatus
+        updateStatus,
+        sortBy: (field, ascending) => {
+            setFilters({ ...filters, sortBy: field, ascending });
+        }
     });
 }

@@ -20,7 +20,7 @@ function App() {
 
   return (
     <HashRouter>
-      <Container fluid="md" className="app-container border shadow-lg p-0">
+      <Container fluid="lg" className="app-container shadow-lg p-0">
         <AppHeader />
         <Switch>
           <Route exact path="/(home)?">

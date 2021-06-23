@@ -12,7 +12,7 @@ export const AppHeader: React.FunctionComponent<any> = (props) => {
 
     return (
         <Navbar expand="md" variant="dark" bg="dark" className="p-0 shadow m-0">
-            <Navbar.Brand className={(process.env.REACT_APP_TEST_SYS ? "test " : "") + "col-xs-1 col-sm-3 col-md-4 col-lg-3 mr-0"}>
+            <Navbar.Brand className={(process.env.REACT_APP_TEST_SYS ? "test " : "") + "col-xs-1 col-sm-3 col-md-4 col-lg-3 col-xl-2 mr-0"}>
                 Requirement Requests Manager
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />

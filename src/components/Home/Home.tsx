@@ -6,7 +6,7 @@ import './Home.css';
 export const Home: FunctionComponent = () => {
 
     return (
-        <Container fluid="md" className="pb-5 pt-3">
+        <Container fluid className="pb-5 pt-3">
             <h1>AFLCMC Requirement Request Form</h1>
             <Row className="m-3">
                 <Col className="m-auto p-0" lg='9' sm='10' xs='12'>
