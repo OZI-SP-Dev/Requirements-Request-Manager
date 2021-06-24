@@ -151,7 +151,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
     }
 
     return (
-        <Container className="pb-5 pt-3">
+        <Container fluid className="pb-5 pt-3">
             <h1>{request.Id > -1 ? "Edit" : "New"} Request</h1>
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
@@ -187,7 +187,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="4" sm="6" xs="12">
-                        <Form.Label className="required" lg="4" sm="6">Requester Org Symbol:</Form.Label>
+                        <Form.Label className="required" lg={4} sm={6}>Requester Org Symbol:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your Org Symbol"
@@ -202,7 +202,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl="4" lg="4" md="6" sm="6" xs="12">
-                        <Form.Label lg="4" sm="6">Requester DSN #:</Form.Label>
+                        <Form.Label lg={4} sm={6}>Requester DSN #:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your DSN Phone Number"
@@ -217,7 +217,7 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         </Form.Control.Feedback>
                     </Col>
                     <Col xl={{ span: 4, offset: 2 }} lg={{ span: 4, offset: 2 }} md="6" sm="6" xs="12">
-                        <Form.Label className="required" lg="4" sm="6">Requester Comm #:</Form.Label>
+                        <Form.Label className="required" lg={4} sm={6}>Requester Comm #:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Your Commercial Phone Number"

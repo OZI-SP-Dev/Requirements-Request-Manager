@@ -34,8 +34,7 @@ export class RoleDefinitions {
                 return (request.Status === RequestStatuses.SUBMITTED
                     || request.Status === RequestStatuses.DISAPPROVED
                     || request.Status === RequestStatuses.DECLINED)
-                    && (currentUser?.Id === request.Requester.Id
-                        || currentUser?.Id === request.Author.Id);
+                    && (currentUser?.Id === request.Requester.Id || currentUser?.Id === request.Author.Id);
             case RequestStatuses.APPROVED:
             case RequestStatuses.DISAPPROVED:
                 return request.Status === RequestStatuses.SUBMITTED && currentUser?.Id === request.Approver.Id;

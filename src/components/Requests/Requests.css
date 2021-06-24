@@ -1,0 +1,42 @@
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+th>.row>span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+th, th>.row {
+    white-space: nowrap;
+    flex-wrap: nowrap;
+}
+
+th.rrm-width-sm {
+    width: 7.5%;
+}
+
+th.rrm-width-md {
+    width: 9.5%;
+}
+
+td {
+    word-wrap: break-word;
+}
+
+.sort-icon {
+    user-select: none;
+    font-size: x-small;
+    margin-right: 0.5rem;
+    margin-left: auto;
+    margin-top: 5px;
+    color: darkgray;
+    cursor: pointer;
+}
+
+.active-sort-icon {
+    color: #09f;
+}
