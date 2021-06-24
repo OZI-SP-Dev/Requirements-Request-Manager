@@ -23,8 +23,9 @@ th.rrm-width-md {
     width: 9.5%;
 }
 
-td {
+tbody.accordion>tr>td {
     word-wrap: break-word;
+    vertical-align: middle;
 }
 
 .sort-icon {
@@ -39,4 +40,8 @@ td {
 
 .active-sort-icon {
     color: #09f;
+}
+
+.alert-tooltip-icon {
+    padding-bottom: 2px;
 }
