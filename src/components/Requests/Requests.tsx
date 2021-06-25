@@ -34,15 +34,6 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
         props.requests.sortBy(newSort?.field, newSort?.ascending);
     }
 
-    const requestNeedsReview = (request: IRequirementsRequest): boolean => {
-        return RoleDefinitions.userCanChangeStatus(request, RequestStatuses.APPROVED, user, roles)
-            || RoleDefinitions.userCanChangeStatus(request, RequestStatuses.ACCEPTED, user, roles)
-            || RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CIO_APPROVED, user, roles)
-            || RoleDefinitions.userCanChangeStatus(request, RequestStatuses.REVIEW, user, roles)
-            || RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CONTRACT, user, roles)
-            || RoleDefinitions.userCanChangeStatus(request, RequestStatuses.CLOSED, user, roles);
-    }
-
     return (
         <Container fluid className="pb-5 pt-3">
             <h1>Requests</h1>
@@ -161,17 +152,19 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                         <React.Fragment key={request.Id}>
                             <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button">
                                 <td>
-                                    {requestNeedsReview(request) &&
-                                        <InfoTooltip
-                                            id={`${request.Id}_alert`}
-                                            trigger={
-                                                <Icon
-                                                    iconName='Info'
-                                                    ariaLabel="Info"
-                                                    className="mr-1 align-middle info-tooltip-icon alert-tooltip-icon"
-                                                />}>
-                                            This Request is waiting on your Review!
-                                        </InfoTooltip>}
+                                    {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request.Status), user, roles) &&
+                                        <Link to={`/Requests/Review/${request.Id}`}>
+                                            <InfoTooltip
+                                                id={`${request.Id}_alert`}
+                                                trigger={
+                                                    <Icon
+                                                        iconName='Info'
+                                                        ariaLabel="Info"
+                                                        className="mr-1 align-middle info-tooltip-icon alert-tooltip-icon"
+                                                    />}>
+                                                This Request is waiting on your Review! Click the icon to go to the Review page
+                                            </InfoTooltip>
+                                        </Link>}
                                     {request.getFormattedId()}
                                 </td>
                                 <td>{request.Title}</td>
