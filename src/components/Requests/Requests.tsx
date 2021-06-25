@@ -1,12 +1,14 @@
 import React, { useContext, useState } from "react";
 import { Accordion, Button, Col, Container, FormCheck, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, getNextStatus } from "../../api/DomainObjects";
+import { ApplicationTypes, getNextStatus, IRequirementsRequest, RequestStatuses } from "../../api/DomainObjects";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { RequestView } from "../RequestView/RequestView";
+import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
 import { FilterField, SortIcon } from "./SortIcon";
+import { Icon } from "@fluentui/react";
 
 export interface IRequestsProps {
     requests: IRequests
@@ -55,7 +57,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
             <Table bordered hover responsive size="sm">
                 <thead>
                     <tr>
-                        <th className="rrm-width-sm">
+                        <th className="rrm-id-column">
                             <Row className="m-0">
                                 <span>ID</span>
                                 <SortIcon
@@ -99,9 +101,9 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 />
                             </Row>
                         </th>
-                        <th>
+                        <th className="rrm-width-md">
                             <Row className="m-0">
-                                <span>Application Needed</span>
+                                <span>Application</span>
                                 <SortIcon
                                     field="ApplicationNeeded"
                                     ascending={sort?.ascending === true}
@@ -121,9 +123,9 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 />
                             </Row>
                         </th>
-                        <th>
+                        <th className="rrm-width-md">
                             <Row className="m-0">
-                                <span>Operational Need Date</span>
+                                <span>Op Need Date</span>
                                 <SortIcon
                                     field="OperationalNeedDate"
                                     ascending={sort?.ascending === true}
@@ -148,8 +150,23 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 <Accordion as='tbody'>
                     {props.requests.requestsList.map(request =>
                         <React.Fragment key={request.Id}>
-                            <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button">
-                                <td>{request.getFormattedId()}</td>
+                            <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button" className={RoleDefinitions.userCanChangeStatus(request, getNextStatus(request.Status), user, roles) ? "alert-row" : ""}>
+                                <td>
+                                    {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request.Status), user, roles) &&
+                                        <Link to={`/Requests/Review/${request.Id}`}>
+                                            <InfoTooltip
+                                                id={`${request.Id}_alert`}
+                                                trigger={
+                                                    <Icon
+                                                        iconName='Info'
+                                                        ariaLabel="Info"
+                                                        className="mr-1 align-middle info-tooltip-icon alert-tooltip-icon"
+                                                    />}>
+                                                This Request is waiting on your Review! Click the icon to go to the Review page
+                                            </InfoTooltip>
+                                        </Link>}
+                                    {request.getFormattedId()}
+                                </td>
                                 <td>{request.Title}</td>
                                 <td>{request.Requester.Title}</td>
                                 <td>{request.RequestDate.format("DD MMM YYYY")}</td>
