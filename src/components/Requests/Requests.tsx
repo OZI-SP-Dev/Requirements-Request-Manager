@@ -57,7 +57,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
             <Table bordered hover responsive size="sm">
                 <thead>
                     <tr>
-                        <th className="rrm-width-sm">
+                        <th className="rrm-id-column">
                             <Row className="m-0">
                                 <span>ID</span>
                                 <SortIcon
@@ -150,7 +150,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 <Accordion as='tbody'>
                     {props.requests.requestsList.map(request =>
                         <React.Fragment key={request.Id}>
-                            <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button">
+                            <Accordion.Toggle onClick={() => setRequestIdShown(request.Id)} eventKey={request.Id.toString()} as='tr' role="button" className={RoleDefinitions.userCanChangeStatus(request, getNextStatus(request.Status), user, roles) ? "alert-row" : ""}>
                                 <td>
                                     {RoleDefinitions.userCanChangeStatus(request, getNextStatus(request.Status), user, roles) &&
                                         <Link to={`/Requests/Review/${request.Id}`}>

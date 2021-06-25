@@ -23,6 +23,10 @@ th.rrm-width-md {
     width: 9.5%;
 }
 
+th.rrm-id-column {
+    width: 6rem;
+}
+
 tbody.accordion>tr>td {
     word-wrap: break-word;
     vertical-align: middle;
@@ -44,4 +48,10 @@ tbody.accordion>tr>td {
 
 .alert-tooltip-icon {
     padding-bottom: 2px;
+    font-weight: bold;
+}
+
+.alert-row>td {
+    color: blue;
+    font-weight: bold;
 }
