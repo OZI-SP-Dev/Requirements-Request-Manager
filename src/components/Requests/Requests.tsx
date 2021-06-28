@@ -240,7 +240,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
                                 <td>{request.OperationalNeedDate ? request.OperationalNeedDate.format("DD MMM YYYY") : "None"}</td>
-                                <td>{request.Status} awaiting {getStatusText(getNextStatus(request.Status))}</td>
+                                <td>{request.Status} {request.Status !== RequestStatuses.CANCELLED && request.Status !== RequestStatuses.CLOSED && `awaiting ${getStatusText(getNextStatus(request.Status))}`}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
                                 <td colSpan={8} className="p-0">
