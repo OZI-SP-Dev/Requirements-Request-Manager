@@ -44,8 +44,8 @@ export enum RequestStatuses {
     DISAPPROVED = "Disapproved",
     ACCEPTED = "Manager Accepted",
     DECLINED = "Manager Declined",
-    CIO_APPROVED = "CIO Approved",
-    CIO_DISAPPROVED = "CIO Disapproved",
+    CITO_APPROVED = "CITO Approved",
+    CITO_DISAPPROVED = "CITO Disapproved",
     REVIEW = "Review for Contract",
     CONTRACT = "On Contract",
     CLOSED = "Closed",
@@ -61,8 +61,8 @@ export const getNextStatus = (status: RequestStatuses): RequestStatuses | null =
         case RequestStatuses.APPROVED:
             return RequestStatuses.ACCEPTED;
         case RequestStatuses.ACCEPTED:
-            return RequestStatuses.CIO_APPROVED;
-        case RequestStatuses.CIO_APPROVED:
+            return RequestStatuses.CITO_APPROVED;
+        case RequestStatuses.CITO_APPROVED:
             return RequestStatuses.REVIEW;
         case RequestStatuses.REVIEW:
             return RequestStatuses.CONTRACT;
@@ -80,13 +80,13 @@ export const getRejectStatus = (request: IRequirementsRequest): RequestStatuses 
         case RequestStatuses.APPROVED:
             return RequestStatuses.DECLINED;
         case RequestStatuses.ACCEPTED:
-            return RequestStatuses.CIO_DISAPPROVED;
+            return RequestStatuses.CITO_DISAPPROVED;
         default:
             return null;
     }
 }
 
-export const getStatusText = (status: RequestStatuses): string => {
+export const getStatusText = (status: RequestStatuses | null): string => {
     switch (status) {
         case RequestStatuses.SUBMITTED:
             return "Submit";
@@ -94,8 +94,8 @@ export const getStatusText = (status: RequestStatuses): string => {
             return "2 Ltr Review";
         case RequestStatuses.ACCEPTED:
             return "Req Mgr Review";
-        case RequestStatuses.CIO_APPROVED:
-            return "CIO Review";
+        case RequestStatuses.CITO_APPROVED:
+            return "CITO Review";
         case RequestStatuses.REVIEW:
             return "Board Review(s)";
         case RequestStatuses.CONTRACT:
@@ -103,7 +103,7 @@ export const getStatusText = (status: RequestStatuses): string => {
         case RequestStatuses.CLOSED:
             return "Development"
         default:
-            return status;
+            return "None";
     }
 }
 
@@ -293,7 +293,7 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
     isReadOnly = (user?: IPerson, roles?: RoleType[]): boolean => {
         let requestIsApproved = this.Status === RequestStatuses.APPROVED
             || this.Status === RequestStatuses.ACCEPTED
-            || this.Status === RequestStatuses.CIO_APPROVED
+            || this.Status === RequestStatuses.CITO_APPROVED
             || this.Status === RequestStatuses.REVIEW
             || this.Status === RequestStatuses.CONTRACT;
         let requestIsClosed = this.Status === RequestStatuses.CLOSED || this.Status === RequestStatuses.CANCELLED;

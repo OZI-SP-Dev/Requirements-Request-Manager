@@ -17,8 +17,8 @@ export interface IEmailSender {
     sendDisapprovalEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     sendAcceptedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
     sendDeclinedEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
-    sendCioApprovedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
-    sendCioDisapprovedEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
+    sendCitoApprovedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
+    sendCitoDisapprovedEmail: (request: IRequirementsRequestCRUD, comment: string) => Promise<void>,
     sendReviewEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
     sendContractEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
     sendClosedEmail: (request: IRequirementsRequestCRUD, comment?: string) => Promise<void>,
@@ -115,7 +115,7 @@ export function useEmail(): IEmailSender {
     const sendAcceptedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Accepted by Manager`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be reviewed by the CIO. 
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be reviewed by the CITO. 
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
@@ -134,24 +134,24 @@ export function useEmail(): IEmailSender {
         return sendEmail(to, subject, body);
     }
 
-    const sendCioApprovedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
+    const sendCitoApprovedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
-        let subject = `Request ${request.getFormattedId()} Approved by CIO`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the CIO ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
-        ${comment ? `The CIO left a comment saying "${comment}"` : ''}
+        let subject = `Request ${request.getFormattedId()} Approved by CITO`;
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the CITO ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
+        ${comment ? `The CITO left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
+        To view the request and any comments/modifications left by the CITO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
 
-    const sendCioDisapprovedEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
+    const sendCitoDisapprovedEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
         let to = [request.Requester, request.Approver, request.Author];
-        let subject = `Request ${request.getFormattedId()} Disapproved by CIO`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the CIO ${(await userApi.getCurrentUser()).Title} Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be approved.
-        The CIO left a comment saying "${comment}
+        let subject = `Request ${request.getFormattedId()} Disapproved by CITO`;
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been disapproved by the CITO ${(await userApi.getCurrentUser()).Title} Please review the comment left by the approver for action on your part as the requester ${request.Requester.Title} before it can be approved.
+        The CITO left a comment saying "${comment}
         
-        To view the request and any comments/modifications left by the CIO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
+        To view the request and any comments/modifications left by the CITO, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -223,8 +223,8 @@ export function useEmail(): IEmailSender {
         sendDisapprovalEmail,
         sendAcceptedEmail,
         sendDeclinedEmail,
-        sendCioApprovedEmail,
-        sendCioDisapprovedEmail,
+        sendCitoApprovedEmail,
+        sendCitoDisapprovedEmail,
         sendReviewEmail,
         sendContractEmail,
         sendClosedEmail,

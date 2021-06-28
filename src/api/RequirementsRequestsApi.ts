@@ -316,7 +316,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
     private isRequestApproved(request: SPRequirementsRequest): boolean {
         return request.Status === RequestStatuses.APPROVED
             || request.Status === RequestStatuses.ACCEPTED
-            || request.Status === RequestStatuses.CIO_APPROVED
+            || request.Status === RequestStatuses.CITO_APPROVED
             || request.Status === RequestStatuses.REVIEW
             || request.Status === RequestStatuses.CONTRACT;
     }

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Accordion, Button, Col, Container, FormCheck, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, getNextStatus, IRequirementsRequest, RequestStatuses } from "../../api/DomainObjects";
+import { ApplicationTypes, getNextStatus, getStatusText, IRequirementsRequest, RequestStatuses } from "../../api/DomainObjects";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
@@ -134,7 +134,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                 />
                             </Row>
                         </th>
-                        <th className="rrm-width-md">
+                        <th>
                             <Row className="m-0">
                                 <span>Status</span>
                                 <SortIcon
@@ -174,7 +174,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     request.OtherApplicationNeeded : request.ApplicationNeeded}</td>
                                 <td>{request.OrgPriority}</td>
                                 <td>{request.OperationalNeedDate ? request.OperationalNeedDate.format("DD MMM YYYY") : "None"}</td>
-                                <td>{request.Status} on {request.StatusDateTime.format("DD MMM YYYY")}</td>
+                                <td>{request.Status} awaiting {getStatusText(getNextStatus(request.Status))}</td>
                             </Accordion.Toggle>
                             <tr key={"collapsible" + request.Id}>
                                 <td colSpan={8} className="p-0">
