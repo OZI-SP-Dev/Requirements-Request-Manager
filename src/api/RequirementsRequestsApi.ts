@@ -1,11 +1,37 @@
 import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequestStatuses, RequirementsRequest } from "./DomainObjects";
 import RequirementsRequestsApiDev from "./RequirementsRequestsApiDev";
 import { spWebContext } from "../providers/SPWebContext";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { UserApiConfig, Person, IPerson } from "./UserApi";
 import { RequestApprovalsApiConfig, IRequestApproval } from "./RequestApprovalsApi";
 import { ApiError, NotAuthorizedError, InternalError } from "./InternalErrors";
-import { FilterField } from "../components/Requests/SortIcon";
+
+export interface DateRange {
+    start: Moment | null,
+    end: Moment | null
+}
+
+export function isDateRange(dateRange: any): dateRange is DateRange {
+    return (dateRange as DateRange).start !== undefined && (dateRange as DateRange).end !== undefined
+}
+
+export function isIPerson(person: any): person is IPerson {
+    return (person as IPerson).Id !== undefined
+        && (person as IPerson).Title !== undefined
+        && (person as IPerson).EMail !== undefined
+}
+
+export type FilterField = "Id" | "Title" | "Requester" | "RequestDate" | "ApplicationNeeded" | "OrgPriority" | "OperationalNeedDate" | "Status" | "Modified";
+export type FilterValue = string | IPerson | DateRange | RequestStatuses;
+
+export interface RequestFilter {
+    // Name of the field that the filter is being applied for
+    fieldName: FilterField,
+    // The value of the search for filtering
+    filterValue: FilterValue,
+    // Used to determine if the field should start with or just contain the value. Only valid for string fields.
+    isStartsWith?: boolean
+}
 
 /**
  * This interface is used to submit/update requests to SP and it also models what SP returns from those endpoints.
@@ -99,7 +125,7 @@ export interface IRequirementsRequestApi {
     /**
      * Fetch all of the RequirementsRequests
      */
-    fetchRequirementsRequests(sortBy?: FilterField, ascending?: boolean, userId?: number): Promise<IRequirementsRequestCRUD[]>,
+    fetchRequirementsRequests(filters: RequestFilter[], sortBy?: FilterField, ascending?: boolean, userId?: number): Promise<IRequirementsRequestCRUD[]>,
 
     /**
      * Submit/update/persist the given RequirementsRequest
@@ -225,16 +251,43 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
         }
     }
 
-    async fetchRequirementsRequests(sortBy: FilterField = "Modified", ascending: boolean = false, userId?: number): Promise<IRequirementsRequestCRUD[]> {
+    async fetchRequirementsRequests(filters: RequestFilter[], sortBy: FilterField = "Modified", ascending: boolean = false, userId?: number): Promise<IRequirementsRequestCRUD[]> {
         try {
             let query = this.requirementsRequestList.items.select("Id", "Title", "Status", "StatusDateTime", "RequestDate", "Author/Id", "Author/Title", "Author/EMail", "Requester/Id", "Requester/Title", "Requester/EMail", "RequesterOrgSymbol", "RequesterDSNPhone", "RequesterCommPhone", "Approver/Id", "Approver/Title", "Approver/EMail", "ApproverOrgSymbol", "ApproverDSNPhone", "ApproverCommPhone", "NoveltyRequirementType", "FundingOrgOrDeputy", "ApplicationNeeded", "OtherApplicationNeeded", "IsProjectedOrgsEnterprise", "ProjectedOrgsImpactedCenter", "ProjectedOrgsImpactedOrg", "ProjectedImpactedUsers", "OperationalNeedDate", "OrgPriority", "PriorityExplanation", "BusinessObjective", "FunctionalRequirements", "Benefits", "Risk", "AdditionalInfo").expand("Author", "Requester", "Approver");
 
-            // Don't show cancelled/closed requests by default
             // Only show unsubmitted/saved requests if they are the author
-            let queryString = `Status ne '${RequestStatuses.CANCELLED}' and Status ne '${RequestStatuses.CLOSED}' and (AuthorId eq ${(await this.userApi.getCurrentUser()).Id} or Status ne '${RequestStatuses.SAVED}')`;
+            let queryString = `(AuthorId eq ${(await this.userApi.getCurrentUser()).Id} or Status ne '${RequestStatuses.SAVED}')`;
+            // only filter out cancelled/closed requests if there are no filters for that field
+            if (filters.findIndex(f => f.fieldName === "Status") < 0) {
+                queryString += ` and Status ne '${RequestStatuses.CANCELLED}' and Status ne '${RequestStatuses.CLOSED}'`
+            }
 
             if (userId !== undefined) {
                 queryString += ` and (AuthorId eq ${userId} or Requester/Id eq ${userId} or Approver/Id eq ${userId})`;
+            }
+
+            for (let filter of filters) {
+                if (isDateRange(filter.filterValue)) {
+                    if (filter.filterValue.start !== null) {
+                        queryString += ` and ${filter.fieldName} ge '${filter.filterValue.start.startOf('day').format()}'`;
+                    }
+                    if (filter.filterValue.end !== null) {
+                        queryString += ` and ${filter.fieldName} le '${filter.filterValue.end.add({ days: 1 }).startOf('day').format()}'`;
+                    }
+                } else if (isIPerson(filter.filterValue)) {
+                    queryString += ` and ${filter.fieldName}Id eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`;
+                } else if (filter.fieldName === "ApplicationNeeded" || filter.fieldName === "OrgPriority" || filter.fieldName === "Status") {
+                    queryString += ` and ${filter.fieldName} eq '${filter.filterValue}'`;
+                } else if (filter.fieldName === "Id") { 
+                    // remove the 'OZI' and leading zeroes from the search
+                    let idFilter = filter.filterValue.trim().toUpperCase().replace("OZI", "");
+                    while (idFilter.startsWith('0')) {
+                        idFilter = idFilter.substr(1);
+                    }
+                    queryString += ` and ${filter.isStartsWith ? `startswith(${filter.fieldName},'${idFilter}')` : `substringof('${idFilter}',${filter.fieldName})`}`;
+                } else if (typeof (filter.filterValue) === "string") {
+                    queryString += ` and ${filter.isStartsWith ? `startswith(${filter.fieldName},'${filter.filterValue}')` : `substringof('${filter.filterValue}',${filter.fieldName})`}`;
+                }
             }
 
             let pagedRequests = await query.filter(queryString).orderBy(sortBy, ascending).getPaged();
@@ -242,6 +295,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             while (pagedRequests.hasNext) {
                 requests = requests.concat((await pagedRequests.getNext()).results);
             }
+            // get all of the approval requests and overwrite the base data with them
             let approvals = await this.requestApprovalsApi.getRequestApprovals(requests
                 // only fetch approvals for requests that are approved or further
                 .filter(request => this.isRequestApproved(request))

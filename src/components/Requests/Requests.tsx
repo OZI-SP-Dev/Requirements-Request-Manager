@@ -1,14 +1,19 @@
 import React, { useContext, useState } from "react";
 import { Accordion, Button, Col, Container, FormCheck, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, getNextStatus, getStatusText, IRequirementsRequest, RequestStatuses } from "../../api/DomainObjects";
+import { ApplicationTypes, getNextStatus, getStatusText, IRequirementsRequest, OrgPriorities, RequestStatuses } from "../../api/DomainObjects";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
 import { RequestView } from "../RequestView/RequestView";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
-import { FilterField, SortIcon } from "./SortIcon";
 import { Icon } from "@fluentui/react";
+import { FilterField } from "../../api/RequirementsRequestsApi";
+import { SortIcon } from "./SortIcon";
+import { KeywordFilter } from "../Filter/KeywordFilter";
+import { PeoplePickerFilter } from "../Filter/PeoplePickerFilter";
+import { DatePickerFilter } from "../Filter/DatePickerFilter";
+import { SelectorFilter } from "../Filter/SelectorFilter";
 
 export interface IRequestsProps {
     requests: IRequests
@@ -66,6 +71,15 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "Id"}
                                     onClick={sortIconOnClick}
                                 />
+                                <KeywordFilter
+                                    iconClassName="ml-auto"
+                                    field="Id"
+                                    active={props.requests.activeFilters.includes("Id")}
+                                    title="ID Filter"
+                                    containsCheck={false}
+                                    startsWithCheck={false}
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th>
@@ -77,6 +91,13 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "Title"}
                                     onClick={sortIconOnClick}
                                 />
+                                <KeywordFilter
+                                    iconClassName="ml-auto"
+                                    field="Title"
+                                    active={props.requests.activeFilters.includes("Title")}
+                                    title="Title Filter"
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th>
@@ -88,6 +109,13 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "Requester"}
                                     onClick={sortIconOnClick}
                                 />
+                                <PeoplePickerFilter
+                                    iconClassName="ml-auto"
+                                    field="Requester"
+                                    active={props.requests.activeFilters.includes("Requester")}
+                                    title="Requester Filter"
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th className="rrm-width-md">
@@ -99,6 +127,13 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "RequestDate"}
                                     onClick={sortIconOnClick}
                                 />
+                                <DatePickerFilter
+                                    iconClassName="ml-auto"
+                                    field="RequestDate"
+                                    active={props.requests.activeFilters.includes("RequestDate")}
+                                    title="Stage Start Filter"
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th className="rrm-width-md">
@@ -110,6 +145,14 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "ApplicationNeeded"}
                                     onClick={sortIconOnClick}
                                 />
+                                <SelectorFilter
+                                    iconClassName="ml-auto"
+                                    field="ApplicationNeeded"
+                                    active={props.requests.activeFilters.includes("ApplicationNeeded")}
+                                    title="Application Needed Filter"
+                                    values={Object.values<string>(ApplicationTypes)}
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th className="rrm-width-md">
@@ -121,6 +164,14 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "OrgPriority"}
                                     onClick={sortIconOnClick}
                                 />
+                                <SelectorFilter
+                                    iconClassName="ml-auto"
+                                    field="OrgPriority"
+                                    active={props.requests.activeFilters.includes("OrgPriority")}
+                                    title="Org Priority Filter"
+                                    values={Object.values<string>(OrgPriorities)}
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th className="rrm-width-md">
@@ -132,6 +183,13 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "OperationalNeedDate"}
                                     onClick={sortIconOnClick}
                                 />
+                                <DatePickerFilter
+                                    iconClassName="ml-auto"
+                                    field="OperationalNeedDate"
+                                    active={props.requests.activeFilters.includes("OperationalNeedDate")}
+                                    title="Op Need Date Filter"
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                         <th>
@@ -143,6 +201,14 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     active={sort?.field === "Status"}
                                     onClick={sortIconOnClick}
                                 />
+                                <SelectorFilter
+                                    iconClassName="ml-auto"
+                                    field="Status"
+                                    active={props.requests.activeFilters.includes("Status")}
+                                    title="Status Filter"
+                                    values={Object.values<string>(RequestStatuses)}
+                                    addFilter={props.requests.addFilter}
+                                    clearFilter={props.requests.clearFilter} />
                             </Row>
                         </th>
                     </tr>

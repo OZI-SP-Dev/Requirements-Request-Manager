@@ -1,8 +1,7 @@
 import moment from "moment";
-import { FilterField } from "../components/Requests/SortIcon";
 import { ApplicationTypes, Centers, IRequirementsRequest, IRequirementsRequestCRUD, NoveltyRequirementTypes, OrgPriorities, RequestStatuses, RequirementsRequest } from "./DomainObjects";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "./RequestApprovalsApi";
-import { IRequirementsRequestApi } from "./RequirementsRequestsApi";
+import { FilterField, IRequirementsRequestApi, RequestFilter } from "./RequirementsRequestsApi";
 import { Person, UserApiConfig } from "./UserApi";
 
 export default class RequirementsRequestsApiDev implements IRequirementsRequestApi {
@@ -122,7 +121,7 @@ export default class RequirementsRequestsApiDev implements IRequirementsRequestA
         return request;
     }
 
-    async fetchRequirementsRequests(sortBy?: FilterField, ascending?: boolean, userId?: number): Promise<IRequirementsRequestCRUD[]> {
+    async fetchRequirementsRequests(filters: RequestFilter[], sortBy?: FilterField, ascending?: boolean, userId?: number): Promise<IRequirementsRequestCRUD[]> {
         await this.sleep();
         let approvals = await this.approvalsApi.getRequestApprovals(this.requests);
         let requests = this.requests
