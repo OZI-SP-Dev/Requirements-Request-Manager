@@ -36,7 +36,7 @@ tbody.accordion>tr>td {
     user-select: none;
     font-size: x-small;
     margin-right: 0.5rem;
-    margin-left: auto;
+    margin-left: 0.5rem;
     margin-top: 5px;
     color: darkgray;
     cursor: pointer;

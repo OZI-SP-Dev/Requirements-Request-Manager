@@ -39,10 +39,10 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
                 return "Requirements Manager Accepted Request";
             case RequestStatuses.DECLINED:
                 return "Requirements Manager Declined Request";
-            case RequestStatuses.CIO_APPROVED:
-                return "CIO Approved Request";
-            case RequestStatuses.CIO_DISAPPROVED:
-                return "CIO Disapproved Request";
+            case RequestStatuses.CITO_APPROVED:
+                return "CITO Approved Request";
+            case RequestStatuses.CITO_DISAPPROVED:
+                return "CITO Disapproved Request";
             case RequestStatuses.REVIEW:
                 return "Request Reviewed by Board";
             case RequestStatuses.CONTRACT:
@@ -65,12 +65,12 @@ export const RequestViewLarge: FunctionComponent<IRequestViewChildProps> = (prop
             case RequestStatuses.DISAPPROVED:
                 return "Requester Resubmits Request";
             case RequestStatuses.ACCEPTED:
-                return "CIO Approval";
+                return "CITO Approval";
             case RequestStatuses.DECLINED:
                 return "Requester Resubmits Request";
-            case RequestStatuses.CIO_APPROVED:
+            case RequestStatuses.CITO_APPROVED:
                 return "Board Reviews for Requirement Funding";
-            case RequestStatuses.CIO_DISAPPROVED:
+            case RequestStatuses.CITO_DISAPPROVED:
                 return "Requester Resubmits Request";
             case RequestStatuses.REVIEW:
                 return "Contract Awarded for Development";

@@ -17,14 +17,14 @@ export const NoteCard: FunctionComponent<INoteCardProps> = (props) => {
             case RequestStatuses.SUBMITTED:
             case RequestStatuses.APPROVED:
             case RequestStatuses.ACCEPTED:
-            case RequestStatuses.CIO_APPROVED:
+            case RequestStatuses.CITO_APPROVED:
             case RequestStatuses.REVIEW:
             case RequestStatuses.CONTRACT:
             case RequestStatuses.CLOSED:
                 return "good-note";
             case RequestStatuses.DISAPPROVED:
             case RequestStatuses.DECLINED:
-            case RequestStatuses.CIO_DISAPPROVED:
+            case RequestStatuses.CITO_DISAPPROVED:
                 return "bad-note";
             default:
                 return "";

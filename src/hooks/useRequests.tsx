@@ -4,16 +4,16 @@ import { IRequirementsRequestCRUD, RequestStatuses, RequirementsRequest } from "
 import { InternalError, NotAuthorizedError } from "../api/InternalErrors";
 import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 import { IRequestApprovalsApi, RequestApprovalsApiConfig } from "../api/RequestApprovalsApi";
-import { IRequirementsRequestApi, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
+import { FilterField, FilterValue, IRequirementsRequestApi, RequestFilter, RequirementsRequestsApiConfig } from "../api/RequirementsRequestsApi";
 import { RoleType } from "../api/RolesApi";
 import { IUserApi, UserApiConfig } from "../api/UserApi";
-import { FilterField } from "../components/Requests/SortIcon";
 import { UserContext } from "../providers/UserProvider";
 import { RoleDefinitions } from "../utils/RoleDefinitions";
 import { useEmail } from "./useEmail";
 
 export interface IRequestFilters {
     showAllUsers: boolean,
+    fieldFilters: RequestFilter[],
     // Name of the field that the results should be sorted by
     sortBy?: FilterField,
     // Whether the sortBy field is applied in ascending order or not
@@ -26,11 +26,15 @@ export interface IRequests {
     clearError: () => void,
     requestsList: IRequirementsRequestCRUD[],
     filters: IRequestFilters,
+    activeFilters: FilterField[],
     setFilters: (filters: IRequestFilters) => void,
     fetchRequestById: (requestId: number) => Promise<IRequirementsRequestCRUD | undefined>,
     submitRequest: (request: IRequirementsRequestCRUD) => Promise<IRequirementsRequestCRUD>,
     updateStatus: (request: IRequirementsRequestCRUD, status: RequestStatuses, comment?: string) => Promise<void>
     sortBy(field?: FilterField, ascending?: boolean): void,
+    addFilter(fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void,
+    clearFilter(fieldName: FilterField): void,
+    clearAllFilters(): void
 }
 
 export function useRequests(): IRequests {
@@ -40,7 +44,10 @@ export function useRequests(): IRequests {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
-    const [filters, setFilters] = useState<IRequestFilters>({ showAllUsers: roles?.includes(RoleType.MANAGER) === true });
+    const [filters, setFilters] = useState<IRequestFilters>({
+        showAllUsers: roles?.includes(RoleType.MANAGER) === true,
+        fieldFilters: []
+    });
 
     const email = useEmail();
     const notesApi: INotesApi = NotesApiConfig.getApi();
@@ -157,10 +164,10 @@ export function useRequests(): IRequests {
                 return "Request Accepted by Requirements Manager";
             case RequestStatuses.DECLINED:
                 return "Request Declined by Requirements Manager";
-            case RequestStatuses.CIO_APPROVED:
-                return "Request Approved by CIO";
-            case RequestStatuses.CIO_DISAPPROVED:
-                return "Request Disapproved by CIO";
+            case RequestStatuses.CITO_APPROVED:
+                return "Request Approved by CITO";
+            case RequestStatuses.CITO_DISAPPROVED:
+                return "Request Disapproved by CITO";
             case RequestStatuses.REVIEW:
                 return "Request Reviewed by Board";
             case RequestStatuses.CONTRACT:
@@ -184,10 +191,10 @@ export function useRequests(): IRequests {
                 return email.sendAcceptedEmail(request, comment);
             case RequestStatuses.DECLINED:
                 return email.sendDeclinedEmail(request, comment);
-            case RequestStatuses.CIO_APPROVED:
-                return email.sendCioApprovedEmail(request, comment);
-            case RequestStatuses.CIO_DISAPPROVED:
-                return email.sendCioDisapprovedEmail(request, comment);
+            case RequestStatuses.CITO_APPROVED:
+                return email.sendCitoApprovedEmail(request, comment);
+            case RequestStatuses.CITO_DISAPPROVED:
+                return email.sendCitoDisapprovedEmail(request, comment);
             case RequestStatuses.REVIEW:
                 return email.sendReviewEmail(request, comment);
             case RequestStatuses.CONTRACT:
@@ -202,7 +209,7 @@ export function useRequests(): IRequests {
     const fetchRequests = async () => {
         try {
             setLoading(true);
-            setRequests(await requirementsRequestApi.fetchRequirementsRequests(filters.sortBy, filters.ascending,
+            setRequests(await requirementsRequestApi.fetchRequirementsRequests(filters.fieldFilters, filters.sortBy, filters.ascending,
                 filters.showAllUsers ? undefined : (await userApi.getCurrentUser()).Id));
         } catch (e) {
             console.error("Error trying to fetch Requests");
@@ -255,9 +262,35 @@ export function useRequests(): IRequests {
         }
     }
 
+    const addFilter = (fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void => {
+        if (filterValue) {
+            let newFilters = [...filters.fieldFilters];
+            let oldFilterIndex = newFilters.findIndex(filter => filter.fieldName === fieldName);
+            if (oldFilterIndex >= 0) {
+                newFilters[oldFilterIndex].filterValue = filterValue;
+                newFilters[oldFilterIndex].isStartsWith = isStartsWith;
+            } else {
+                newFilters.push({ fieldName: fieldName, filterValue: filterValue, isStartsWith: isStartsWith });
+            }
+            setFilters({ ...filters, fieldFilters: newFilters });
+        } else {
+            clearFilter(fieldName);
+        }
+    }
+
+    const clearFilter = (fieldName: FilterField): void => {
+        if (filters.fieldFilters.some(filter => filter.fieldName === fieldName)) {
+            setFilters({ ...filters, fieldFilters: filters.fieldFilters.filter(filter => filter.fieldName !== fieldName) });
+        }
+    }
+
+    const clearAllFilters = (): void => {
+        setFilters({ ...filters, fieldFilters: [] });
+    }
+
     useEffect(() => {
         // manager should see all requests by default
-        setFilters({ showAllUsers: roles?.includes(RoleType.MANAGER) === true });
+        setFilters({ showAllUsers: roles?.includes(RoleType.MANAGER) === true, fieldFilters: [] });
     }, [roles]);
 
     useEffect(() => {
@@ -271,14 +304,18 @@ export function useRequests(): IRequests {
         loading,
         error,
         clearError,
-        requestsList: requests,
-        filters,
+        requestsList: [...requests],
+        filters: { ...filters },
+        activeFilters: filters.fieldFilters.map(filter => filter.fieldName),
         setFilters,
         fetchRequestById,
         submitRequest,
         updateStatus,
         sortBy: (field, ascending) => {
             setFilters({ ...filters, sortBy: field, ascending });
-        }
+        },
+        addFilter,
+        clearFilter,
+        clearAllFilters,
     });
 }

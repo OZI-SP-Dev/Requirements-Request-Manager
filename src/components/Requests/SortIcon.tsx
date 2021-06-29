@@ -1,8 +1,7 @@
 import { Icon } from "@fluentui/react";
 import React, { FunctionComponent } from "react";
+import { FilterField } from "../../api/RequirementsRequestsApi";
 import "./Requests.css";
-
-export type FilterField = "Id" | "Title" | "Requester" | "RequestDate" | "ApplicationNeeded" | "OrgPriority" | "OperationalNeedDate" | "Status" | "Modified";
 
 export interface SortIconProps {
     field: FilterField,

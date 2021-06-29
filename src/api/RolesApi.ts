@@ -5,7 +5,7 @@ import { IPerson } from "./UserApi";
 export enum RoleType {
     ADMIN = "Admin",
     MANAGER = "Manager",
-    CIO = "CIO"
+    CITO = "CITO"
 }
 
 export interface IRole {
@@ -196,7 +196,7 @@ export class RolesApiDev implements IRolesApi {
             Role: RoleType.MANAGER
         }, {
             Id: 2,
-            Role: RoleType.CIO
+            Role: RoleType.CITO
         }]
     }, {
         User: {
