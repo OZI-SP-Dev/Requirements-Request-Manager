@@ -38,10 +38,10 @@ export function useEmail(): IEmailSender {
 
     const clearError = () => setError("");
 
-    const getManagers = (): IPerson[] => {
+    const getUsersWithRole = (role: RoleType): IPerson[] => {
         return roles.roles
-            .filter(role => role.Roles
-                .some(r => r.Role === RoleType.MANAGER))
+            .filter(userRole => userRole.Roles
+                .some(r => r.Role === role))
             .map(role => role.User);
     }
 
@@ -82,13 +82,13 @@ export function useEmail(): IEmailSender {
         let body = `Hello, a Requirement Request, ${request.Title}, has been submitted for which you are the approving official by ${request.Requester.Title}. The next step for the Request is for it to be reviewed by the 2 Ltr specified. 
             
             To review/approve the request, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FReview%2F${request.Id}`;
-        let cc = getManagers();
+        let cc = getUsersWithRole(RoleType.MANAGER);
 
         return sendEmail(to, subject, body, cc);
     }
 
     const sendApprovalEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
-        let to = getManagers();
+        let to = getUsersWithRole(RoleType.MANAGER);
         if (request.Approver.Id !== request.Requester.Id) {
             to.push(request.Requester);
         }
@@ -113,14 +113,15 @@ export function useEmail(): IEmailSender {
     }
 
     const sendAcceptedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
-        let to = [request.Requester, request.Approver, request.Author];
-        let subject = `Request ${request.getFormattedId()} Accepted by Manager`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be reviewed by the CITO. 
+        let to = getUsersWithRole(RoleType.CITO);
+        let cc = [request.Requester, request.Approver, request.Author];
+        let subject = `Request ${request.getFormattedId()} Needs CITO Review`;
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title} and now the Request needs to be reviewed by the you, as the CITO. 
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
         To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
-        return sendEmail(to, subject, body);
+        return sendEmail(to, subject, body, cc);
     }
 
     const sendDeclinedEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
@@ -189,7 +190,7 @@ export function useEmail(): IEmailSender {
 
     const sendCancelledEmail = async (request: IRequirementsRequestCRUD, comment: string): Promise<void> => {
         let currentUser = (await userApi.getCurrentUser()).Title;
-        let to = getManagers();
+        let to = getUsersWithRole(RoleType.MANAGER);
         to.push(request.Requester);
         to.push(request.Approver);
         to.push(request.Author);
