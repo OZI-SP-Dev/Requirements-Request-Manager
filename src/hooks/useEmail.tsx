@@ -96,7 +96,7 @@ export function useEmail(): IEmailSender {
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved by the approving official ${request.Approver.Title}. The next step for the Request is for it to be reviewed by the Requirements Manager. 
         ${comment ? `The approver left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
+        To (re)view the request and any comments/modifications left by the approver, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body);
     }
@@ -116,10 +116,10 @@ export function useEmail(): IEmailSender {
         let to = getUsersWithRole(RoleType.CITO);
         let cc = [request.Requester, request.Approver, request.Author];
         let subject = `Request ${request.getFormattedId()} Needs CITO Review`;
-        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title} and now the Request needs to be reviewed by the you, as the CITO. 
+        let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the Requirements Manager ${(await userApi.getCurrentUser()).Title}. The Request is now ready for CITO review.
         ${comment ? `The Manager left a comment saying "${comment}"` : ''}
         
-        To view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
+        To (re)view the request and any comments/modifications left by the manager, please copy the following link and paste it in your browser ${emailApi.siteUrl}/app/index.aspx?route=%23%2FRequests%2FView%2F${request.Id}`;
 
         return sendEmail(to, subject, body, cc);
     }
