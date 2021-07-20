@@ -23,7 +23,7 @@ export const Home: FunctionComponent = () => {
                         <Card.Text>
                             <p>
                                 Welcome to AFLCMC Requirement Request Form site. This online Form will begin the process for your requirement request. Please read the instructions below to complete the Form.<br /><br />
-                                Requirements Manager is{' '}<a href="mailto:jacqueline.williams.17@us.af.mil"><u>Jackie Williams AFLCMC/XP-OZ/OZI</u></a>
+                                Should you need assistance or have questions, please send inquiries to{' '}<a href="mailto:AFLCMC.OZIC.ITRequirements@us.af.mil"><u>AFLCMC IT Requirements</u></a>
                             </p>
                         </Card.Text>
                     </Card>
