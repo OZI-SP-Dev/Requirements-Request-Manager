@@ -55,7 +55,7 @@ export const RequestView: FunctionComponent<IRequestViewProps> = (props) => {
 
     return (
         props.request ?
-            <Row className="ml-3 mr-3">
+            <Row className="ml-3 mr-3 align-items-start">
                 {
                     props.size === "lg" ?
                         <RequestViewLarge
