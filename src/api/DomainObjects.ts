@@ -92,10 +92,16 @@ export const getStatusText = (status: RequestStatuses | null): string => {
             return "Submit";
         case RequestStatuses.APPROVED:
             return "2 Ltr Review";
+        case RequestStatuses.DISAPPROVED:
+            return "Requester Edit";
         case RequestStatuses.ACCEPTED:
             return "Req Mgr Review";
+        case RequestStatuses.DECLINED:
+            return "Requester Edit";
         case RequestStatuses.CITO_APPROVED:
             return "CITO Review";
+        case RequestStatuses.CITO_DISAPPROVED:
+            return "Requester Edit";
         case RequestStatuses.REVIEW:
             return "Board Review(s)";
         case RequestStatuses.CONTRACT:

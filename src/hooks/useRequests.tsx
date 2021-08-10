@@ -64,12 +64,8 @@ export function useRequests(): IRequests {
             let updatedRequest = new RequirementsRequest(await request.save());
 
             let newRequests = requests;
-            let oldRequestIndex = newRequests.findIndex(req => req.Id === updatedRequest.Id);
-            if (oldRequestIndex > -1) {
-                newRequests[oldRequestIndex] = updatedRequest;
-            } else {
-                newRequests.push(updatedRequest);
-            }
+            newRequests = newRequests.filter(r => r.Id !== updatedRequest.Id);
+            newRequests.unshift(updatedRequest);
             setRequests(newRequests);
 
             // Only send the notif if the request is new (new ID returned) and the Approver is not the Requester
@@ -117,7 +113,8 @@ export function useRequests(): IRequests {
                     await sendStatusUpdateEmail(updatedRequest, status, comment ? comment : '');
 
                     let newRequests = requests;
-                    requests[newRequests.findIndex(req => req.Id === updatedRequest.Id)] = updatedRequest;
+                    newRequests = newRequests.filter(r => r.Id !== updatedRequest.Id);
+                    newRequests.unshift(updatedRequest);
                     setRequests(newRequests);
                 } else {
                     throw new NotAuthorizedError(undefined, "You are not authorized to change the request status to " + status);
