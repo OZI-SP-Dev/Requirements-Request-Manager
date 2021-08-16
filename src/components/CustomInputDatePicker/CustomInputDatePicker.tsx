@@ -41,7 +41,7 @@ export const CustomInputeDatePicker: React.FunctionComponent<ICustomInputeDatePi
                 type="text"
                 readOnly={props.readOnly}
                 defaultValue={props.date ? props.date.format("DD MMM YYYY") : undefined}
-                onClick={() => onClick(true)}
+                onFocus={() => onClick(true)}
                 isValid={props.isValid}
                 isInvalid={props.isInvalid}
             />
