@@ -60,10 +60,16 @@ export const getNextStatus = (status: RequestStatuses): RequestStatuses | null =
             return RequestStatuses.APPROVED;
         case RequestStatuses.APPROVED:
             return RequestStatuses.ACCEPTED;
+        case RequestStatuses.DISAPPROVED:
+            return RequestStatuses.SUBMITTED;
         case RequestStatuses.ACCEPTED:
             return RequestStatuses.CITO_APPROVED;
+        case RequestStatuses.DECLINED:
+            return RequestStatuses.SUBMITTED;
         case RequestStatuses.CITO_APPROVED:
             return RequestStatuses.REVIEW;
+        case RequestStatuses.CITO_DISAPPROVED:
+            return RequestStatuses.SUBMITTED;
         case RequestStatuses.REVIEW:
             return RequestStatuses.CONTRACT;
         case RequestStatuses.CONTRACT:
