@@ -9,7 +9,7 @@ import { useRedirect } from "../../hooks/useRedirect";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { UserContext } from "../../providers/UserProvider";
 import { IRequestValidation, RequestValidation } from "../../utils/RequestValidation";
-import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
+import { DatePicker } from "../DatePicker/DatePicker";
 import { DismissableErrorAlert } from "../DismissableErrorAlert/DismissableErrorAlert";
 import { PeoplePicker } from "../PeoplePicker/PeoplePicker";
 import RequestSpinner from "../RequestSpinner/RequestSpinner";
@@ -156,15 +156,16 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
             <Form className="request-form m-3" onSubmit={submitRequest}>
                 <Form.Row>
                     <Col xl="3" lg="4" md="6" sm="6" xs="12">
-                        <CustomInputeDatePicker
+                        <DatePicker
                             headerText="Requested Date:"
                             readOnly={readOnly}
                             date={request.RequestDate}
-                            maxDate={moment()}
+                            max={moment()}
                             onChange={date => updateRequest('RequestDate', date)}
                             isValid={validation && !validation.RequestDateError}
                             isInvalid={validation && validation.RequestDateError !== ""}
                             errorMessage={validation ? validation.RequestDateError : ""}
+                            required
                         />
                     </Col>
                 </Form.Row>
@@ -469,13 +470,12 @@ export const RequestForm: React.FunctionComponent<IRequestFormProps> = (props) =
                         />
                     </Col>
                     <Col xl="3" lg="4" md="4" sm="4" xs="12">
-                        <CustomInputeDatePicker
+                        <DatePicker
                             headerText="Operational Need Date:"
                             readOnly={readOnly}
                             date={request.OperationalNeedDate}
-                            minDate={oldRequest && oldRequest.OperationalNeedDate && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
+                            min={oldRequest && oldRequest.OperationalNeedDate && oldRequest.OperationalNeedDate.isBefore(moment()) ? oldRequest.OperationalNeedDate : moment()}
                             onChange={date => updateRequest('OperationalNeedDate', date)}
-                            isClearable
                         />
                     </Col>
                     <Col className="mt-4 mb-3" xl="12" lg="12" md="12" sm="12" xs="12">

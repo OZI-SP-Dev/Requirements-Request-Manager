@@ -4,7 +4,7 @@ import React, { FunctionComponent, useState } from "react";
 import { Form } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/Overlay";
 import { FilterValue } from "../../api/RequirementsRequestsApi";
-import { CustomInputeDatePicker } from "../CustomInputDatePicker/CustomInputDatePicker";
+import { DatePicker } from "../DatePicker/DatePicker";
 import { FilterPopover } from "./FilterPopover";
 
 
@@ -32,19 +32,18 @@ export const DatePickerFilterPopover: FunctionComponent<DatePickerFilterPopoverP
     return (
         <FilterPopover {...props} onSubmit={() => props.onSubmit({ start: startDate, end: endDate })} clearFilter={onClear}>
             <Form className="date-picker-filter">
-                <CustomInputeDatePicker
+                <DatePicker
                     headerText="Start Date:"
                     readOnly={false}
                     date={startDate}
-                    maxDate={endDate ? endDate : moment()}
+                    max={endDate ? endDate : undefined}
                     onChange={date => setStartDate(date)}
                 />
-                <CustomInputeDatePicker
+                <DatePicker
                     headerText="End Date:"
                     readOnly={false}
                     date={endDate}
-                    minDate={startDate ? startDate : undefined}
-                    maxDate={moment()}
+                    min={startDate ? startDate : undefined}
                     onChange={date => setEndDate(date)}
                 />
             </Form>
