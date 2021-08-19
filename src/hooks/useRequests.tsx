@@ -45,7 +45,7 @@ export function useRequests(): IRequests {
     const [error, setError] = useState<string>("");
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
     const [filters, setFilters] = useState<IRequestFilters>({
-        showAllUsers: roles?.includes(RoleType.MANAGER) === true,
+        showAllUsers: roles?.includes(RoleType.MANAGER) === true || roles?.includes(RoleType.CITO) === true,
         fieldFilters: []
     });
 

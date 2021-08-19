@@ -25,7 +25,7 @@ export class RoleDefinitions {
     }
 
     static userCanAddNotes(request: IRequirementsRequest, roles?: RoleType[], currentUser?: IPerson): boolean {
-        return this.userIsManager(roles) || currentUser?.Id === request.Requester.Id || currentUser?.Id === request.Approver.Id || currentUser?.Id === request.Author.Id;
+        return this.userIsManager(roles) || this.userIsCito(roles) ||  currentUser?.Id === request.Requester.Id || currentUser?.Id === request.Approver.Id || currentUser?.Id === request.Author.Id;
     }
 
     static userCanChangeStatus(request: IRequirementsRequest, newStatus: RequestStatuses | null, currentUser?: IPerson, roles?: RoleType[]): boolean {
