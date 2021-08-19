@@ -45,7 +45,7 @@ export function useRequests(): IRequests {
     const [error, setError] = useState<string>("");
     const [requests, setRequests] = useState<IRequirementsRequestCRUD[]>([]);
     const [filters, setFilters] = useState<IRequestFilters>({
-        showAllUsers: roles?.includes(RoleType.MANAGER) === true || roles?.includes(RoleType.CITO) === true,
+        showAllUsers: RoleDefinitions.userSeesAllRequestsDefault(roles),
         fieldFilters: []
     });
 
@@ -287,7 +287,7 @@ export function useRequests(): IRequests {
 
     useEffect(() => {
         // manager should see all requests by default
-        setFilters({ showAllUsers: roles?.includes(RoleType.MANAGER) === true, fieldFilters: [] });
+        setFilters({ showAllUsers: RoleDefinitions.userSeesAllRequestsDefault(roles), fieldFilters: [] });
     }, [roles]);
 
     useEffect(() => {

@@ -95,19 +95,19 @@ export const getRejectStatus = (request: IRequirementsRequest): RequestStatuses 
 export const getStatusText = (status: RequestStatuses | null): string => {
     switch (status) {
         case RequestStatuses.SUBMITTED:
-            return "Submit";
+            return "Requester Submit";
         case RequestStatuses.APPROVED:
             return "2 Ltr Review";
         case RequestStatuses.DISAPPROVED:
-            return "Requester Edit";
+            return "2 Ltr Rejected";
         case RequestStatuses.ACCEPTED:
             return "Req Mgr Review";
         case RequestStatuses.DECLINED:
-            return "Requester Edit";
+            return "Req Mgr Rejected";
         case RequestStatuses.CITO_APPROVED:
             return "CITO Review";
         case RequestStatuses.CITO_DISAPPROVED:
-            return "Requester Edit";
+            return "CITO Rejected";
         case RequestStatuses.REVIEW:
             return "Board Review(s)";
         case RequestStatuses.CONTRACT:
