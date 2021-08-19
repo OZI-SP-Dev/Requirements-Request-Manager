@@ -9,7 +9,7 @@ export class RoleDefinitions {
     }
 
     private static userIsManager(roles?: RoleType[]): boolean {
-        return this.userIsCito(roles) || roles !== undefined && roles.includes(RoleType.MANAGER);
+        return roles !== undefined && roles.includes(RoleType.MANAGER);
     }
 
     private static userIsCito(roles?: RoleType[]): boolean {
