@@ -9,7 +9,7 @@ export class RoleDefinitions {
     }
 
     private static userIsManager(roles?: RoleType[]): boolean {
-        return this.userIsCito(roles) || roles !== undefined && roles.includes(RoleType.MANAGER);
+        return roles !== undefined && roles.includes(RoleType.MANAGER);
     }
 
     private static userIsCito(roles?: RoleType[]): boolean {
@@ -25,7 +25,11 @@ export class RoleDefinitions {
     }
 
     static userCanAddNotes(request: IRequirementsRequest, roles?: RoleType[], currentUser?: IPerson): boolean {
-        return this.userIsManager(roles) || currentUser?.Id === request.Requester.Id || currentUser?.Id === request.Approver.Id || currentUser?.Id === request.Author.Id;
+        return this.userIsManager(roles) || this.userIsCito(roles) ||  currentUser?.Id === request.Requester.Id || currentUser?.Id === request.Approver.Id || currentUser?.Id === request.Author.Id;
+    }
+
+    static userSeesAllRequestsDefault(roles?: RoleType[]): boolean {
+        return this.userIsManager(roles) || this.userIsCito(roles);
     }
 
     static userCanChangeStatus(request: IRequirementsRequest, newStatus: RequestStatuses | null, currentUser?: IPerson, roles?: RoleType[]): boolean {

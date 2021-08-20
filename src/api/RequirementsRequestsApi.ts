@@ -269,10 +269,10 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
             for (let filter of filters) {
                 if (isDateRange(filter.filterValue)) {
                     if (filter.filterValue.start !== null) {
-                        queryString += ` and ${filter.fieldName} ge '${filter.filterValue.start.startOf('day').format()}'`;
+                        queryString += ` and ${filter.fieldName} ge '${moment(filter.filterValue.start).startOf('day').format()}'`;
                     }
                     if (filter.filterValue.end !== null) {
-                        queryString += ` and ${filter.fieldName} le '${filter.filterValue.end.add({ days: 1 }).startOf('day').format()}'`;
+                        queryString += ` and ${filter.fieldName} le '${moment(filter.filterValue.end).add({ days: 1 }).startOf('day').format()}'`;
                     }
                 } else if (isIPerson(filter.filterValue)) {
                     queryString += ` and ${filter.fieldName}Id eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`;
