@@ -136,7 +136,7 @@ export function useEmail(): IEmailSender {
     }
 
     const sendCitoApprovedEmail = async (request: IRequirementsRequestCRUD, comment?: string): Promise<void> => {
-        let to = [request.Requester, request.Approver, request.Author];
+        let to = [request.Requester, request.Approver, request.Author, ...getUsersWithRole(RoleType.MANAGER)];
         let subject = `Request ${request.getFormattedId()} Approved by CITO`;
         let body = `Hello, Requirement Request ${request.getFormattedId()}, ${request.Title}, for ${request.ApplicationNeeded !== ApplicationTypes.OTHER ? request.ApplicationNeeded : request.OtherApplicationNeeded} has been approved/accepted by the CITO ${(await userApi.getCurrentUser()).Title}. The next step for the Request is for it to be taken to the Review Boards for review. 
         ${comment ? `The CITO left a comment saying "${comment}"` : ''}
