@@ -1,8 +1,7 @@
-import { FunctionComponent, useState, useEffect } from "react";
-import React from "react";
-import { Modal, Button, Form, Spinner, Alert, Row } from "react-bootstrap";
-import { INote } from "../../api/NotesApi";
-import './NoteModal.css'
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { Alert, Button, Form, Modal, Row, Spinner } from "react-bootstrap";
+import { INote } from "../../api/DomainObjects";
+import './NoteModal.css';
 
 export interface INoteModalProps {
     note?: INote,

@@ -1,19 +1,21 @@
+import { Icon } from "@fluentui/react";
+import moment from "moment";
 import React, { useContext, useState } from "react";
 import { Accordion, Button, Col, Container, FormCheck, Row, Table } from "react-bootstrap";
+import { CSVLink } from "react-csv";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, getNextStatus, getStatusText, IRequirementsRequest, OrgPriorities, RequestStatuses } from "../../api/DomainObjects";
+import { ApplicationTypes, getIRequirementsRequestCsvData, getNextStatus, getStatusText, IRequirementsRequestHeaders, OrgPriorities, RequestStatuses } from "../../api/DomainObjects";
+import { FilterField } from "../../api/RequirementsRequestsApi";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
-import { RequestView } from "../RequestView/RequestView";
-import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
-import { Icon } from "@fluentui/react";
-import { FilterField } from "../../api/RequirementsRequestsApi";
-import { SortIcon } from "./SortIcon";
+import { DatePickerFilter } from "../Filter/DatePickerFilter";
 import { KeywordFilter } from "../Filter/KeywordFilter";
 import { PeoplePickerFilter } from "../Filter/PeoplePickerFilter";
-import { DatePickerFilter } from "../Filter/DatePickerFilter";
 import { SelectorFilter } from "../Filter/SelectorFilter";
+import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
+import { RequestView } from "../RequestView/RequestView";
+import { SortIcon } from "./SortIcon";
 
 export interface IRequestsProps {
     requests: IRequests
@@ -57,6 +59,14 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     <Link to="/Requests/New">
                         <Button variant="primary" className="float-right">New Request</Button>
                     </Link>
+                    <CSVLink
+                        className="btn btn-primary float-right mr-3"
+                        data={props.requests.requestsList.map(r => getIRequirementsRequestCsvData(r))}
+                        headers={IRequirementsRequestHeaders}
+                        filename={`requirements_requests_export_${moment().format("YYYYMMDD")}.csv`}
+                    >
+                        Export Requests
+                    </CSVLink>
                 </Col>
             </Row>
             <Table bordered hover responsive size="sm">

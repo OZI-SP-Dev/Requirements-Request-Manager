@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { INote } from "../api/DomainObjects";
 import { InternalError } from "../api/InternalErrors";
-import { INote, INotesApi, NotesApiConfig } from "../api/NotesApi";
+import { INotesApi, NotesApiConfig } from "../api/NotesApi";
 
 
 export interface INotes {

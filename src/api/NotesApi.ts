@@ -1,27 +1,8 @@
-import moment, { Moment } from "moment";
+import moment from "moment";
 import { spWebContext } from "../providers/SPWebContext";
-import { RequestStatuses } from "./DomainObjects";
+import { INote, ISubmitNote, RequestStatuses } from "./DomainObjects";
 import { ApiError } from "./InternalErrors";
 import { IPerson, Person, UserApiConfig } from "./UserApi";
-
-
-export interface INote {
-    Id: number,
-    Title: string,
-    Text: string,
-    Modified: Moment,
-    RequestId: number,
-    Author: IPerson,
-    Status?: RequestStatuses | null,
-    "odata.etag": string
-}
-
-export interface ISubmitNote {
-    Title: string,
-    Text: string,
-    RequestId: number,
-    Status?: RequestStatuses | null,
-}
 
 interface INewNote extends ISubmitNote {
     Id: number,

@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { IRequirementsRequestCRUD, RequestStatuses } from "../../api/DomainObjects";
-import { INote } from "../../api/NotesApi";
+import { INote, IRequirementsRequestCRUD, RequestStatuses } from "../../api/DomainObjects";
 import { StatusListItem } from "./StatusListItem";
 import './StatusWorkflow.css';
 

@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useState } from "react";
-import { getNextStatus, getStatusText, RequestStatuses } from "../../api/DomainObjects";
-import { INote } from "../../api/NotesApi";
+import { getNextStatus, getStatusText, INote, RequestStatuses } from "../../api/DomainObjects";
 import { InfoPopover } from "../InfoPopover/InfoPopover";
 import './StatusWorkflow.css';
 

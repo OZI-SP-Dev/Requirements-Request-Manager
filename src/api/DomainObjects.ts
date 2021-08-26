@@ -153,6 +153,66 @@ export interface IRequirementsRequest {
     "odata.etag": string
 }
 
+export interface IRequirementsRequestCsvData extends IRequirementsRequest {
+    StatusDateTimeFormatted: string,
+    RequestDateFormatted: string,
+    OperationalNeedDateFormatted: string | null
+}
+
+export const IRequirementsRequestHeaders = [
+    { label: "ID", key: "Id" },
+    { label: "Title", key: "Title" },
+    { label: "Request Status", key: "Status" },
+    { label: "Last Status Update", key: "StatusDateTimeFormatted" },
+    { label: "Request Date", key: "RequestDateFormatted" },
+    { label: "Requester Title", key: "Requester.Title" },
+    { label: "Requester Email", key: "Requester.EMail" },
+    { label: "Requester Org Symbol", key: "RequesterOrgSymbol" },
+    { label: "Requester DSN Phone", key: "RequesterDSNPhone" },
+    { label: "Requester Comm Phone", key: "RequesterCommPhone" },
+    { label: "Approver Title", key: "Approver.Title" },
+    { label: "Approver Email", key: "Approver.EMail" },
+    { label: "Approver Org Symbol", key: "ApproverOrgSymbol" },
+    { label: "Approver DSN Phone", key: "ApproverDSNPhone" },
+    { label: "Approver Comm Phone", key: "ApproverCommPhone" },
+    { label: "Requirement Type", key: "NoveltyRequirementType" },
+    { label: "Funding Source", key: "FundingOrgOrDeputy" },
+    { label: "Application Needed", key: "ApplicationNeeded" },
+    { label: "Other Application Needed", key: "OtherApplicationNeeded" },
+    { label: "Is Enterprise", key: "IsProjectedOrgsEnterprise" },
+    { label: "Impacted Center", key: "ProjectedOrgsImpactedCenter" },
+    { label: "Impacted Org", key: "ProjectedOrgsImpactedOrg" },
+    { label: "Projected Number of Impacted Users", key: "ProjectedImpactedUsers" },
+    { label: "Operational Need Date", key: "OperationalNeedDateFormatted" },
+    { label: "Priority", key: "OrgPriority" },
+    { label: "Priority Explanation", key: "PriorityExplanation" },
+    { label: "Business Objective", key: "BusinessObjective" },
+    { label: "Functional Requirements", key: "FunctionalRequirements" },
+    { label: "Benefits", key: "Benefits" },
+    { label: "Risk", key: "Risk" },
+    { label: "Additional Info", key: "AdditionalInfo" }
+]
+
+const cleanCsvString = (input: string): string => {
+    return input?.replace( /[\r\n]+/gm, " " ).replace( /["]+/gm, "");
+}
+
+export const getIRequirementsRequestCsvData = (request: IRequirementsRequest): IRequirementsRequestCsvData => {
+    const format = "MM/DD/YYYY";
+    return {
+        ...request,
+        PriorityExplanation: cleanCsvString(request.PriorityExplanation),
+        BusinessObjective: cleanCsvString(request.BusinessObjective),
+        FunctionalRequirements: cleanCsvString(request.FunctionalRequirements),
+        Benefits: cleanCsvString(request.Benefits),
+        Risk: cleanCsvString(request.Risk),
+        AdditionalInfo: cleanCsvString(request.AdditionalInfo),
+        StatusDateTimeFormatted: request.StatusDateTime.format(format),
+        RequestDateFormatted: request.RequestDate.format(format),
+        OperationalNeedDateFormatted: request.OperationalNeedDate ? request.OperationalNeedDate.format(format) : null
+    }
+}
+
 export interface IRequirementsRequestCRUD extends IRequirementsRequest {
     /** 
      * Get an updated version of the current RequirementsRequest, it will overwrite the current fields of this request.
@@ -328,4 +388,33 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
             return `OZI${this.Id}`;
         }
     }
+}
+
+export interface INote {
+    Id: number,
+    Title: string,
+    Text: string,
+    Modified: Moment,
+    RequestId: number,
+    Author: IPerson,
+    Status?: RequestStatuses | null,
+    "odata.etag": string
+}
+
+export const INoteHeaders = [
+    { label: "ID", key: "Id" },
+    { label: "Title", key: "Title" },
+    { label: "Note Text", key: "Text" },
+    { label: "Last Modified", key: "Modified" },
+    { label: "Request ID", key: "RequestId" },
+    { label: "Creator", key: "Author.Title" },
+    { label: "Creator Email", key: "Author.EMail" },
+    { label: "Status of Request on Note Create", key: "Status" }
+]
+
+export interface ISubmitNote {
+    Title: string,
+    Text: string,
+    RequestId: number,
+    Status?: RequestStatuses | null,
 }
