@@ -193,14 +193,24 @@ export const IRequirementsRequestHeaders = [
     { label: "Additional Info", key: "AdditionalInfo" }
 ]
 
-const cleanCsvString = (input: string): string => {
-    return input?.replace( /[\r\n]+/gm, " " ).replace( /["]+/gm, "");
+const cleanCsvString = (input: string | null): string => {
+    return input ? input.replace(/[\n]+/gm, "\r\n").replace(/["]/gm, `""`) : "";
 }
 
 export const getIRequirementsRequestCsvData = (request: IRequirementsRequest): IRequirementsRequestCsvData => {
     const format = "MM/DD/YYYY";
     return {
         ...request,
+        Title: cleanCsvString(request.Title),
+        RequesterOrgSymbol: cleanCsvString(request.RequesterOrgSymbol),
+        RequesterDSNPhone: cleanCsvString(request.RequesterDSNPhone),
+        RequesterCommPhone: cleanCsvString(request.RequesterCommPhone),
+        ApproverOrgSymbol: cleanCsvString(request.ApproverOrgSymbol),
+        ApproverDSNPhone: cleanCsvString(request.ApproverDSNPhone),
+        ApproverCommPhone: cleanCsvString(request.ApproverCommPhone),
+        FundingOrgOrDeputy: cleanCsvString(request.FundingOrgOrDeputy),
+        OtherApplicationNeeded: cleanCsvString(request.OtherApplicationNeeded),
+        ProjectedOrgsImpactedOrg: cleanCsvString(request.ProjectedOrgsImpactedOrg),
         PriorityExplanation: cleanCsvString(request.PriorityExplanation),
         BusinessObjective: cleanCsvString(request.BusinessObjective),
         FunctionalRequirements: cleanCsvString(request.FunctionalRequirements),
