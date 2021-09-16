@@ -11,7 +11,8 @@ export interface INotes {
     notes: INote[],
     getNonEmptyNotes: () => INote[],
     getStatusNotes: () => INote[],
-    submitNewNote: (title: string, text: string) => Promise<INote>
+    submitNewNote: (title: string, text: string) => Promise<INote>,
+    getAllNotes: () => Promise<INote[]>
 }
 
 export function useNotes(requestId?: number): INotes {
@@ -45,6 +46,31 @@ export function useNotes(requestId?: number): INotes {
             } else {
                 setError(`Unknown error occurred while trying to fetch Notes for Request ${requestId}`);
                 throw new InternalError(new Error(`Unknown error occurred while trying to fetch Notes for Request ${requestId}`));
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const getAllNotes = async (): Promise<INote[]> => {
+        try {
+            setLoading(true);
+            return await notesApi.fetchAllNotes();
+        } catch (e) {
+            console.error("Error trying to fetch all Notes");
+            console.error(e);
+            if (e instanceof InternalError) {
+                setError(e.message);
+                throw e;
+            } else if (e instanceof Error) {
+                setError(e.message);
+                throw new InternalError(e);
+            } else if (typeof (e) === "string") {
+                setError(e);
+                throw new InternalError(new Error(e));
+            } else {
+                setError("Unknown error occurred while trying to fetch all Notes");
+                throw new InternalError(new Error("Unknown error occurred while trying to fetch all Notes"));
             }
         } finally {
             setLoading(false);
@@ -104,7 +130,8 @@ export function useNotes(requestId?: number): INotes {
         notes,
         getNonEmptyNotes: () => notes.filter(n => n.Text),
         getStatusNotes: () => notes.filter(n => n.Status),
-        submitNewNote
+        submitNewNote,
+        getAllNotes
     })
 
 }

@@ -1,11 +1,12 @@
 import { Icon } from "@fluentui/react";
 import moment from "moment";
-import React, { useContext, useState } from "react";
+import React, { MouseEventHandler, useContext, useEffect, useRef, useState } from "react";
 import { Accordion, Button, Col, Container, FormCheck, Row, Table } from "react-bootstrap";
-import { CSVLink } from "react-csv";
+import CsvDownload from "react-csv-downloader";
 import { Link } from "react-router-dom";
-import { ApplicationTypes, getIRequirementsRequestCsvData, getNextStatus, getStatusText, IRequirementsRequestHeaders, OrgPriorities, RequestStatuses } from "../../api/DomainObjects";
+import { ApplicationTypes, getINoteCsvData, getIRequirementsRequestCsvData, getNextStatus, getStatusText, INote, INoteHeaders, IRequirementsRequestHeaders, OrgPriorities, RequestStatuses } from "../../api/DomainObjects";
 import { FilterField } from "../../api/RequirementsRequestsApi";
+import { useNotes } from "../../hooks/useNotes";
 import { IRequests } from "../../hooks/useRequests";
 import { UserContext } from "../../providers/UserProvider";
 import { RoleDefinitions } from "../../utils/RoleDefinitions";
@@ -14,6 +15,7 @@ import { KeywordFilter } from "../Filter/KeywordFilter";
 import { PeoplePickerFilter } from "../Filter/PeoplePickerFilter";
 import { SelectorFilter } from "../Filter/SelectorFilter";
 import { InfoTooltip } from "../InfoTooltip/InfoTooltip";
+import RequestSpinner from "../RequestSpinner/RequestSpinner";
 import { RequestView } from "../RequestView/RequestView";
 import { SortIcon } from "./SortIcon";
 
@@ -28,6 +30,10 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     const { user, roles } = useContext(UserContext);
     const [sort, setSort] = useState<{ field: FilterField, ascending: boolean }>();
 
+    const notes = useNotes();
+    const notesLinkRef: any = useRef();
+    const [notesToExport, setNotesToExport] = useState<INote[]>([]);
+
     const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
         props.requests.setFilters({ ...props.requests.filters, showAllUsers: !e.target.checked });
     }
@@ -39,6 +45,10 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
         }
         setSort(newSort);
         props.requests.sortBy(newSort?.field, newSort?.ascending);
+    }
+
+    const getNotes = async () => {
+        return (await notes.getAllNotes()).map(r => getINoteCsvData(r));
     }
 
     return (
@@ -59,14 +69,24 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     <Link to="/Requests/New">
                         <Button variant="primary" className="float-right">New Request</Button>
                     </Link>
-                    <CSVLink
+                    <CsvDownload
                         className="btn btn-primary float-right mr-3"
-                        data={props.requests.requestsList.map(r => getIRequirementsRequestCsvData(r))}
-                        headers={IRequirementsRequestHeaders}
+                        datas={getNotes}
+                        columns={INoteHeaders}
+                        filename={`notes_export_${moment().format("YYYYMMDD")}.csv`}
+                        wrapColumnChar={`"`}
+                    >
+                        Export Notes
+                    </CsvDownload>
+                    <CsvDownload
+                        className="btn btn-primary float-right mr-3"
+                        datas={props.requests.requestsList.map(r => getIRequirementsRequestCsvData(r))}
+                        columns={IRequirementsRequestHeaders}
                         filename={`requirements_requests_export_${moment().format("YYYYMMDD")}.csv`}
+                        wrapColumnChar={`"`}
                     >
                         Export Requests
-                    </CSVLink>
+                    </CsvDownload>
                 </Col>
             </Row>
             <Table bordered hover responsive size="sm">
@@ -284,6 +304,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                 </Accordion>
             </Table>
             {!props.requests.loading && props.requests.requestsList.length === 0 && <h5 className="text-center">There were no Requests found</h5>}
+            <RequestSpinner show={notes.loading} displayText="Loading Notes..." />
         </Container>
     );
 }

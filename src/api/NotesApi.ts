@@ -28,6 +28,7 @@ interface SPNote {
 
 export interface INotesApi {
     fetchNotesByRequestId(requestId: number): Promise<INote[]>,
+    fetchAllNotes(): Promise<INote[]>,
     submitNewNote(newNote: ISubmitNote): Promise<INote>
 }
 
@@ -53,6 +54,35 @@ export class NotesApi implements INotesApi {
             });
         } catch (e) {
             let message = `Error occurred while trying to fetch Notes for Request with ID ${requestId}`;
+            console.error(message);
+            console.error(e);
+            if (e instanceof Error) {
+                throw new ApiError(e, message + `: ${e.message}`);
+            } else if (typeof (e) === "string") {
+                throw new ApiError(new Error(message + `: ${e}`));
+            } else {
+                throw new ApiError(undefined, message);
+            }
+        }
+    }
+
+    async fetchAllNotes(): Promise<INote[]> {
+        try {
+            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified", "Author/Id", "Author/Title", "Author/EMail", "Status").expand("Request", "Author").get();
+            return notes.map(spNote => {
+                return {
+                    Id: spNote.Id,
+                    Title: spNote.Title,
+                    Text: spNote.Text,
+                    Modified: moment(spNote.Modified),
+                    Author: new Person(spNote.Author),
+                    RequestId: spNote.Request.Id,
+                    Status: spNote.Status,
+                    "odata.etag": spNote.__metadata.etag
+                }
+            });
+        } catch (e) {
+            let message = "Error occurred while trying to fetch all Notes";
             console.error(message);
             console.error(e);
             if (e instanceof Error) {
@@ -144,6 +174,11 @@ export class NotesApiDev implements INotesApi {
     async fetchNotesByRequestId(requestId: number): Promise<INote[]> {
         await this.sleep();
         return this.notesList.filter(note => note.RequestId === requestId);
+    }
+
+    async fetchAllNotes(): Promise<INote[]> {
+        await this.sleep();
+        return [...this.notesList];
     }
 
     async submitNewNote(newNote: ISubmitNote): Promise<INote> {
