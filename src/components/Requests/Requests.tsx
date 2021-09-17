@@ -67,24 +67,26 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                     <Link to="/Requests/New">
                         <Button variant="primary" className="float-right">New Request</Button>
                     </Link>
-                    <CsvDownload
-                        className="btn btn-primary float-right mr-3"
-                        datas={getNotes}
-                        columns={INoteHeaders}
-                        filename={`notes_export_${moment().format("YYYYMMDD")}.csv`}
-                        wrapColumnChar={`"`}
-                    >
-                        Export Notes
-                    </CsvDownload>
-                    <CsvDownload
-                        className="btn btn-primary float-right mr-3"
-                        datas={props.requests.requestsList.map(r => getIRequirementsRequestCsvData(r))}
-                        columns={IRequirementsRequestHeaders}
-                        filename={`requirements_requests_export_${moment().format("YYYYMMDD")}.csv`}
-                        wrapColumnChar={`"`}
-                    >
-                        Export Requests
-                    </CsvDownload>
+                    {RoleDefinitions.userCanExport(roles) && <>
+                        <CsvDownload
+                            className="btn btn-primary float-right mr-3"
+                            datas={getNotes}
+                            columns={INoteHeaders}
+                            filename={`notes_export_${moment().format("YYYYMMDD")}.csv`}
+                            wrapColumnChar={`"`}
+                        >
+                            Export Notes
+                        </CsvDownload>
+                        <CsvDownload
+                            className="btn btn-primary float-right mr-3"
+                            datas={props.requests.requestsList.map(r => getIRequirementsRequestCsvData(r))}
+                            columns={IRequirementsRequestHeaders}
+                            filename={`requirements_requests_export_${moment().format("YYYYMMDD")}.csv`}
+                            wrapColumnChar={`"`}
+                        >
+                            Export Requests
+                        </CsvDownload>
+                    </>}
                 </Col>
             </Row>
             <Table bordered hover responsive size="sm">
