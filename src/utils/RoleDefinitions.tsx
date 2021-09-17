@@ -32,6 +32,10 @@ export class RoleDefinitions {
         return this.userIsManager(roles) || this.userIsCito(roles);
     }
 
+    static userCanExport(roles?: RoleType[]): boolean {
+        return this.userIsManager(roles);
+    }
+
     static userCanChangeStatus(request: IRequirementsRequest, newStatus: RequestStatuses | null, currentUser?: IPerson, roles?: RoleType[]): boolean {
         switch (newStatus) {
             case RequestStatuses.SUBMITTED:
