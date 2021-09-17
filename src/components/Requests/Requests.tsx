@@ -31,8 +31,6 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     const [sort, setSort] = useState<{ field: FilterField, ascending: boolean }>();
 
     const notes = useNotes();
-    const notesLinkRef: any = useRef();
-    const [notesToExport, setNotesToExport] = useState<INote[]>([]);
 
     const userSwitchOnClick = (e: React.ChangeEvent<HTMLInputElement>) => {
         props.requests.setFilters({ ...props.requests.filters, showAllUsers: !e.target.checked });
@@ -48,7 +46,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
     }
 
     const getNotes = async () => {
-        return (await notes.getAllNotes()).map(r => getINoteCsvData(r));
+        return (await notes.getAllNotes(props.requests.requestsList.map(r => r.Id))).map(r => getINoteCsvData(r));
     }
 
     return (

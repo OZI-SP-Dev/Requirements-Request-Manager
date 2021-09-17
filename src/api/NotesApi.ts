@@ -1,3 +1,4 @@
+import { sp } from "@pnp/sp";
 import moment from "moment";
 import { spWebContext } from "../providers/SPWebContext";
 import { INote, ISubmitNote, RequestStatuses } from "./DomainObjects";
@@ -28,7 +29,7 @@ interface SPNote {
 
 export interface INotesApi {
     fetchNotesByRequestId(requestId: number): Promise<INote[]>,
-    fetchAllNotes(): Promise<INote[]>,
+    fetchAllNotes(requestIds: number[]): Promise<INote[]>,
     submitNewNote(newNote: ISubmitNote): Promise<INote>
 }
 
@@ -66,9 +67,17 @@ export class NotesApi implements INotesApi {
         }
     }
 
-    async fetchAllNotes(): Promise<INote[]> {
+    async fetchAllNotes(requestIds: number[]): Promise<INote[]> {
         try {
-            let notes: SPNote[] = await this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified", "Author/Id", "Author/Title", "Author/EMail", "Status").expand("Request", "Author").get();
+            let batch = sp.web.createBatch();
+            let promises: Promise<SPNote[]>[] = requestIds.map(id => this.notesList.items.select("Id", "Request/Id", "Title", "Text", "Modified", "Author/Id", "Author/Title", "Author/EMail", "Status").filter(`RequestId eq ${id}`).expand("Request", "Author").inBatch(batch).get());
+            batch.execute();
+
+            let notes: SPNote[] = [];
+            for (let p of promises) {
+                (await p).forEach(note => notes.push(note));
+            }
+
             return notes.map(spNote => {
                 return {
                     Id: spNote.Id,
@@ -176,7 +185,7 @@ export class NotesApiDev implements INotesApi {
         return this.notesList.filter(note => note.RequestId === requestId);
     }
 
-    async fetchAllNotes(): Promise<INote[]> {
+    async fetchAllNotes(requestIds: number[]): Promise<INote[]> {
         await this.sleep();
         return [...this.notesList];
     }

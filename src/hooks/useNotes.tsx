@@ -12,7 +12,7 @@ export interface INotes {
     getNonEmptyNotes: () => INote[],
     getStatusNotes: () => INote[],
     submitNewNote: (title: string, text: string) => Promise<INote>,
-    getAllNotes: () => Promise<INote[]>
+    getAllNotes: (requestIds: number[]) => Promise<INote[]>
 }
 
 export function useNotes(requestId?: number): INotes {
@@ -52,10 +52,10 @@ export function useNotes(requestId?: number): INotes {
         }
     }
 
-    const getAllNotes = async (): Promise<INote[]> => {
+    const getAllNotes = async (requestIds: number[]): Promise<INote[]> => {
         try {
             setLoading(true);
-            return await notesApi.fetchAllNotes();
+            return await notesApi.fetchAllNotes(requestIds);
         } catch (e) {
             console.error("Error trying to fetch all Notes");
             console.error(e);
