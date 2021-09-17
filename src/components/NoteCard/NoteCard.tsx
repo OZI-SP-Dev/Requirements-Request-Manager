@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { Card, Col } from "react-bootstrap";
-import { RequestStatuses } from "../../api/DomainObjects";
-import { INote } from "../../api/NotesApi";
+import { INote, RequestStatuses } from "../../api/DomainObjects";
 import './NoteCard.css';
 
 export interface INoteCardProps {

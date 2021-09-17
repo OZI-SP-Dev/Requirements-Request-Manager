@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { ApplicationTypes, IRequirementsRequestCRUD } from "../api/DomainObjects";
+import { ApplicationTypes, INote, IRequirementsRequestCRUD } from "../api/DomainObjects";
 import { EmailApiConfig } from "../api/EmailApi";
 import { InternalError } from "../api/InternalErrors";
-import { INote } from "../api/NotesApi";
 import { RoleType } from "../api/RolesApi";
 import { IPerson, IUserApi, UserApiConfig } from "../api/UserApi";
 import { useRoles } from "./useRoles";

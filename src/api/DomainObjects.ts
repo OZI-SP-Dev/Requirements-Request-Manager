@@ -153,6 +153,119 @@ export interface IRequirementsRequest {
     "odata.etag": string
 }
 
+export type IRequirementsRequestCsvData = {
+    Id: string,
+    Title: string,
+    Status: string,
+    StatusDateTimeFormatted: string,
+    RequestDateFormatted: string,
+    AuthorTitle: string,
+    AuthorEmail: string,
+    RequesterTitle: string,
+    RequesterEmail: string,
+    RequesterOrgSymbol: string,
+    RequesterDSNPhone: string | null,
+    RequesterCommPhone: string,
+    ApproverTitle: string,
+    ApproverEmail: string,
+    ApproverOrgSymbol: string,
+    ApproverDSNPhone: string | null,
+    ApproverCommPhone: string,
+    NoveltyRequirementType: string,
+    FundingOrgOrDeputy: string,
+    ApplicationNeeded: string,
+    OtherApplicationNeeded: string,
+    IsProjectedOrgsEnterprise: string,
+    ProjectedOrgsImpactedCenter: string,
+    ProjectedOrgsImpactedOrg: string,
+    ProjectedImpactedUsers: string | null,
+    OperationalNeedDateFormatted: string | null,
+    OrgPriority: string,
+    PriorityExplanation: string,
+    BusinessObjective: string,
+    FunctionalRequirements: string,
+    Benefits: string,
+    Risk: string,
+    AdditionalInfo: string
+}
+
+export const IRequirementsRequestHeaders = [
+    { displayName: "ID", id: "Id" },
+    { displayName: "Title", id: "Title" },
+    { displayName: "Request Date", id: "RequestDateFormatted" },
+    { displayName: "Application Needed", id: "ApplicationNeeded" },
+    { displayName: "Is Enterprise", id: "IsProjectedOrgsEnterprise" },
+    { displayName: "Impacted Center", id: "ProjectedOrgsImpactedCenter" },
+    { displayName: "Impacted Org", id: "ProjectedOrgsImpactedOrg" },
+    { displayName: "Projected Number of Impacted Users", id: "ProjectedImpactedUsers" },
+    { displayName: "Operational Need Date", id: "OperationalNeedDateFormatted" },
+    { displayName: "Priority", id: "OrgPriority" },
+    { displayName: "Priority Explanation", id: "PriorityExplanation" },
+    { displayName: "Business Objective", id: "BusinessObjective" },
+    { displayName: "Functional Requirements", id: "FunctionalRequirements" },
+    { displayName: "Benefits", id: "Benefits" },
+    { displayName: "Risk", id: "Risk" },
+    { displayName: "Additional Info", id: "AdditionalInfo" },
+    { displayName: "Requester Org Symbol", id: "RequesterOrgSymbol" },
+    { displayName: "Requester Title", id: "RequesterTitle" },
+    { displayName: "Requester Email", id: "RequesterEmail" },
+    { displayName: "Requester DSN Phone", id: "RequesterDSNPhone" },
+    { displayName: "Requester Comm Phone", id: "RequesterCommPhone" },
+    { displayName: "Creator Title", id: "AuthorTitle" },
+    { displayName: "Creator Email", id: "AuthorEmail" },
+    { displayName: "Requirement Type", id: "NoveltyRequirementType" },
+    { displayName: "Approver Org Symbol", id: "ApproverOrgSymbol" },
+    { displayName: "Approver Title", id: "ApproverTitle" },
+    { displayName: "Approver Email", id: "ApproverEmail" },
+    { displayName: "Approver DSN Phone", id: "ApproverDSNPhone" },
+    { displayName: "Approver Comm Phone", id: "ApproverCommPhone" },
+    { displayName: "Request Status", id: "Status" },
+    { displayName: "Last Status Update", id: "StatusDateTimeFormatted" }
+]
+
+const cleanCsvString = (input: string | null): string => {
+    return input ? input.replace(/[\n]+/gm, "\r\n").replace(/["]/gm, `""`) : "";
+}
+
+export const getIRequirementsRequestCsvData = (request: IRequirementsRequest): IRequirementsRequestCsvData => {
+    const format = "MM/DD/YYYY";
+    return {
+        Id: request.Id.toString(),
+        Title: cleanCsvString(request.Title),
+        Status: request.Status,
+        StatusDateTimeFormatted: request.StatusDateTime.format(format),
+        RequestDateFormatted: request.RequestDate.format(format),
+        AuthorTitle: request.Author.Title,
+        AuthorEmail: request.Author.EMail,
+        RequesterTitle: request.Requester.Title,
+        RequesterEmail: request.Requester.EMail,
+        RequesterOrgSymbol: cleanCsvString(request.RequesterOrgSymbol),
+        RequesterDSNPhone: cleanCsvString(request.RequesterDSNPhone),
+        RequesterCommPhone: cleanCsvString(request.RequesterCommPhone),
+        ApproverTitle: request.Approver.Title,
+        ApproverEmail: request.Approver.EMail,
+        ApproverOrgSymbol: cleanCsvString(request.ApproverOrgSymbol),
+        ApproverDSNPhone: cleanCsvString(request.ApproverDSNPhone),
+        ApproverCommPhone: cleanCsvString(request.ApproverCommPhone),
+        NoveltyRequirementType: request.NoveltyRequirementType,
+        FundingOrgOrDeputy: cleanCsvString(request.FundingOrgOrDeputy),
+        ApplicationNeeded: request.ApplicationNeeded,
+        OtherApplicationNeeded: cleanCsvString(request.OtherApplicationNeeded),
+        IsProjectedOrgsEnterprise: request.IsProjectedOrgsEnterprise ? "True" : "False",
+        ProjectedOrgsImpactedCenter: request.ProjectedOrgsImpactedCenter,
+        ProjectedOrgsImpactedOrg: cleanCsvString(request.ProjectedOrgsImpactedOrg),
+        ProjectedImpactedUsers: request.ProjectedImpactedUsers ? request.ProjectedImpactedUsers.toString() : null,
+        OperationalNeedDateFormatted: request.OperationalNeedDate ? request.OperationalNeedDate.format(format) : null,
+        OrgPriority: request.OrgPriority,
+        PriorityExplanation: cleanCsvString(request.PriorityExplanation),
+        BusinessObjective: cleanCsvString(request.BusinessObjective),
+        FunctionalRequirements: cleanCsvString(request.FunctionalRequirements),
+        Benefits: cleanCsvString(request.Benefits),
+        Risk: cleanCsvString(request.Risk),
+        AdditionalInfo: cleanCsvString(request.AdditionalInfo),
+    }
+}
+
 export interface IRequirementsRequestCRUD extends IRequirementsRequest {
     /** 
      * Get an updated version of the current RequirementsRequest, it will overwrite the current fields of this request.
@@ -328,4 +441,58 @@ export class RequirementsRequest implements IRequirementsRequestCRUD {
             return `OZI${this.Id}`;
         }
     }
+}
+
+export interface INote {
+    Id: number,
+    Title: string,
+    Text: string,
+    Modified: Moment,
+    RequestId: number,
+    Author: IPerson,
+    Status?: RequestStatuses | null,
+    "odata.etag": string
+}
+
+export type INoteCsvData = {
+    Id: string,
+    Title: string,
+    Text: string,
+    ModifiedFormatted: string,
+    RequestId: string,
+    AuthorTitle: string,
+    AuthorEmail: string,
+    Status?: string | null,
+}
+
+export const INoteHeaders = [
+    { displayName: "ID", id: "Id" },
+    { displayName: "Title", id: "Title" },
+    { displayName: "Note Text", id: "Text" },
+    { displayName: "Last Modified", id: "ModifiedFormatted" },
+    { displayName: "Request ID", id: "RequestId" },
+    { displayName: "Creator", id: "AuthorTitle" },
+    { displayName: "Creator Email", id: "AuthorEmail" },
+    { displayName: "Status of Request on Note Create", id: "Status" }
+]
+
+export const getINoteCsvData = (note: INote): INoteCsvData => {
+    const format = "MM/DD/YYYY";
+    return {
+        Id: note.Id.toString(),
+        Title: cleanCsvString(note.Title),
+        Text: cleanCsvString(note.Text),
+        ModifiedFormatted: note.Modified.format(format),
+        RequestId: note.RequestId.toString(),
+        AuthorTitle: note.Author.Title,
+        AuthorEmail: note.Author.EMail,
+        Status: note.Status
+    }
+}
+
+export interface ISubmitNote {
+    Title: string,
+    Text: string,
+    RequestId: number,
+    Status?: RequestStatuses | null,
 }

@@ -295,7 +295,7 @@ export function useRequests(): IRequests {
         if (!loadingUser) {
             fetchRequests();
         } // eslint-disable-next-line
-    }, [filters]);
+    }, [filters, loadingUser]);
 
     return ({
         loading,
