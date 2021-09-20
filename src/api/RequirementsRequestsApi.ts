@@ -288,7 +288,7 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                         while (idFilter.startsWith('0')) {
                             idFilter = idFilter.substr(1);
                         }
-                        queryString += `${i > 0 ? " or " : ""}Id Eq ${idFilter}`;
+                        queryString += `${i > 0 ? " or " : ""}Id eq ${idFilter}`;
                     }
                     queryString += ")"
                 } else if (typeof (filter.filterValue) === "string") {
