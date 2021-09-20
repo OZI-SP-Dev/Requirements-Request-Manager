@@ -106,6 +106,7 @@ export const Requests: React.FunctionComponent<IRequestsProps> = (props) => {
                                     field="Id"
                                     active={props.requests.activeFilters.includes("Id")}
                                     title="ID Filter"
+                                    placeHolderText="123, OZI321, etc..."
                                     containsCheck={false}
                                     startsWithCheck={false}
                                     addFilter={props.requests.addFilter}

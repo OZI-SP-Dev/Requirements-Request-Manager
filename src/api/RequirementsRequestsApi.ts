@@ -278,13 +278,19 @@ export default class RequirementsRequestsApi implements IRequirementsRequestApi 
                     queryString += ` and ${filter.fieldName}Id eq ${await this.userApi.getUserId(filter.filterValue.EMail)}`;
                 } else if (filter.fieldName === "ApplicationNeeded" || filter.fieldName === "OrgPriority" || filter.fieldName === "Status") {
                     queryString += ` and ${filter.fieldName} eq '${filter.filterValue}'`;
-                } else if (filter.fieldName === "Id") { 
-                    // remove the 'OZI' and leading zeroes from the search
-                    let idFilter = filter.filterValue.trim().toUpperCase().replace("OZI", "");
-                    while (idFilter.startsWith('0')) {
-                        idFilter = idFilter.substr(1);
+                } else if (filter.fieldName === "Id") {
+                    queryString += " and (";
+                    // allows a list of IDs separated by commas to be entered and fetches all of them
+                    let filterIds = filter.filterValue.split(',');
+                    for (let i = 0; i < filterIds.length; ++i) {
+                        // remove the 'OZI' and leading zeroes from the search
+                        let idFilter = filterIds[i].trim().toUpperCase().replace("OZI", "");
+                        while (idFilter.startsWith('0')) {
+                            idFilter = idFilter.substr(1);
+                        }
+                        queryString += `${i > 0 ? " or " : ""}Id eq ${idFilter}`;
                     }
-                    queryString += ` and ${filter.isStartsWith ? `startswith(${filter.fieldName},'${idFilter}')` : `substringof('${idFilter}',${filter.fieldName})`}`;
+                    queryString += ")"
                 } else if (typeof (filter.filterValue) === "string") {
                     queryString += ` and ${filter.isStartsWith ? `startswith(${filter.fieldName},'${filter.filterValue}')` : `substringof('${filter.filterValue}',${filter.fieldName})`}`;
                 }
