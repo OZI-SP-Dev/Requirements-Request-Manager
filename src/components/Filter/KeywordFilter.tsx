@@ -9,6 +9,7 @@ export interface KeywordFilterProps {
     active: boolean
     field: FilterField,
     title: string,
+    placeHolderText?: string,
     containsCheck?: boolean,
     startsWithCheck?: boolean,
     addFilter(fieldName: FilterField, filterValue: FilterValue, isStartsWith?: boolean): void,
@@ -32,6 +33,7 @@ export const KeywordFilter: FunctionComponent<KeywordFilterProps> = (props) => {
                 show={show}
                 target={target}
                 titleText={props.title}
+                placeHolderText={props.placeHolderText}
                 placement="bottom"
                 containsCheck={props.containsCheck}
                 startsWithCheck={props.startsWithCheck}

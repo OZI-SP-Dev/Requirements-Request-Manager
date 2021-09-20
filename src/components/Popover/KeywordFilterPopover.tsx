@@ -10,6 +10,7 @@ export interface KeywordFilterPopoverProps {
     show: boolean,
     target: any,
     titleText: string,
+    placeHolderText?: string,
     placement?: Placement,
     containsCheck?: boolean,
     startsWithCheck?: boolean,
@@ -49,6 +50,7 @@ export const KeywordFilterPopover: FunctionComponent<KeywordFilterPopoverProps> 
                 <Form.Control
                     type="text"
                     value={keyword}
+                    placeholder={props.placeHolderText}
                     onChange={e => setKeyword(e.target.value)}
                 />
             </Form>
